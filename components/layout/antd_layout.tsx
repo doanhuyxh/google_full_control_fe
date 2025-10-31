@@ -1,55 +1,70 @@
 "use client";
-
-import { ReactNode, useRef, Suspense } from 'react';
+import NextTopLoader from 'nextjs-toploader'
+import { ReactNode, Suspense } from 'react';
 import {
-    FloatButton,
-    Layout
+    ConfigProvider,
+    Layout,
+    App,
+    message,
+    notification,
+    Spin,
 } from 'antd';
-import useLocalStorage from '@/libs/hooks/useLocalStorage';
+import '@ant-design/v5-patch-for-react-19';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-
+import antdConfig from '@/libs/contance/antd_config';
 import SideNav from './SideNav';
-import HeaderNav from './header';
+import AppHeader from './Header';
 
 export default function AntdLayout({ children }: { children: ReactNode }) {
-    const [collapsed, setCollapsed] = useLocalStorage<boolean>('collapsed', false);
-    const floatBtnRef = useRef(null);
+    message.config({
+        top: 80,
+        duration: 3,
+        maxCount: 3,
+    });
 
-
+    notification.config({
+        placement: "topRight",
+        duration: 4,
+        maxCount: 3,
+    });
 
     return (
-        <AntdRegistry>
-            <Layout>
-                <SideNav
-                    trigger={null}
-                    collapsible
-                    collapsed={collapsed}
-                    onCollapse={(value: boolean) => setCollapsed(value)}
-                    style={{
-                        overflow: 'auto',
-                        height: '100vh',
-                        left: 0,
-                        top: 0,
-                        bottom: 0,
-                        background: 'transparent',
-                        border: 'none',
-                        transition: 'all .2s',
-                    }}
-                />
-                <Layout>
-                    <Suspense fallback={<div>Loading Header...</div>}>
-                        <HeaderNav />
-                    </Suspense>
-                    <div
-                        className='p-3 rounded-t-3xl mx-4'
-                    >
-                        {children}
-                        <div ref={floatBtnRef}>
-                            <FloatButton.BackTop />
-                        </div>
-                    </div>
-                </Layout>
-            </Layout>
-        </AntdRegistry>
+        <>
+            <NextTopLoader
+                color="#29d"
+                initialPosition={0.08}
+                crawlSpeed={200}
+                height={5}
+                crawl={true}
+                showSpinner={true}
+                easing="ease"
+                speed={200}
+            />
+            <AntdRegistry>
+                <ConfigProvider theme={antdConfig}>
+                    <Layout style={{ minHeight: '100vh' }}>
+                        <SideNav />
+                        <Layout style={{ flexDirection: 'column' }}>
+                            <App>
+                                <Suspense fallback={<Spin size="large" className="m-20" />}>
+                                    <AppHeader />
+                                    <Layout.Content
+                                        style={{
+                                            padding: 16,
+                                            background: '#fff',
+                                            flex: 1,
+                                            overflow: 'auto',
+                                        }}
+                                    >
+                                        {children}
+                                    </Layout.Content>
+                                </Suspense>
+                            </App>
+                        </Layout>
+                    </Layout>
+                </ConfigProvider>
+            </AntdRegistry>
+        </>
     );
+
 }

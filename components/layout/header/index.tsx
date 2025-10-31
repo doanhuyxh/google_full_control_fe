@@ -1,141 +1,77 @@
-"use client"
+"use client";
 
-import {
-    Button,
-    Dropdown,
-    Flex,
-    Input,
-    Layout,
-    MenuProps,
-    message,
-    theme,
-    Tooltip,
-    Switch,
-} from 'antd';
-import {
-    AppstoreOutlined,
-    LogoutOutlined,
-    MenuFoldOutlined,
-    MenuUnfoldOutlined,
-    MessageOutlined,
-    QuestionOutlined,
-    SettingOutlined,
-    UserOutlined,
-    MoonOutlined,
-    SunOutlined,
-} from '@ant-design/icons';
-import Image from 'next/image';
-import useLocalStorage from '@/libs/hooks/useLocalStorage';
+import React, { useState } from "react";
+import { Layout, Switch, Dropdown, Avatar, MenuProps, Space } from "antd";
+import { MoonOutlined, SunOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
 
 const { Header } = Layout;
 
+export default function AppHeader({
+    onToggleTheme,
+    isDark,
+}: {
+    onToggleTheme?: (value: boolean) => void;
+    isDark?: boolean;
+}) {
+    const [menuOpen, setMenuOpen] = useState(false);
 
-const HeaderNav = () => {
-    const isMobile = false; // Replace with actual media query if needed
-    const [collapsed, setCollapsed] = useLocalStorage<boolean>('collapsed', true);
-    const { token: { borderRadius } } = theme.useToken();
-    const items: MenuProps['items'] = [
+    const items: MenuProps["items"] = [
         {
-            key: 'user-profile-link',
-            label: 'profile',
+            key: "profile",
+            label: "Hồ sơ cá nhân",
             icon: <UserOutlined />,
         },
         {
-            key: 'user-settings-link',
-            label: 'settings',
-            icon: <SettingOutlined />,
+            type: "divider",
         },
         {
-            key: 'user-help-link',
-            label: 'help center',
-            icon: <QuestionOutlined />,
-        },
-        {
-            type: 'divider',
-        },
-        {
-            key: 'user-logout-link',
-            label: 'logout',
+            key: "logout",
+            label: "Đăng xuất",
             icon: <LogoutOutlined />,
-            danger: true,
-            onClick: () => {
-                message.open({
-                    type: 'loading',
-                    content: 'signing you out',
-                });
-            },
         },
     ];
 
-    return <Header
-        style={{
-            marginLeft: 0,
-            padding: '0 2rem 0 0',
-            background: 'rgba(255, 255, 255, .5)',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 0 8px 2px rgba(0, 0, 0, 0.05)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            position: 'sticky',
-            top: 0,
-            zIndex: 1,
-            gap: 8,
-            transition: 'all .25s',
-        }}>
-        <Flex align="center">
-            <Tooltip title={`${collapsed ? 'Expand' : 'Collapse'} Sidebar`}>
-                <Button
-                    type="text"
-                    icon={
-                        collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
-                    }
-                    onClick={() => setCollapsed(!collapsed)}
-                    style={{
-                        fontSize: '16px',
-                        width: 64,
-                        height: 64,
-                    }}
-                />
-            </Tooltip>
-            <Input.Search
-                placeholder="search"
-                style={{
-                    width: isMobile ? '100%' : '400px',
-                    marginLeft: isMobile ? 0 : '.5rem',
-                }}
-                size="middle"
-            />
-        </Flex>
-        <Flex align="center" gap="small">
-            <Tooltip title="Apps">
-                <Button icon={<AppstoreOutlined />} type="text" size="large" />
-            </Tooltip>
-            <Tooltip title="Messages">
-                <Button icon={<MessageOutlined />} type="text" size="large" />
-            </Tooltip>
-            <Tooltip title="Theme">
+    return (
+        <Header
+            style={{
+                background: "transparent",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "0 20px",
+                height: 64,
+                borderBottom: "1px solid #f0f0f0",
+            }}
+        >
+            {/* Bên trái để trống */}
+            <div />
+
+            {/* Bên phải */}
+            <Space align="center" size="middle">
+                {/* ✅ Nút chuyển chế độ sáng / tối */}
                 <Switch
-                    className=" hidden sm:inline py-1"
-                    checkedChildren={<MoonOutlined />}
-                    unCheckedChildren={<SunOutlined />}
-                    defaultChecked={false}
+                    checkedChildren={<SunOutlined />}
+                    unCheckedChildren={<MoonOutlined />}
+                    checked={!isDark}
+                    onChange={() => onToggleTheme?.(!isDark)}
                 />
-            </Tooltip>
-            <Dropdown menu={{ items }} trigger={['click']}>
-                <Flex>
-                    <Image
-                        src="/me.jpg"
-                        alt="user profile photo"
-                        height={36}
-                        width={36}
-                        style={{ borderRadius, objectFit: 'cover' }}
-                    />
-                </Flex>
-            </Dropdown>
-        </Flex>
 
-    </Header>;
-};
-
-export default HeaderNav;
+                {/* ✅ Avatar dropdown */}
+                <Dropdown
+                    menu={{ items }}
+                    placement="bottomRight"
+                    trigger={["click"]}
+                    open={menuOpen}
+                    onOpenChange={setMenuOpen}
+                >
+                    <Avatar
+                        size="large"
+                        style={{ backgroundColor: "#1677ff", cursor: "pointer" }}
+                    >
+                        N
+                    </Avatar>
+                </Dropdown>
+            </Space>
+        </Header>
+    );
+}
