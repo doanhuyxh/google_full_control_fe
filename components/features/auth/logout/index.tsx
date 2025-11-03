@@ -1,9 +1,24 @@
 "use client";
 
+import { Spin } from "antd";
+import { useEffect } from "react";
+import {logoutApi} from "@/libs/api-client/auth.api"
+
 export default function LogoutComponent() {
+
+    const logOut = async () => {
+        localStorage.clear();
+        await logoutApi();
+        window.location.href = "/login";
+    };
+
+    useEffect(() => {
+        logOut();
+    }, []);
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-            <h1 className="text-4xl font-bold">You have been logged out.</h1>
+            <Spin size="large" />
         </div>
     );
 }

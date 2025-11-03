@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import GoogleAccountComponent from '@/components/features/google';
 
 
 export const metadata = {
@@ -8,12 +8,7 @@ export const metadata = {
 
 export default function GooglePage() {
     return (
-        <Suspense fallback={<div>Loading Google Account Management...</div>}>
-            <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">Google Account Management</h1>
-                {/* Google account management components go here */}
-            </div>
-        </Suspense>
+        <GoogleAccountComponent />
     )
 
 }

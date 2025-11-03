@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Layout, Switch, Dropdown, Avatar, MenuProps, Space } from "antd";
 import { MoonOutlined, SunOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
-
 const { Header } = Layout;
 
 export default function AppHeader({
@@ -28,13 +27,15 @@ export default function AppHeader({
             key: "logout",
             label: "Đăng xuất",
             icon: <LogoutOutlined />,
+            onClick: () => {
+                window.location.href = "/logout";
+            },
         },
     ];
 
     return (
         <Header
             style={{
-                background: "transparent",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -43,20 +44,14 @@ export default function AppHeader({
                 borderBottom: "1px solid #f0f0f0",
             }}
         >
-            {/* Bên trái để trống */}
             <div />
-
-            {/* Bên phải */}
             <Space align="center" size="middle">
-                {/* ✅ Nút chuyển chế độ sáng / tối */}
                 <Switch
                     checkedChildren={<SunOutlined />}
                     unCheckedChildren={<MoonOutlined />}
                     checked={!isDark}
                     onChange={() => onToggleTheme?.(!isDark)}
                 />
-
-                {/* ✅ Avatar dropdown */}
                 <Dropdown
                     menu={{ items }}
                     placement="bottomRight"

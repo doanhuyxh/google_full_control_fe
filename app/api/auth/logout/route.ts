@@ -1,10 +1,10 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+export async function POST() {
     const cookieStore = await cookies();
     const allCookies = cookieStore.getAll();
-    const response = NextResponse.redirect(new URL(process.env.NEXT_PUBLIC_API_BASE_URL + `/login`, request.url));
+    const response = new NextResponse();
     for (const cookie of allCookies) {
         response.cookies.set({
             name: cookie.name,

@@ -1,31 +1,13 @@
 "use client";
-import NextTopLoader from 'nextjs-toploader'
-import { ReactNode, Suspense } from 'react';
-import {
-    ConfigProvider,
-    Layout,
-    App,
-    message,
-    notification,
-    Spin,
-} from 'antd';
-import '@ant-design/v5-patch-for-react-19';
-import { AntdRegistry } from '@ant-design/nextjs-registry';
-import antdConfig from '@/libs/constants/antd_config';
+import NextTopLoader from "nextjs-toploader";
+import { ReactNode, Suspense } from "react";
+import { ConfigProvider, Layout, App, Spin } from "antd";
+import "@ant-design/v5-patch-for-react-19";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import antdConfig from "@/libs/constants/antd_config";
+
 
 export default function AntdLayout({ children }: { children: ReactNode }) {
-    message.config({
-        top: 80,
-        duration: 3,
-        maxCount: 3,
-    });
-
-    notification.config({
-        placement: "topRight",
-        duration: 4,
-        maxCount: 3,
-    });
-
     return (
         <>
             <NextTopLoader
@@ -40,13 +22,22 @@ export default function AntdLayout({ children }: { children: ReactNode }) {
             />
             <AntdRegistry>
                 <ConfigProvider theme={antdConfig}>
-                    <Layout style={{ minHeight: '100vh' }}>
-                        <Layout style={{ flexDirection: 'column' }}>
-                            <App>
+                    <Layout style={{ minHeight: "100vh" }}>
+                        <Layout style={{ flexDirection: "column" }}>
+                            <App
+                                message={{
+                                    top: 80,
+                                    duration: 5,
+                                    maxCount: 10,
+                                }}
+                                notification={{
+                                    placement: "topRight",
+                                    duration: 4,
+                                    maxCount: 10,
+                                }}
+                            >
                                 <Suspense fallback={<Spin size="large" className="m-20" />}>
-                                    <Layout.Content>
-                                        {children}
-                                    </Layout.Content>
+                                    <Layout.Content>{children}</Layout.Content>
                                 </Suspense>
                             </App>
                         </Layout>
@@ -55,5 +46,4 @@ export default function AntdLayout({ children }: { children: ReactNode }) {
             </AntdRegistry>
         </>
     );
-
 }

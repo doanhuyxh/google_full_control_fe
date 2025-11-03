@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Form, Input, Button, message, Card } from 'antd';
+import { Form, Input, Button, Card, App } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { loginApi, saveTokenApi } from '@/libs/api-client/auth.api';
 
 export default function LoginComponent() {
   const router = useRouter();
+  const {message} = App.useApp();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
 
@@ -21,6 +22,7 @@ export default function LoginComponent() {
         return;
       }
       await saveTokenApi(res.data.token);
+      localStorage.setItem('token', res.data.token);
       message.success('Đăng nhập thành công!');
       const redirectTo = searchParams.get('from') || '/dashboard';
       router.push(redirectTo);
