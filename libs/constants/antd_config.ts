@@ -26,12 +26,12 @@ const antdConfig = {
       headerHeight: 64
     },
     Menu: {
-      colorItemBg: "#ffffff",
-      colorItemBgHover: "#f5f5f5",
-      colorItemBgSelected: "#e6f4ff",
-      colorItemText: "#000000",
-      colorItemTextHover: "#000000",
-      colorItemTextSelected: "#1677ff",
+      itemBg: "#ffffff",
+      itemBgHover: "#f5f5f5",
+      itemBgSelected: "#e6f4ff",
+      itemText: "#000000",
+      itemTextHover: "#000000",
+      itemTextSelected: "#1677ff",
       itemBorderRadius: 6,
       itemHeight: 40
     },

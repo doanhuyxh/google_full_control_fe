@@ -1,5 +1,5 @@
 import { ReactNode, Suspense } from "react";
-import AntdLayout from "@/components/layout/Protected";
+import AntdLayout from "@/components/layout/Guest";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
     return (

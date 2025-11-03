@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useEffect, useMemo, useState } from "react";
 import { Layout, Menu } from "antd";
 import {
     AppstoreOutlined,
@@ -64,6 +64,7 @@ const menuItems = [
 ];
 
 export default function SideNav() {
+    const [isMounted, setIsMounted] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
     const [collapsed, setCollapsed] = useState(false);
@@ -88,6 +89,13 @@ export default function SideNav() {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, [pathname]);
+
+    useLayoutEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+
+    if (!isMounted) return null;
 
     return (
         <div className="w-fit h-screen">

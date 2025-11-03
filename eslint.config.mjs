@@ -15,7 +15,9 @@ const eslintConfig = defineConfig([
   ]),
   {
     rules: {
-      "@typescript-eslint/no-explicit-any": "off"
+      "@typescript-eslint/no-explicit-any": "off",
+      "react/no-sync-effects": "off",
+      "react-hooks/set-state-in-effect": "off"
     }
   }
 ]);

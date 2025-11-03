@@ -11,9 +11,7 @@ import {
 } from 'antd';
 import '@ant-design/v5-patch-for-react-19';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import antdConfig from '@/libs/contance/antd_config';
-import SideNav from './SideNav';
-import AppHeader from './Header';
+import antdConfig from '@/libs/constants/antd_config';
 
 export default function AntdLayout({ children }: { children: ReactNode }) {
     message.config({
@@ -43,19 +41,10 @@ export default function AntdLayout({ children }: { children: ReactNode }) {
             <AntdRegistry>
                 <ConfigProvider theme={antdConfig}>
                     <Layout style={{ minHeight: '100vh' }}>
-                        <SideNav />
                         <Layout style={{ flexDirection: 'column' }}>
                             <App>
                                 <Suspense fallback={<Spin size="large" className="m-20" />}>
-                                    <AppHeader />
-                                    <Layout.Content
-                                        style={{
-                                            padding: 16,
-                                            background: '#fff',
-                                            flex: 1,
-                                            overflow: 'auto',
-                                        }}
-                                    >
+                                    <Layout.Content>
                                         {children}
                                     </Layout.Content>
                                 </Suspense>
