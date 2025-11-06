@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useEffect, useMemo, useState } from "react";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Skeleton } from "antd";
 import {
     AppstoreOutlined,
     SettingOutlined,
@@ -94,8 +94,28 @@ export default function SideNav() {
         setIsMounted(true);
     }, []);
 
-
-    if (!isMounted) return null;
+    // Loading skeleton với kích thước giống như khi đã render
+    if (!isMounted) {
+        return (
+            <div className="w-fit h-screen">
+                <Sider
+                    collapsed={collapsed}
+                    width={260}
+                    className="h-screen shadow-lg"
+                >
+                    <div className="flex items-center justify-center h-16 border-b">
+                        <Skeleton.Avatar active size="small" />
+                    </div>
+                    <div className="p-4 space-y-3">
+                        <Skeleton active paragraph={{ rows: 1, width: '80%' }} title={false} />
+                        <Skeleton active paragraph={{ rows: 1, width: '90%' }} title={false} />
+                        <Skeleton active paragraph={{ rows: 1, width: '70%' }} title={false} />
+                        <Skeleton active paragraph={{ rows: 1, width: '85%' }} title={false} />
+                    </div>
+                </Sider>
+            </div>
+        );
+    }
 
     return (
         <div className="w-fit h-screen">

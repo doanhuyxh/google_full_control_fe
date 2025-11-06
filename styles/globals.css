@@ -1,1 +1,54 @@
 @import "tailwindcss";
+
+/* Base styles - minimal reset để tránh conflict */
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Đảm bảo Antd components hoạt động đúng */
+.ant-layout {
+  min-height: 100vh;
+}
+
+/* Z-index hierarchy cho Antd components */
+.ant-modal-mask {
+  z-index: 1000 !important;
+}
+
+.ant-modal-wrap {
+  z-index: 1000 !important;
+}
+
+.ant-drawer-mask {
+  z-index: 999 !important;
+}
+
+.ant-drawer {
+  z-index: 999 !important;
+}
+
+.ant-message {
+  z-index: 1010 !important;
+}
+
+.ant-notification {
+  z-index: 1010 !important;
+}
+
+/* Fix để Tailwind classes hoạt động tốt với Antd */
+.ant-table-tbody > tr.ant-table-row:hover > td,
+.ant-table-tbody > tr > td.ant-table-cell-row-hover {
+  background: transparent !important;
+}
+
+/* Đảm bảo Tailwind background classes hoạt động trong table rows */
+.ant-table-tbody > tr.bg-green-50 > td {
+  background-color: rgb(240 253 244) !important;
+}
+
+.ant-table-tbody > tr.bg-red-50 > td {
+  background-color: rgb(254 242 242) !important;
+}

@@ -9,7 +9,7 @@ interface GoogleAccountFilterProps {
 }
 
 export default function GoogleAccountFilter({ onSearch, value, status, setStatus }: GoogleAccountFilterProps) {
-    return <div className="flex justify-between items-center mb-4">
+    return <div className="flex justify-between items-center mb-5!">
         <Input placeholder="Search by email or name" className="max-w-[300px] mb-4" onChange={(e) => onSearch(e.target.value)} value={value} />
         <div className="flex gap-2">
             <Select placeholder="Filter by status" className="w-48" allowClear value={status} onChange={setStatus}>

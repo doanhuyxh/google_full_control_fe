@@ -12,3 +12,10 @@ export async function getGoogleAccount(page: number, limit: number, status: stri
         method: "GET",
     })
 }
+
+export async function updateGoogleAccount(id: string, field:string, value:any): Promise<ApiResponse<null>> {
+    return await fetcherBackEnd<ApiResponse<null>>(`/api/google/${id}`, {
+        method: "PATCH",
+        body: {field, value},
+    })
+}

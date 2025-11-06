@@ -10,4 +10,8 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  important: true, // Giúp Tailwind thắng Antd CSS specificity
+  corePlugins: {
+    preflight: false, // Tắt CSS reset của Tailwind để tránh conflict với Antd
+  }
 };
