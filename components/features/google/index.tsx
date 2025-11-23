@@ -1,7 +1,9 @@
 "use client";
 
-import { Table, Avatar, Button, Input, Select, Modal } from "antd";
+import { Table, Avatar, Button, Input, Select, Tooltip } from "antd";
+import { useState } from "react";
 import { EyeFilled, DeleteOutlined } from "@ant-design/icons";
+import { Mail } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
 import { useToolsDataBackEnd } from "@/libs/hooks/useToolsDataBackEnd";
@@ -9,8 +11,10 @@ import { useCommon } from "@/libs/hooks/useCommon";
 import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { GoogleAccount } from "@/libs/intefaces/googleData";
+import { updateGoogleAccount, deleteGoogleAccount } from "@/libs/api-client/google.api";
 import GoogleAccountFilter from "./filter";
-import { updateGoogleAccount } from "@/libs/api-client/google.api";
+import GoogleFormModal from "./form";
+import GoogleFormSendEmail from "./form-send-email";
 
 export default function GoogleAccountComponent() {
     const {
@@ -25,11 +29,20 @@ export default function GoogleAccountComponent() {
         searchGoogle,
         setSearchGoogle,
         totalItemsGoogle,
+        fetchGoogleAccounts,
+        removeGoogleAccountById
     } = useGoogleAccount();
 
     const { decodeData } = useToolsDataBackEnd();
     const { copiedToClipboard } = useCommon();
-    const { notification } = useAntdApp();
+    const { notification, modal } = useAntdApp();
+
+    const [formDataModal, setFormDataModal] = useState<{
+        isShowModal: boolean;
+        _id?: string;
+    }>({ isShowModal: false, _id: undefined });
+
+    const [isShowModelSendEmail, setIsShowModelSendEmail] = useState<boolean>(false);
 
     const handleViewPassword = async (encodedPassword: string) => {
         const decoded = await decodeData(encodedPassword);
@@ -48,6 +61,28 @@ export default function GoogleAccountComponent() {
             notification.error({
                 message: 'Cập nhật thất bại',
                 description: response.message || 'Đã có lỗi xảy ra khi cập nhật dữ liệu.',
+                placement: 'topRight',
+            });
+        }
+    }
+
+    const handleFormModal = () => {
+        setFormDataModal({ isShowModal: true, _id: undefined });
+    }
+
+    const handleDeleteAccount = async (id: string) => {
+        const response = await deleteGoogleAccount(id);
+        if (response.status) {
+            notification.success({
+                message: 'Xóa thành công',
+                description: 'Tài khoản đã được xóa thành công.',
+                placement: 'topRight',
+            });
+            removeGoogleAccountById(id);
+        } else {
+            notification.error({
+                message: 'Xóa thất bại',
+                description: response.message || 'Đã có lỗi xảy ra khi xóa tài khoản.',
                 placement: 'topRight',
             });
         }
@@ -95,7 +130,7 @@ export default function GoogleAccountComponent() {
             title: 'Phone Number',
             dataIndex: 'phoneNumber',
             key: 'phoneNumber',
-            width: 130,
+            width: 180,
             render: (phoneNumber: string, record: GoogleAccount) => (
                 <Input
                     size="small"
@@ -124,7 +159,7 @@ export default function GoogleAccountComponent() {
             title: 'App Password',
             dataIndex: 'appPassword',
             key: 'appPassword',
-            width: 120,
+            width: 150,
             render: (appPassword: string, record: GoogleAccount) => (
                 <Input
                     size="small"
@@ -166,7 +201,7 @@ export default function GoogleAccountComponent() {
             title: 'Recovery Phone',
             dataIndex: 'recoveryPhoneNumber',
             key: 'recoveryPhoneNumber',
-            width: 130,
+            width: 180,
             render: (recoveryPhoneNumber: string, record: GoogleAccount) => (
                 <Input
                     size="small"
@@ -203,7 +238,7 @@ export default function GoogleAccountComponent() {
                     onChange={(value) => handleUpdateData(record._id, 'status', value)}
                     options={[
                         { value: 'live', label: 'Live' },
-                        { value: 'banned', label: 'Die' },
+                        { value: 'suspended', label: 'Suspended' },
                     ]}
                 />
             ),
@@ -226,7 +261,7 @@ export default function GoogleAccountComponent() {
             title: 'Created At',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            width: 150,
+            width: 180,
             render: (createdAt: Date) => (
                 <span className="text-xs">{new Date(createdAt).toLocaleString()}</span>
             ),
@@ -236,25 +271,30 @@ export default function GoogleAccountComponent() {
             key: 'actions',
             width: 80,
             render: (_, record: GoogleAccount) => (
-                <Button
-                    type="text"
-                    danger
-                    size="small"
-                    icon={<DeleteOutlined />}
-                    onClick={() => {
-                        Modal.confirm({
-                            title: 'Xác nhận xóa',
-                            content: `Bạn có chắc chắn muốn xóa tài khoản ${record.email}?`,
-                            okText: 'Xóa',
-                            okType: 'danger',
-                            cancelText: 'Hủy',
-                            onOk() {
-                                console.log('Delete:', record._id);
-                                // TODO: Implement delete API call
-                            },
-                        });
-                    }}
-                />
+                <div className="flex gap-2">
+                    <Tooltip title="Read Email">
+                        <Button size="small" icon={<Mail />} />
+                    </Tooltip>
+                    <Tooltip title="Delete Account">
+                        <Button
+                            danger
+                            size="small"
+                            icon={<DeleteOutlined />}
+                            onClick={() => {
+                                modal.confirm({
+                                    title: 'Xác nhận xóa',
+                                    content: `Bạn có chắc chắn muốn xóa tài khoản ${record.email}?`,
+                                    okText: 'Xóa',
+                                    okType: 'danger',
+                                    cancelText: 'Hủy',
+                                    onOk() {
+                                        handleDeleteAccount(record._id);
+                                    },
+                                });
+                            }}
+                        />
+                    </Tooltip>
+                </div>
             ),
         }
     ]
@@ -265,6 +305,8 @@ export default function GoogleAccountComponent() {
                 value={searchGoogle}
                 onSearch={setSearchGoogle}
                 status={statusGoogle}
+                handleFormModal={handleFormModal}
+                handleSendEmailModal={() => setIsShowModelSendEmail(true)}
                 setStatus={setStatusGoogle} />
             <Table
                 columns={columns}
@@ -292,6 +334,16 @@ export default function GoogleAccountComponent() {
                     x: "max-content",
                     y: useDynamicAntdTableScrollHeight()
                 }}
+            />
+            <GoogleFormModal
+                isShowModal={formDataModal.isShowModal}
+                onCloseModal={() => setFormDataModal({ isShowModal: false })}
+                accountId={formDataModal._id}
+                onSuccess={fetchGoogleAccounts}
+            />
+            <GoogleFormSendEmail
+                isShowModal={isShowModelSendEmail}
+                onCloseModal={() => setIsShowModelSendEmail(false)}
             />
         </div>
     )

@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useEffect, useState } from "react";
 import { Layout, Menu, Skeleton } from "antd";
 import {
     AppstoreOutlined,
@@ -24,11 +24,6 @@ const menuItems = [
         label: "Tài khoản",
         children: [
             {
-                key: "/accounts/github",
-                label: "GitHub",
-                icon: <DatabaseOutlined />,
-            },
-            {
                 key: "/accounts/google",
                 label: "Google",
                 icon: <DatabaseOutlined />,
@@ -36,25 +31,9 @@ const menuItems = [
         ],
     },
     {
-        key: "/data",
+        key: "/devices",
         icon: <DatabaseOutlined />,
-        label: "Dữ liệu",
-        children: [
-            {
-                key: "/data/source",
-                label: "Nguồn dữ liệu",
-                children: [
-                    {
-                        key: "/data/source/api",
-                        label: "API",
-                    },
-                    {
-                        key: "/data/source/file",
-                        label: "File Upload",
-                    },
-                ],
-            },
-        ],
+        label: "Thiết bị",
     },
     {
         key: "/settings",
@@ -68,6 +47,9 @@ export default function SideNav() {
     const pathname = usePathname();
     const router = useRouter();
     const [collapsed, setCollapsed] = useState(false);
+    const [openKeys, setOpenKeys] = useState<string[]>([]);
+
+    // 🔍 Hàm tìm tất cả menu cha cần mở
     const findOpenKeys = (path: string, items: any[]): string[] => {
         for (const item of items) {
             if (item.children) {
@@ -81,38 +63,32 @@ export default function SideNav() {
         return [];
     };
 
-    const openKeys = useMemo(() => findOpenKeys(pathname, menuItems), [pathname]);
+    useEffect(() => {
+        const keys = findOpenKeys(pathname, menuItems);
+        setOpenKeys(keys);
+    }, [pathname]);
 
     useEffect(() => {
         const handleResize = () => setCollapsed(window.innerWidth < 768);
         handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, [pathname]);
+    }, []);
 
     useLayoutEffect(() => {
         setIsMounted(true);
     }, []);
 
-    // Loading skeleton với kích thước giống như khi đã render
+    // ⏳ Skeleton chờ mount
     if (!isMounted) {
         return (
             <div className="w-fit h-screen">
-                <Sider
-                    collapsed={collapsed}
-                    width={260}
-                    className="h-screen shadow-lg"
-                >
-                    <div className="flex items-center justify-center h-16 border-b">
-                        <Skeleton.Avatar active size="small" />
-                    </div>
-                    <div className="p-4 space-y-3">
-                        <Skeleton active paragraph={{ rows: 1, width: '80%' }} title={false} />
-                        <Skeleton active paragraph={{ rows: 1, width: '90%' }} title={false} />
-                        <Skeleton active paragraph={{ rows: 1, width: '70%' }} title={false} />
-                        <Skeleton active paragraph={{ rows: 1, width: '85%' }} title={false} />
-                    </div>
-                </Sider>
+                <div className="p-4 space-y-3">
+                    <Skeleton active paragraph={{ rows: 1, width: '80%' }} title={false} />
+                    <Skeleton active paragraph={{ rows: 1, width: '90%' }} title={false} />
+                    <Skeleton active paragraph={{ rows: 1, width: '70%' }} title={false} />
+                    <Skeleton active paragraph={{ rows: 1, width: '85%' }} title={false} />
+                </div>
             </div>
         );
     }
@@ -132,7 +108,8 @@ export default function SideNav() {
                 <Menu
                     mode="inline"
                     selectedKeys={[pathname]}
-                    defaultOpenKeys={openKeys}
+                    openKeys={openKeys}
+                    onOpenChange={setOpenKeys}
                     items={menuItems}
                     onClick={({ key }) => router.push(key)}
                     className="border-none mt-2"

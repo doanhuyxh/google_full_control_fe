@@ -28,17 +28,17 @@ const antdConfig = {
     Menu: {
       itemBg: "#ffffff",
       itemBgHover: "#f5f5f5",
-      itemBgSelected: "#cce7ff", // màu nền selected phù hợp với bootstrap primary
+      itemBgSelected: "#cce7ff",
       itemText: "#000000",
       itemTextHover: "#000000",
-      itemTextSelected: "#007bff", // màu text selected bootstrap primary
+      itemTextSelected: "#007bff",
       itemBorderRadius: 6,
       itemHeight: 40
     },
     Button: {
       borderRadius: 6,
-      colorPrimaryHover: "#0056b3", // bootstrap primary hover
-      colorPrimaryActive: "#004085" // bootstrap primary active
+      colorPrimaryHover: "#0056b3",
+      colorPrimaryActive: "#004085"
     },
     Input: {
       borderRadius: 6,
@@ -51,56 +51,47 @@ const antdConfig = {
       boxShadowTertiary: "0 2px 8px rgba(0,0,0,0.05)"
     },
     Table: {
-      // 📊 Màu sắc cơ bản
-      colorBgContainer: "#ffffff", // màu nền table
-      colorFillAlter: "#fafafa", // màu nền dòng xen kẽ
-      colorBorderSecondary: "#f0f0f0", // màu border
+      colorBgContainer: "#ffffff",
+      colorFillAlter: "#fafafa",
+      colorBorderSecondary: "#f0f0f0",
       
-      // 🎨 Màu text
-      colorText: "#000000", // màu text chính
-      colorTextHeading: "#000000", // màu text header
       
-      // 📏 Kích thước và padding
-      borderRadiusLG: 8, // bo góc table quy
-      cellPaddingBlock: 12, // padding dọc trong cell
-      cellPaddingInline: 16, // padding ngang trong cell
+      colorText: "#000000",
+      colorTextHeading: "#000000",
       
-      // 📐 Header
-      headerBg: "#0046FF", // màu nền header
-      headerColor: "#ffffff", // màu text header
-      headerSortActiveBg: "#cce7ff", // màu nền header khi sort active (bootstrap primary light)
-      headerSortHoverBg: "#f5f5f5", // màu nền header khi hover
       
-      // ✨ Hover và Selection
-      rowHoverBg: "#f5f5f5", // màu nền khi hover row
-      rowSelectedBg: "#cce7ff", // màu nền khi select row (bootstrap primary light)
-      rowSelectedHoverBg: "#99d6ff", // màu nền khi hover row đã select (bootstrap primary lighter)
+      borderRadiusLG: 8,
+      cellPaddingBlock: 12, 
+      cellPaddingInline: 16, 
       
-      // 🔧 Filter
-      filterDropdownBg: "#ffffff" // màu nền filter dropdown
+      headerBg: "#0046FF",
+      headerColor: "#ffffff",
+      headerSortActiveBg: "#cce7ff",
+      headerSortHoverBg: "#f5f5f5",
+      
+      rowHoverBg: "#f5f5f5", 
+      rowSelectedBg: "#cce7ff", 
+      rowSelectedHoverBg: "#99d6ff", 
+      
+      filterDropdownBg: "#ffffff" 
     },
     Modal: {
-      // 🪟 Nền và border
-      colorBgContainer: "#ffffff", // màu nền modal
-      colorBgMask: "rgba(0, 0, 0, 0.45)", // màu nền overlay (mask)
-      borderRadiusLG: 12, // bo góc modal
+      colorBgContainer: "#ffffff",
+      colorBgMask: "rgba(0, 0, 0, 0.45)",
+      borderRadiusLG: 12,
       
-      // 📏 Kích thước
-      paddingContentHorizontal: 24, // padding ngang content
-      paddingContentVertical: 20, // padding dọc content
+      paddingContentHorizontal: 24,
+      paddingContentVertical: 20,
       
-      // 🎯 Header
-      titleColor: "#000000", // màu text title
-      titleFontSize: 18, // kích thước font title
+      titleColor: "#000000",
+      titleFontSize: 18,
       
-      // 🔘 Close button
-      colorIcon: "#666666", // màu icon close
-      colorIconHover: "#000000", // màu icon close khi hover
       
-      // 📱 Footer
-      footerBg: "#ffffff", // màu nền footer
+      colorIcon: "#666666", 
+      colorIconHover: "#000000", 
       
-      // 🎨 Border và shadow
+      footerBg: "#ffffff", 
+      
       boxShadow: "0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)"
     }
   }

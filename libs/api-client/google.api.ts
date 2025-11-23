@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
 import ApiResponse from "../intefaces/apiResponseData";
-import { GoogleAccountResponse } from "../intefaces/googleData";
+import { GoogleAccount, GoogleAccountCreateData, GoogleAccountResponse } from "../intefaces/googleData";
 
 export async function getGoogleAccount(page: number, limit: number, status: string, search: string): Promise<ApiResponse<GoogleAccountResponse>> {
     const queryParams = new URLSearchParams();
@@ -13,9 +13,29 @@ export async function getGoogleAccount(page: number, limit: number, status: stri
     })
 }
 
-export async function updateGoogleAccount(id: string, field:string, value:any): Promise<ApiResponse<null>> {
+export async function updateGoogleAccount(id: string, field: string, value: any): Promise<ApiResponse<null>> {
     return await fetcherBackEnd<ApiResponse<null>>(`/api/google/${id}`, {
         method: "PATCH",
-        body: {field, value},
+        body: { field, value },
+    })
+}
+
+export async function deleteGoogleAccount(id: string): Promise<ApiResponse<null>> {
+    return await fetcherBackEnd<ApiResponse<null>>(`/api/google/${id}`, {
+        method: "DELETE",
+    })
+}
+
+export async function createGoogleAccount(data: GoogleAccountCreateData): Promise<ApiResponse<GoogleAccount>> {
+    return await fetcherBackEnd<ApiResponse<GoogleAccount>>(`/api/google`, {
+        method: "POST",
+        body: data,
+    })
+}
+
+export async function sendMailToOtherEmail(fromAccountId: string, to: string, subject: string, message: string): Promise<ApiResponse<null>> {
+    return await fetcherBackEnd<ApiResponse<null>>(`/api/google/${fromAccountId}/send-mail-to-mail`, {
+        method: "POST",
+        body: { to, subject, message },
     })
 }

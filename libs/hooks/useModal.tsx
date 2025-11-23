@@ -4,42 +4,14 @@ import { ReactNode } from "react";
 import { ModalFuncProps } from "antd/lib/modal/interface";
 
 export interface UseModalReturn {
-  // Hiển thị modal thông tin
   showInfo: (config: ModalFuncProps) => void;
-  // Hiển thị modal xác nhận
   showConfirm: (config: ModalFuncProps) => void;
-  // Hiển thị modal cảnh báo
   showWarning: (config: ModalFuncProps) => void;
-  // Hiển thị modal thành công
   showSuccess: (config: ModalFuncProps) => void;
-  // Hiển thị modal lỗi
   showError: (config: ModalFuncProps) => void;
-  // Đóng tất cả modal
   destroyAll: () => void;
 }
 
-/**
- * Hook để quản lý modal trong ứng dụng
- * Cần được sử dụng bên trong App component của Ant Design
- * 
- * @example
- * ```tsx
- * const modal = useModal();
- * 
- * const handleShowModal = () => {
- *   modal.showConfirm({
- *     title: 'Xác nhận xóa',
- *     content: 'Bạn có chắc chắn muốn xóa item này?',
- *     onOk: () => {
- *       console.log('Đã xác nhận');
- *     },
- *     onCancel: () => {
- *       console.log('Đã hủy');
- *     }
- *   });
- * };
- * ```
- */
 export const useModal = (): UseModalReturn => {
   const { modal } = App.useApp();
 
@@ -114,7 +86,7 @@ export interface CustomModalProps {
   width?: number | string;
   centered?: boolean;
   maskClosable?: boolean;
-  destroyOnClose?: boolean;
+  destroyOnHidden?: boolean;
   loading?: boolean;
   okText?: string;
   cancelText?: string;

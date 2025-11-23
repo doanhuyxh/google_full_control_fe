@@ -25,6 +25,9 @@ export function useGoogleAccount() {
         setLoadingGoogle(false);
     }, [pageGoogle, limitGoogle, statusGoogle, debouncedSearch]);
 
+    const removeGoogleAccountById = (id: string) => {
+        setAccountData((prevAccounts) => prevAccounts.filter((account) => account._id !== id));
+    }
 
     useEffect(() => {
         fetchGoogleAccounts();
@@ -46,5 +49,6 @@ export function useGoogleAccount() {
         setSearchGoogle,
         totalPagesGoogle,
         totalItemsGoogle,
+        removeGoogleAccountById,
     };
 }

@@ -2,31 +2,6 @@
 import { Modal } from "antd";
 import { CustomModalProps } from "@/libs/hooks/useModal";
 
-/**
- * Component Modal tùy chỉnh với cấu hình mặc định
- * 
- * @example
- * ```tsx
- * const [isOpen, setIsOpen] = useState(false);
- * 
- * return (
- *   <>
- *     <Button onClick={() => setIsOpen(true)}>Mở Modal</Button>
- *     <CustomModal
- *       open={isOpen}
- *       onCancel={() => setIsOpen(false)}
- *       title="Tiêu đề Modal"
- *       onOk={() => {
- *         // Xử lý logic
- *         setIsOpen(false);
- *       }}
- *     >
- *       <p>Nội dung modal ở đây</p>
- *     </CustomModal>
- *   </>
- * );
- * ```
- */
 export const CustomModal: React.FC<CustomModalProps> = ({
   open,
   onCancel,
@@ -36,7 +11,7 @@ export const CustomModal: React.FC<CustomModalProps> = ({
   width = 520,
   centered = true,
   maskClosable = true,
-  destroyOnClose = true,
+  destroyOnHidden = true,
   loading = false,
   okText = "Xác nhận",
   cancelText = "Hủy",
@@ -53,7 +28,7 @@ export const CustomModal: React.FC<CustomModalProps> = ({
       width={width}
       centered={centered}
       maskClosable={maskClosable}
-      destroyOnClose={destroyOnClose}
+      destroyOnHidden={destroyOnHidden}
       confirmLoading={loading}
       okText={okText}
       cancelText={cancelText}
@@ -82,7 +57,7 @@ export const InfoModal: React.FC<Omit<CustomModalProps, 'onOk' | 'okText' | 'can
   width = 520,
   centered = true,
   maskClosable = true,
-  destroyOnClose = true,
+  destroyOnHidden = true,
   ...props
 }) => {
   return (
@@ -93,7 +68,7 @@ export const InfoModal: React.FC<Omit<CustomModalProps, 'onOk' | 'okText' | 'can
       width={width}
       centered={centered}
       maskClosable={maskClosable}
-      destroyOnClose={destroyOnClose}
+      destroyOnHidden={destroyOnHidden}
       footer={null}
       {...props}
     >
