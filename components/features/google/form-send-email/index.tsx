@@ -1,9 +1,9 @@
 "use client"
+import { useState } from "react";
 import { Form, Input, Modal, Select, Spin } from "antd";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
 import { sendMailToOtherEmail } from "@/libs/api-client/google.api";
-import { useEffect, useState } from "react";
 import TiptapComponent from "@/components/common/TextEditer/TiptapEditor"
 
 interface GoogleFormSendEmailProps {
