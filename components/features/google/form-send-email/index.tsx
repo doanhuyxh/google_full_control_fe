@@ -1,8 +1,10 @@
-import { Button, Form, Input, Modal, Select, Spin } from "antd";
+"use client"
+import { Form, Input, Modal, Select, Spin } from "antd";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
 import { sendMailToOtherEmail } from "@/libs/api-client/google.api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import TiptapComponent from "@/components/common/TextEditer/TiptapEditor"
 
 interface GoogleFormSendEmailProps {
     isShowModal?: boolean;
@@ -63,6 +65,11 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
         }
     }
 
+    if (!isShowModal) {
+        return null
+    }
+
+
 
     return <Modal
         title={<p className="text-center">Send Email</p>}
@@ -90,7 +97,10 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
                     label="Message"
                     name="message"
                 >
-                    <Input.TextArea placeholder="Enter email message" className="w-full border border-gray-300 rounded px-3 py-2" rows={8} />
+                    <TiptapComponent
+                        value={formData.getFieldValue('message') || ""}
+                        onChange={(val) => formData?.setFieldValue("message", val)}
+                    />
                 </Form.Item>
 
                 <Form.Item

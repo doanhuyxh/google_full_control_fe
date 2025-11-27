@@ -7,6 +7,7 @@ import {
     SettingOutlined,
     DashboardOutlined,
     DatabaseOutlined,
+    FolderAddFilled
 } from "@ant-design/icons";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -27,7 +28,13 @@ const menuItems = [
                 key: "/accounts/google",
                 label: "Google",
                 icon: <DatabaseOutlined />,
+            },            
+            {
+                key: "/accounts/cloudinary",
+                label: "Cloudinary",
+                icon: <FolderAddFilled/>,
             },
+
         ],
     },
     {
