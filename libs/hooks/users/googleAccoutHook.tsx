@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { GoogleAccount } from "@/libs/intefaces/googleData";
 import { getGoogleAccount } from "@/libs/api-client/google.api";
-import { useDebounce } from "@/libs/hooks/useDebounce";
 
 export function useGoogleAccount() {
     const [accountData, setAccountData] = useState<GoogleAccount[]>([]);
@@ -12,27 +11,21 @@ export function useGoogleAccount() {
     const [searchGoogle, setSearchGoogle] = useState<string>("");
     const [totalPagesGoogle, setTotalPagesGoogle] = useState<number>(0);
     const [totalItemsGoogle, setTotalItemsGoogle] = useState<number>(0);
-    const debouncedSearch = useDebounce<string>(searchGoogle, 600);
 
-    const fetchGoogleAccounts = useCallback(async () => {
+    const fetchGoogleAccounts = async () => {
         setLoadingGoogle(true);
-        const response = await getGoogleAccount(pageGoogle, limitGoogle, statusGoogle, debouncedSearch);
+        const response = await getGoogleAccount(pageGoogle, limitGoogle, statusGoogle, searchGoogle);
         if (response.status) {
             setAccountData(response.data.accounts);
             setTotalPagesGoogle(response.data.pages);
             setTotalItemsGoogle(response.data.total);
         }
         setLoadingGoogle(false);
-    }, [pageGoogle, limitGoogle, statusGoogle, debouncedSearch]);
+    }
 
     const removeGoogleAccountById = (id: string) => {
         setAccountData((prevAccounts) => prevAccounts.filter((account) => account._id !== id));
     }
-
-    useEffect(() => {
-        fetchGoogleAccounts();
-    }, [fetchGoogleAccounts]);
-
 
     return {
         accountData,

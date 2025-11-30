@@ -10,6 +10,7 @@ import {
     FolderAddFilled
 } from "@ant-design/icons";
 import { usePathname, useRouter } from "next/navigation";
+import { BookTemplateIcon, History, Mail } from "lucide-react";
 
 const { Sider } = Layout;
 
@@ -28,11 +29,23 @@ const menuItems = [
                 key: "/accounts/google",
                 label: "Google",
                 icon: <DatabaseOutlined />,
-            },            
+                children: [
+                    {
+                        key: "/accounts/google/list",
+                        label: "Danh sách tài khoản",
+                        icon: <Mail />,
+                    },
+                    {
+                        key: "/accounts/google/template-mail",
+                        label: "Mẫu mail",
+                        icon: <BookTemplateIcon />,
+                    },
+                ]
+            },
             {
                 key: "/accounts/cloudinary",
                 label: "Cloudinary",
-                icon: <FolderAddFilled/>,
+                icon: <FolderAddFilled />,
             },
 
         ],

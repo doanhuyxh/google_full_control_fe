@@ -18,7 +18,8 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-explicit-any": "off",
       "react/no-sync-effects": "off",
       "react-hooks/set-state-in-effect": "off",
-       "react-hooks/exhaustive-deps": 'off' 
+      "react-hooks/exhaustive-deps": 'off',
+      "next/no-img-element": "off",
     }
   }
 ]);

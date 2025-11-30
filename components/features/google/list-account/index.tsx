@@ -1,9 +1,9 @@
 "use client";
 
 import { Table, Avatar, Button, Input, Select, Tooltip } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EyeFilled, DeleteOutlined } from "@ant-design/icons";
-import { Mail } from "lucide-react";
+import { History, Mail } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
 import { useToolsDataBackEnd } from "@/libs/hooks/useToolsDataBackEnd";
@@ -87,6 +87,12 @@ export default function GoogleAccountComponent() {
             });
         }
     }
+
+    useEffect(() => {
+        fetchGoogleAccounts();
+    }, [pageGoogle, limitGoogle, statusGoogle, searchGoogle]);
+
+    
 
     const columns: ColumnsType<GoogleAccount> = [
         {
@@ -272,9 +278,14 @@ export default function GoogleAccountComponent() {
             width: 80,
             render: (_, record: GoogleAccount) => (
                 <div className="flex gap-2">
-                    <Tooltip title="Read Email">
+                    <Tooltip title="Đọc Email">
                         <Button size="small" icon={<Mail />} />
                     </Tooltip>
+
+                    <Tooltip title="History Email">
+                        <Button size="small" icon={<History />} />
+                    </Tooltip>
+
                     <Tooltip title="Delete Account">
                         <Button
                             danger
@@ -325,6 +336,8 @@ export default function GoogleAccountComponent() {
                     current: pageGoogle,
                     pageSize: limitGoogle,
                     total: totalItemsGoogle,
+                    showSizeChanger: true,
+                    pageSizeOptions: [10, 20, 30, 50, 100],
                     onChange: (page, pageSize) => {
                         setPageGoogle(page);
                         setLimitGoogle(pageSize);

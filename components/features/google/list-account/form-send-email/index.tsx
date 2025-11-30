@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Input, Modal, Select, Spin } from "antd";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
@@ -12,10 +12,11 @@ interface GoogleFormSendEmailProps {
 }
 
 export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: GoogleFormSendEmailProps) {
+
     const [formData] = Form.useForm();
     const { notification } = useAntdApp();
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const { accountData, setSearchGoogle, loadingGoogle } = useGoogleAccount();
+    const { accountData, setSearchGoogle, loadingGoogle, searchGoogle, fetchGoogleAccounts } = useGoogleAccount();
 
     const handleSendEmail = async () => {
         try {
@@ -65,10 +66,16 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
         }
     }
 
+    useEffect(() => {
+        if (!isShowModal) {
+            return;
+        }
+        fetchGoogleAccounts();
+    }, [isShowModal, searchGoogle]);
+
     if (!isShowModal) {
         return null
     }
-
 
 
     return <Modal

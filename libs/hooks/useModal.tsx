@@ -20,7 +20,6 @@ export const useModal = (): UseModalReturn => {
       modal.info({
         centered: true,
         maskClosable: true,
-        destroyOnClose: true,
         ...config,
       });
     },
@@ -28,8 +27,7 @@ export const useModal = (): UseModalReturn => {
     showConfirm: (config: ModalFuncProps) => {
       modal.confirm({
         centered: true,
-        maskClosable: true,
-        destroyOnClose: true,
+        maskClosable: true,          
         okText: "Xác nhận",
         cancelText: "Hủy",
         ...config,
@@ -40,7 +38,6 @@ export const useModal = (): UseModalReturn => {
       modal.warning({
         centered: true,
         maskClosable: true,
-        destroyOnClose: true,
         okText: "Đóng",
         ...config,
       });
@@ -50,7 +47,6 @@ export const useModal = (): UseModalReturn => {
       modal.success({
         centered: true,
         maskClosable: true,
-        destroyOnClose: true,
         okText: "Đóng",
         ...config,
       });
@@ -60,15 +56,12 @@ export const useModal = (): UseModalReturn => {
       modal.error({
         centered: true,
         maskClosable: true,
-        destroyOnClose: true,
         okText: "Đóng",
         ...config,
       });
     },
 
     destroyAll: () => {
-      // Ant Design's modal API doesn't have destroyAll in hook version
-      // This functionality is available in the static Modal methods
       console.log("Modal destroy all called");
     },
   };

@@ -8,33 +8,33 @@ export async function getGoogleAccount(page: number, limit: number, status: stri
     if (limit) queryParams.append("limit", limit.toString());
     if (status) queryParams.append("status", status);
     if (search) queryParams.append("search", search);
-    return await fetcherBackEnd<ApiResponse<GoogleAccountResponse>>(`/api/google?${queryParams.toString()}`, {
+    return await fetcherBackEnd<ApiResponse<GoogleAccountResponse>>(`/api/google/acc?${queryParams.toString()}`, {
         method: "GET",
     })
 }
 
 export async function updateGoogleAccount(id: string, field: string, value: any): Promise<ApiResponse<null>> {
-    return await fetcherBackEnd<ApiResponse<null>>(`/api/google/${id}`, {
+    return await fetcherBackEnd<ApiResponse<null>>(`/api/google/acc/${id}`, {
         method: "PATCH",
         body: { field, value },
     })
 }
 
 export async function deleteGoogleAccount(id: string): Promise<ApiResponse<null>> {
-    return await fetcherBackEnd<ApiResponse<null>>(`/api/google/${id}`, {
+    return await fetcherBackEnd<ApiResponse<null>>(`/api/google/acc/${id}`, {
         method: "DELETE",
     })
 }
 
 export async function createGoogleAccount(data: GoogleAccountCreateData): Promise<ApiResponse<GoogleAccount>> {
-    return await fetcherBackEnd<ApiResponse<GoogleAccount>>(`/api/google`, {
+    return await fetcherBackEnd<ApiResponse<GoogleAccount>>(`/api/google/acc`, {
         method: "POST",
         body: data,
     })
 }
 
 export async function sendMailToOtherEmail(fromAccountId: string, to: string, subject: string, message: string): Promise<ApiResponse<null>> {
-    return await fetcherBackEnd<ApiResponse<null>>(`/api/google/${fromAccountId}/send-mail-to-mail`, {
+    return await fetcherBackEnd<ApiResponse<null>>(`/api/google/acc/${fromAccountId}/send-mail-to-mail`, {
         method: "POST",
         body: { to, subject, message },
     })
