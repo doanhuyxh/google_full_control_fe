@@ -10,7 +10,7 @@ import {
     FolderAddFilled
 } from "@ant-design/icons";
 import { usePathname, useRouter } from "next/navigation";
-import { BookTemplateIcon, History, Mail } from "lucide-react";
+import { BookTemplateIcon, Mail, MessageCircle } from "lucide-react";
 
 const { Sider } = Layout;
 
@@ -41,6 +41,11 @@ const menuItems = [
                         icon: <BookTemplateIcon />,
                     },
                 ]
+            },
+            {
+                key: "/accounts/zalo-personal",
+                label: "Zalo Cá nhân",
+                icon: <MessageCircle size={16} />,
             },
             {
                 key: "/accounts/cloudinary",

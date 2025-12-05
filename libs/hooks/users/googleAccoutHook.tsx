@@ -16,9 +16,9 @@ export function useGoogleAccount() {
         setLoadingGoogle(true);
         const response = await getGoogleAccount(pageGoogle, limitGoogle, statusGoogle, searchGoogle);
         if (response.status) {
-            setAccountData(response.data.accounts);
-            setTotalPagesGoogle(response.data.pages);
-            setTotalItemsGoogle(response.data.total);
+            setAccountData(response.data.items);
+            setTotalPagesGoogle(response.data.pagination.totalPages);
+            setTotalItemsGoogle(response.data.pagination.total);
         }
         setLoadingGoogle(false);
     }

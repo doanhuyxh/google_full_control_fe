@@ -30,6 +30,7 @@ export default function CloudinaryComponent() {
     } = useCloudinaryAccount();
     const { notification } = useAntdApp();
     const [isShowModalUsage, setIsShowModalUsage] = useState<boolean>(false);
+    const [accountViewUsage, setAccountViewUsage] = useState<CloudinaryData | null>(null);
     const [dataCloudinaryUsage, setDataCloudinaryUsage] = useState<any | null>(null);
     const [waitLoadingDataCloudinaryUsage, setWaitLoadingDataCloudinaryUsage] = useState<boolean>(false);
 
@@ -59,6 +60,8 @@ export default function CloudinaryComponent() {
 
     const handleShowUsageModal = async (cloudinaryId: string) => {
         setWaitLoadingDataCloudinaryUsage(true);
+        const account = accountData.find(acc => acc._id === cloudinaryId) || null;
+        setAccountViewUsage(account);
         const response = await getCloudinaryUsage(cloudinaryId);
         setWaitLoadingDataCloudinaryUsage(false);
         if (!response.status) {
@@ -163,6 +166,7 @@ export default function CloudinaryComponent() {
                 isModalOpen={isShowModalUsage}
                 handleCancel={() => setIsShowModalUsage(false)}
                 data={dataCloudinaryUsage}
+                account={accountViewUsage}
             />
         </div>
     );

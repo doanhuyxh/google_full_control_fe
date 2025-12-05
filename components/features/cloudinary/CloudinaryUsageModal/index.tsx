@@ -1,5 +1,5 @@
+import { CloudinaryData } from '@/libs/intefaces/cloudinaryData';
 import { Modal, Descriptions, Progress, Tag, Space, Typography } from 'antd';
-
 const { Text, Title } = Typography;
 
 
@@ -7,9 +7,10 @@ interface UsageProps {
     isModalOpen: boolean;
     handleCancel: () => void;
     data: any | null;
+    account: CloudinaryData | null;
 }
 
-const CloudinaryUsageModal = ({ isModalOpen, handleCancel, data }: UsageProps) => {
+const CloudinaryUsageModal = ({ isModalOpen, handleCancel, data, account }: UsageProps) => {
     if (!data) return null;
     const {
         plan,
@@ -24,7 +25,7 @@ const CloudinaryUsageModal = ({ isModalOpen, handleCancel, data }: UsageProps) =
 
     return (
         <Modal
-            title={<Title className='text-center' level={4}>📊 Báo cáo Hạn mức Cloudinary</Title>}
+            title={<Title className='text-center' level={4}>📊 Báo cáo Hạn mức Cloudinary - {account?.accountMail}</Title>}
             open={isModalOpen}
             onCancel={handleCancel}
             footer={null}

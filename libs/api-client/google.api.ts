@@ -1,14 +1,14 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
-import ApiResponse from "../intefaces/apiResponseData";
-import { GoogleAccount, GoogleAccountCreateData, GoogleAccountResponse } from "../intefaces/googleData";
+import ApiResponse, { PaginatedResponse } from "../intefaces/apiResponseData";
+import { GoogleAccount, GoogleAccountCreateData } from "../intefaces/googleData";
 
-export async function getGoogleAccount(page: number, limit: number, status: string, search: string): Promise<ApiResponse<GoogleAccountResponse>> {
+export async function getGoogleAccount(page: number, limit: number, status: string, search: string): Promise<ApiResponse<PaginatedResponse<GoogleAccount>>> {
     const queryParams = new URLSearchParams();
     if (page) queryParams.append("page", page.toString());
     if (limit) queryParams.append("limit", limit.toString());
     if (status) queryParams.append("status", status);
     if (search) queryParams.append("search", search);
-    return await fetcherBackEnd<ApiResponse<GoogleAccountResponse>>(`/api/google/acc?${queryParams.toString()}`, {
+    return await fetcherBackEnd<ApiResponse<PaginatedResponse<GoogleAccount>>>(`/api/google/acc?${queryParams.toString()}`, {
         method: "GET",
     })
 }
@@ -37,5 +37,14 @@ export async function sendMailToOtherEmail(fromAccountId: string, to: string, su
     return await fetcherBackEnd<ApiResponse<null>>(`/api/google/acc/${fromAccountId}/send-mail-to-mail`, {
         method: "POST",
         body: { to, subject, message },
+    })
+}
+
+export async function getHistorySentEmail(googleAccountId: string, page: number, limit: number): Promise<ApiResponse<PaginatedResponse<any>>> {
+    const queryParams = new URLSearchParams();
+    if (page) queryParams.append("page", page.toString());
+    if (limit) queryParams.append("limit", limit.toString());
+    return await fetcherBackEnd<ApiResponse<PaginatedResponse<any>>>(`/api/google/acc/${googleAccountId}/history-send-mail?${queryParams.toString()}`, {
+        method: "GET",
     })
 }

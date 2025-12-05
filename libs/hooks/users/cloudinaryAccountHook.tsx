@@ -18,9 +18,9 @@ export function useCloudinaryAccount() {
         setLoadingCloudinary(true);
         const response = await getAccountCloudinary(pageCloudinary, limitCloudinary, debouncedSearch);
         if (response.status) {
-            setAccountData(response.data.cloudinaryAccounts);
-            setTotalPagesCloudinary(response.data.pages);
-            setTotalItemsCloudinary(response.data.total);
+            setAccountData(response.data.items);
+            setTotalPagesCloudinary(response.data.pagination.totalPages);
+            setTotalItemsCloudinary(response.data.pagination.total);
         }
         setLoadingCloudinary(false);
     }, [pageCloudinary, limitCloudinary, debouncedSearch]);
