@@ -3,7 +3,7 @@
 import { Table, Avatar, Button, Input, Select, Tooltip } from "antd";
 import { useEffect, useState } from "react";
 import { EyeFilled, DeleteOutlined } from "@ant-design/icons";
-import { History, Mail } from "lucide-react";
+import { History } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
 import { useToolsDataBackEnd } from "@/libs/hooks/useToolsDataBackEnd";
@@ -15,6 +15,7 @@ import { updateGoogleAccount, deleteGoogleAccount } from "@/libs/api-client/goog
 import GoogleAccountFilter from "./filter";
 import GoogleFormModal from "./form";
 import GoogleFormSendEmail from "./form-send-email";
+import ViewHistoryEmailSent from "./view-history-email-sent";
 
 export default function GoogleAccountComponent() {
     const {
@@ -33,6 +34,8 @@ export default function GoogleAccountComponent() {
         removeGoogleAccountById
     } = useGoogleAccount();
 
+    const [isShowModalHistoryEmail, setIsShowModalHistoryEmail] = useState<boolean>(false);
+    const [emailShowHistory, setEmailShowHistory] = useState<{ emailName?: string, googleAccountId?: string }>({});
     const { decodeData } = useToolsDataBackEnd();
     const { copiedToClipboard } = useCommon();
     const { notification, modal } = useAntdApp();
@@ -88,11 +91,12 @@ export default function GoogleAccountComponent() {
         }
     }
 
-    useEffect(() => {
-        fetchGoogleAccounts();
-    }, [pageGoogle, limitGoogle, statusGoogle, searchGoogle]);
+    const handleShowEmailHistoryModal = (googleAccountId: string, emailName?: string) => {
+        setEmailShowHistory({ googleAccountId, emailName });
+        setIsShowModalHistoryEmail(true);
+    }
 
-    
+
 
     const columns: ColumnsType<GoogleAccount> = [
         {
@@ -278,15 +282,10 @@ export default function GoogleAccountComponent() {
             width: 80,
             render: (_, record: GoogleAccount) => (
                 <div className="flex gap-2">
-                    <Tooltip title="Đọc Email">
-                        <Button size="small" icon={<Mail />} />
+                    <Tooltip title="Lịch sử gửi email từ hệ thống">
+                        <Button size="small" icon={<History />} onClick={() => handleShowEmailHistoryModal(record._id, record.email)} />
                     </Tooltip>
-
-                    <Tooltip title="History Email">
-                        <Button size="small" icon={<History />} />
-                    </Tooltip>
-
-                    <Tooltip title="Delete Account">
+                    <Tooltip title="Xóa tài khoản">
                         <Button
                             danger
                             size="small"
@@ -309,6 +308,10 @@ export default function GoogleAccountComponent() {
             ),
         }
     ]
+
+    useEffect(() => {
+        fetchGoogleAccounts();
+    }, [pageGoogle, limitGoogle, statusGoogle, searchGoogle]);
 
     return (
         <div className="w-full bg-white p-6 rounded-lg shadow-lg">
@@ -357,6 +360,12 @@ export default function GoogleAccountComponent() {
             <GoogleFormSendEmail
                 isShowModal={isShowModelSendEmail}
                 onCloseModal={() => setIsShowModelSendEmail(false)}
+            />
+            <ViewHistoryEmailSent
+                isShowModal={isShowModalHistoryEmail}
+                onCloseModal={() => setIsShowModalHistoryEmail(false)}
+                googleAccountId={emailShowHistory.googleAccountId || ''}
+                emailName={emailShowHistory.emailName || ''}
             />
         </div>
     )

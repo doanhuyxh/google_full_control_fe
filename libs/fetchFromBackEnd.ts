@@ -11,43 +11,47 @@ interface FetchOptions {
 }
 
 export async function fetcherBackEnd<T = any>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-    const url = `${baseURL}${endpoint}`;
-    let token = '';
-    if (typeof window !== 'undefined') {
-        token = localStorage.getItem('token') || '';
-    }
-    const headers: Record<string, string> = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        ...options.headers,
-    };
-
-    const res = await fetch(url, {
-        method: options.method || 'GET',
-        headers,
-        body: options.body ? JSON.stringify(options.body) : undefined,
-        credentials: 'include',
-        cache: options.cache || 'no-store',
-    });
-    if (!res.ok) {
-        const errorResponse: ApiResponse<null> = {
-            status: false,
-            message: `Error: ${res.status} ${res.statusText}`,
-            data: null,
-            statusCode: 500,
-        };
-        throw errorResponse; // ném ra đúng format API response
-    }
-    const json = await res.json();
-
-    if (json.status === false && json.statusCode == 401) {
+    try {
+        const url = `${baseURL}${endpoint}`;
+        let token = '';
         if (typeof window !== 'undefined') {
-            document.cookie = '';
-            localStorage.clear();
-            window.location.href = '/logout';
+            token = localStorage.getItem('token') || '';
         }
+        const headers: Record<string, string> = {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            ...options.headers,
+        };
+
+        const res = await fetch(url, {
+            method: options.method || 'GET',
+            headers,
+            body: options.body ? JSON.stringify(options.body) : undefined,
+            credentials: 'include',
+            cache: options.cache || 'no-store',
+        });
+        if (!res.ok) {
+            const errorResponse: ApiResponse<null> = {
+                status: false,
+                message: `Error: ${res.status} ${res.statusText}`,
+                data: null,
+                statusCode: 500,
+            };
+            throw errorResponse;
+        }
+        const json = await res.json();
+
+        if (json.status === false && json.statusCode == 401) {
+            if (typeof window !== 'undefined') {
+                document.cookie = '';
+                localStorage.clear();
+                window.location.href = '/logout';
+            }
+        }
+        return json;
+    } catch (error: any) {
+        return Promise.resolve(error);
     }
-    return json;
 }
 
 export async function uploadFileServer(file: RcFile): Promise<any> {

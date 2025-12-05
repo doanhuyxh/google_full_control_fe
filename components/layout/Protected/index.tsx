@@ -3,6 +3,7 @@ import NextTopLoader from "nextjs-toploader";
 import { ReactNode, Suspense } from "react";
 import { ConfigProvider, Layout, App, Spin } from "antd";
 import "@ant-design/v5-patch-for-react-19";
+import vi_VN from 'antd/locale/vi_VN';
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import antdConfig from "@/libs/constants/antd_config";
 import SideNav from "./SideNav";
@@ -13,7 +14,7 @@ export default function AntdLayout({ children }: { children: ReactNode }) {
         <>
             <NextTopLoader color="#29d" height={5} crawl showSpinner />
             <AntdRegistry>
-                <ConfigProvider theme={antdConfig}>
+                <ConfigProvider locale={vi_VN} theme={antdConfig}>
                     <Layout style={{ minHeight: "100vh" }}>
                         <SideNav />
                         <Layout style={{ flexDirection: "column" }}>
