@@ -27,6 +27,7 @@ export default function CloudinaryComponent() {
         setSearchCloudinary,
         removeCloudinaryAccountById,
         addCloudinaryAccount,
+        loadingCloudinary,
     } = useCloudinaryAccount();
     const { notification } = useAntdApp();
     const [isShowModalUsage, setIsShowModalUsage] = useState<boolean>(false);
@@ -141,6 +142,7 @@ export default function CloudinaryComponent() {
                 dataSource={accountData}
                 rowKey="_id"
                 columns={clolumns}
+                loading={loadingCloudinary}
                 pagination={{
                     current: pageCloudinary,
                     total: totalItemsCloudinary,
