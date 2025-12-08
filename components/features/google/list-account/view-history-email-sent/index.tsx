@@ -1,5 +1,5 @@
 
-import { Button, Modal, Table } from "antd";
+import { Button, Modal, Table, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { getHistorySentEmail } from "@/libs/api-client/google.api";
@@ -42,22 +42,33 @@ export default function ViewHistoryEmailSent({ isShowModal, onCloseModal, google
         { title: 'Email nhận', dataIndex: 'toEmail', key: 'toEmail', width: 250 },
         { title: 'Tiêu đề', dataIndex: 'subject', key: 'subject', width: 250 },
         {
-            title: 'Trạng thái', key: 'status', width: 250,
-            render: (data: any) => (
-                <div className="flex gap-2 flex-col">
-                    {data.status === 'sent' && (
-                        <span className="text-blue-600 font-semibold">Đã gửi thành công</span>
-                    )}
-                    {data.status === 'failed' && (
-                        <span className="text-red-600 font-semibold">Gửi thất bại</span>
-                    )}
-                    {data.status === 'read' && (
-                        <p className="text-green-600 font-semibold">
-                            Đã mở lúc: {new Date(data.readAt).toLocaleString()}
-                        </p>
-                    )}
-                </div>
-            )
+            title: 'Trạng thái', key: 'status', width: 280,
+            render: (data: any) => {
+                const status = (data?.status || '').toLowerCase();
+                const readAt = data?.readAt ? new Date(data.readAt).toLocaleString() : null;
+                const message = data?.messageResponse;
+                const statusMap: Record<string, { label: string; color: string }> = {
+                    pending: { label: 'Đang xử lý', color: 'blue' },
+                    queued: { label: 'Đã xếp hàng', color: 'geekblue' },
+                    sent: { label: 'Đã gửi thành công', color: 'cyan' },
+                    delivered: { label: 'Đã gửi tới hộp thư', color: 'green' },
+                    received: { label: 'Đã nhận', color: 'orange' },
+                    read: { label: 'Đã mở', color: 'green' },
+                    failed: { label: 'Gửi thất bại', color: 'red' },
+                };
+                const current = statusMap[status] || { label: 'Không rõ', color: 'default' };
+                return (
+                    <div className="flex flex-col gap-1">
+                        <Tag color={current.color}>{current.label}</Tag>
+                        {status === 'read' && (
+                            <span className="text-green-700">{readAt ? `Đã mở lúc: ${readAt}` : 'Đã mở (không rõ thời gian)'}</span>
+                        )}
+                        {status === 'failed' && message && (
+                            <span className="text-red-700">Lý do: {message}</span>
+                        )}
+                    </div>
+                );
+            }
         },
         { title: 'Thông tin trả về', dataIndex: 'messageResponse', key: 'messageResponse', width: 300 },
         { title: 'Thời gian gửi', dataIndex: 'createdAt', key: 'createdAt', width: 230, render: (createdAt: string) => (new Date(createdAt).toLocaleString()) },

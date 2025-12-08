@@ -13,7 +13,19 @@ import { deleteZaloPersonalAccount } from "@/libs/api-client/zalo-personal.api";
 
 
 export default function ZaloPersonalListAccountComponent() {
-    const { accountData, totalItemsZaloPersonal, pageZaloPersonal, setPageZaloPersonal, limitZaloPersonal, setLimitZaloPersonal, searchZaloPersonal, setSearchZaloPersonal, removeZaloPersonalAccountById, addZaloPersonalAccount, updateZaloPersonalAccount } = useZaloPersonalAccount();
+    const { accountData,
+        totalItemsZaloPersonal,
+        pageZaloPersonal,
+        setPageZaloPersonal,
+        limitZaloPersonal,
+        setLimitZaloPersonal,
+        searchZaloPersonal,
+        setSearchZaloPersonal,
+        removeZaloPersonalAccountById,
+        addZaloPersonalAccount,
+        updateZaloPersonalAccount,
+        loadingZaloPersonal
+    } = useZaloPersonalAccount();
     const { notification } = useAntdApp();
 
     const [isModalOpenForm, setIsModalOpenForm] = useState(false);
@@ -70,6 +82,7 @@ export default function ZaloPersonalListAccountComponent() {
             <Table
                 columns={clolumns}
                 dataSource={accountData}
+                loading={loadingZaloPersonal}
                 rowKey={"updatedAt"}
                 pagination={{
                     current: pageZaloPersonal,
