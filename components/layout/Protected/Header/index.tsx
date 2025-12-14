@@ -14,7 +14,7 @@ export default function AppHeader({
 }) {
     const [menuOpen, setMenuOpen] = useState(false);
 
-    const items: MenuProps["items"] = [
+    const itemsProfile: MenuProps["items"] = [
         {
             key: "profile",
             label: "Hồ sơ cá nhân",
@@ -26,6 +26,7 @@ export default function AppHeader({
         {
             key: "logout",
             label: "Đăng xuất",
+            className: "text-red-600!",
             icon: <LogoutOutlined />,
             onClick: () => {
                 window.location.href = "/logout";
@@ -40,27 +41,30 @@ export default function AppHeader({
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "0 20px",
-                height: 64,
+                height: 50,
                 borderBottom: "1px solid #f0f0f0",
+                backgroundColor: "#353f78",
             }}
         >
             <div />
             <Space align="center" size="middle">
+
                 <Switch
+                    size="small"
                     checkedChildren={<SunOutlined />}
                     unCheckedChildren={<MoonOutlined />}
                     checked={!isDark}
                     onChange={() => onToggleTheme?.(!isDark)}
                 />
                 <Dropdown
-                    menu={{ items }}
+                    menu={{ items: itemsProfile }}
                     placement="bottomRight"
                     trigger={["click"]}
                     open={menuOpen}
                     onOpenChange={setMenuOpen}
                 >
                     <Avatar
-                        size="large"
+                        size="small"
                         style={{ backgroundColor: "#1677ff", cursor: "pointer" }}
                     >
                         N

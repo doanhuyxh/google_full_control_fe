@@ -1,7 +1,7 @@
-import { App } from "antd";
+import { useAntdApp } from "./useAntdApp";
 
 export function useCommon() {
-    const { message } = App.useApp();
+    const { notification } = useAntdApp();
 
     const sleep = (s: number) =>
         new Promise((resolve) => setTimeout(resolve, s * 1000));
@@ -10,19 +10,19 @@ export function useCommon() {
         try {
             if (navigator.clipboard && window.isSecureContext) {
                 await navigator.clipboard.writeText(text);
-                message.success({
-                    content: "Copied to clipboard",
+                notification.success({
+                    message: "Đã sao chép vào clipboard",
                     duration: 2,
                 });
             } else {
-                message.error({
-                    content: "Clipboard API not supported",
+                notification.error({
+                    message: "Clipboard API không được hỗ trợ",
                     duration: 2,
                 });
             }
         } catch {
-            message.error({
-                content: "Failed to copy to clipboard",
+            notification.error({
+                message: "Không thể sao chép vào clipboard",
                 duration: 2,
             });
         }

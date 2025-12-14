@@ -16,6 +16,7 @@ import GoogleAccountFilter from "./filter";
 import GoogleFormModal from "./form";
 import GoogleFormSendEmail from "./form-send-email";
 import ViewHistoryEmailSent from "./view-history-email-sent";
+import DebouncedInputCell from "@/components/common/AntCustom/DebouncedInputCell";
 
 export default function GoogleAccountComponent() {
     const {
@@ -53,6 +54,7 @@ export default function GoogleAccountComponent() {
     };
 
     const handleUpdateData = async (id: string, field: string, value: any) => {
+        if (value === undefined || value === null || value === '') return;
         const response = await updateGoogleAccount(id, field, value);
         if (response.status) {
             notification.success({
@@ -97,7 +99,6 @@ export default function GoogleAccountComponent() {
     }
 
 
-
     const columns: ColumnsType<GoogleAccount> = [
         {
             title: 'STT',
@@ -117,13 +118,13 @@ export default function GoogleAccountComponent() {
             title: 'Full Name',
             dataIndex: 'fullName',
             key: 'fullName',
-            width: 150,
+            width: 200,
             render: (fullName: string, record: GoogleAccount) => (
-                <Input
-                    size="small"
-                    defaultValue={fullName}
-                    style={{ width: '100%' }}
-                    onBlur={(e) => handleUpdateData(record._id, 'fullName', e.target.value)}
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={fullName}
+                    dataIndex="fullName"
+                    onUpdate={handleUpdateData}
                 />
             ),
         },
@@ -142,11 +143,11 @@ export default function GoogleAccountComponent() {
             key: 'phoneNumber',
             width: 180,
             render: (phoneNumber: string, record: GoogleAccount) => (
-                <Input
-                    size="small"
-                    defaultValue={phoneNumber}
-                    style={{ width: '100%' }}
-                    onBlur={(e) => handleUpdateData(record._id, 'phoneNumber', e.target.value)}
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={phoneNumber}
+                    dataIndex="phoneNumber"
+                    onUpdate={handleUpdateData}
                 />
             ),
         },
@@ -154,42 +155,22 @@ export default function GoogleAccountComponent() {
             title: 'Password',
             dataIndex: 'currentPassword',
             key: 'currentPassword',
-            width: 40,
+            width: 80,
             render: (currentPassword: string) => (
-                <Button
-                    type="text"
-                    size="small"
-                    icon={<EyeFilled />}
-                    onClick={() => handleViewPassword(currentPassword)}
-                    style={{ padding: '4px' }}
-                />
+                <Button type="default" size="small" icon={<EyeFilled />} onClick={() => handleViewPassword(currentPassword)}/>
             ),
         },
         {
             title: 'App Password',
             dataIndex: 'appPassword',
             key: 'appPassword',
-            width: 150,
+            width: 200,
             render: (appPassword: string, record: GoogleAccount) => (
-                <Input
-                    size="small"
-                    defaultValue={appPassword}
-                    style={{ width: '100%' }}
-                    onBlur={(e) => handleUpdateData(record._id, 'appPassword', e.target.value)}
-                />
-            ),
-        },
-        {
-            title: 'Private Code',
-            dataIndex: 'privateCode',
-            key: 'privateCode',
-            width: 120,
-            render: (privateCode: string, record: GoogleAccount) => (
-                <Input
-                    size="small"
-                    defaultValue={privateCode}
-                    style={{ width: '100%' }}
-                    onBlur={(e) => handleUpdateData(record._id, 'privateCode', e.target.value)}
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={appPassword}
+                    dataIndex="appPassword"
+                    onUpdate={handleUpdateData}
                 />
             ),
         },
@@ -197,13 +178,13 @@ export default function GoogleAccountComponent() {
             title: 'Recovery Email',
             dataIndex: 'recoveryEmail',
             key: 'recoveryEmail',
-            width: 180,
+            width: 250,
             render: (recoveryEmail: string, record: GoogleAccount) => (
-                <Input
-                    size="small"
-                    defaultValue={recoveryEmail}
-                    style={{ width: '100%' }}
-                    onBlur={(e) => handleUpdateData(record._id, 'recoveryEmail', e.target.value)}
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={recoveryEmail}
+                    dataIndex="recoveryEmail"
+                    onUpdate={handleUpdateData}
                 />
             ),
         },
@@ -213,11 +194,11 @@ export default function GoogleAccountComponent() {
             key: 'recoveryPhoneNumber',
             width: 180,
             render: (recoveryPhoneNumber: string, record: GoogleAccount) => (
-                <Input
-                    size="small"
-                    defaultValue={recoveryPhoneNumber}
-                    style={{ width: '100%' }}
-                    onBlur={(e) => handleUpdateData(record._id, 'recoveryPhoneNumber', e.target.value)}
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={recoveryPhoneNumber}
+                    dataIndex="recoveryPhoneNumber"
+                    onUpdate={handleUpdateData}
                 />
             ),
         },
@@ -225,13 +206,28 @@ export default function GoogleAccountComponent() {
             title: 'F2A',
             dataIndex: 'f2a',
             key: 'f2a',
-            width: 120,
-            render: (f2a: string, record: GoogleAccount) => (
-                <Input
-                    size="small"
-                    defaultValue={f2a}
-                    style={{ width: '100%' }}
-                    onBlur={(e) => handleUpdateData(record._id, 'f2a', e.target.value)}
+            width: 200,
+            render: (f2a: string, record: GoogleAccount) => {
+                return <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={f2a}
+                    dataIndex="f2a"
+                    onUpdate={handleUpdateData}
+                    type="password"
+                />
+            },
+        },
+        {
+            title: 'Private Code',
+            dataIndex: 'privateCode',
+            key: 'privateCode',
+            width: 300,
+            render: (privateCode: string, record: GoogleAccount) => (
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={privateCode}
+                    dataIndex="privateCode"
+                    onUpdate={handleUpdateData}
                 />
             ),
         },
@@ -249,6 +245,7 @@ export default function GoogleAccountComponent() {
                     options={[
                         { value: 'live', label: 'Live' },
                         { value: 'suspended', label: 'Suspended' },
+                        { value: 'phone_verification', label: 'Phone Verification' }
                     ]}
                 />
             ),
@@ -259,11 +256,11 @@ export default function GoogleAccountComponent() {
             key: 'note',
             width: 150,
             render: (note: string, record: GoogleAccount) => (
-                <Input
-                    size="small"
-                    defaultValue={note}
-                    style={{ width: '100%' }}
-                    onBlur={(e) => handleUpdateData(record._id, 'note', e.target.value)}
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={note}
+                    dataIndex="note"
+                    onUpdate={handleUpdateData}
                 />
             ),
         },
@@ -317,7 +314,9 @@ export default function GoogleAccountComponent() {
         <div className="w-full bg-white p-6 rounded-lg shadow-lg">
             <GoogleAccountFilter
                 value={searchGoogle}
-                onSearch={setSearchGoogle}
+                onSearch={(value: string) => {
+                    setSearchGoogle(value)
+                }}
                 status={statusGoogle}
                 handleFormModal={handleFormModal}
                 handleSendEmailModal={() => setIsShowModelSendEmail(true)}
@@ -330,8 +329,11 @@ export default function GoogleAccountComponent() {
                 rowClassName={(record: GoogleAccount) => {
                     if (record.status === 'live') {
                         return 'bg-green-50 border-l-4 border-green-500';
-                    } else if (record.status === 'banned') {
+                    } else if (record.status === 'suspended') {
                         return 'bg-red-50 border-l-4 border-red-500';
+                    }
+                    else if (record.status === 'phone_verification') {
+                        return 'bg-yellow-50 border-l-4 border-yellow-500';
                     }
                     return '';
                 }}

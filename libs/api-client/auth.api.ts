@@ -2,10 +2,10 @@ import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
 import ApiResponse from "../intefaces/apiResponseData";
 import { AuthResponse } from "../intefaces/authData";
 
-export async function loginApi(email: string, password: string): Promise<ApiResponse<AuthResponse>> {
+export async function loginApi(email: string, password: string, ipAddress: string, userAgent: string, coordinates: { latitude: number; longitude: number }): Promise<ApiResponse<AuthResponse>> {
     return await fetcherBackEnd<ApiResponse<AuthResponse>>("/api/auth/login", {
         method: "POST",
-        body: { email, password },
+        body: { email, password, ipAddress, userAgent, coordinates },
     });
 }
 
