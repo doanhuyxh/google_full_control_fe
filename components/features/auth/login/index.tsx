@@ -5,19 +5,44 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Form, Input, Button, Card, App } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { loginApi, saveTokenApi } from '@/libs/api-client/auth.api';
+import useBrowserInfo from '@/libs/hooks/useBrowserInfo';
+import { useAntdApp } from '@/libs/hooks/useAntdApp';
 
 export default function LoginComponent() {
   const router = useRouter();
-  const {message} = App.useApp();
+  const {message, notification} = useAntdApp();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const { ipAddress, userAgent, coordinates, isLoading: browserInfoLoading, error: browserInfoError } = useBrowserInfo();
 
   const onFinish = async (values: any) => {
     setLoading(true);
     try {
-      const res = await loginApi(values.email, values.password);
+
+      if (browserInfoLoading) {
+        notification.info({
+          message: 'Vui lòng chờ',
+          description: 'Đang lấy thông tin trình duyệt, vui lòng thử lại sau.',
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (browserInfoError) {
+        notification.error({
+          message: 'Lỗi',
+          description: `Lỗi lấy thông tin trình duyệt: ${browserInfoError}`,
+        });
+        setLoading(false);
+        return;
+      }
+
+      const res = await loginApi(values.email, values.password, ipAddress, userAgent, coordinates);
       if (!res.status){
-        message.error(res.message || 'Đăng nhập thất bại');
+        notification.error({
+          message: 'Đăng nhập thất bại',
+          description: res.message || 'Đăng nhập thất bại, vui lòng thử lại.',
+        });
         setLoading(false);
         return;
       }

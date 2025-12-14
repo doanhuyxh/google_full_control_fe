@@ -16,7 +16,7 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
     const [formData] = Form.useForm();
     const { notification } = useAntdApp();
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const { accountData, setSearchGoogle, loadingGoogle, searchGoogle, fetchGoogleAccounts } = useGoogleAccount();
+    const { accountData, setSearchGoogle, loadingGoogle, searchGoogle, fetchGoogleAccounts, setLimitGoogle } = useGoogleAccount();
 
     const handleSendEmail = async () => {
         try {
@@ -70,6 +70,7 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
         if (!isShowModal) {
             return;
         }
+        setLimitGoogle(100);
         fetchGoogleAccounts();
     }, [isShowModal, searchGoogle]);
 
@@ -133,7 +134,9 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
                         {accountData
                             .map(account => (
                                 <Select.Option key={account._id} value={account._id}>
-                                    {account.fullName} ({account.email}) ({account.appPassword ? "Yes" : "No"})
+                                    <span className={account.appPassword ? "text-green-500" : "text-red-500"}>
+                                        {account.fullName} ({account.email}) ({account.appPassword ? "Yes" : "No"})
+                                    </span>
                                 </Select.Option>
                             ))}
                     </Select>

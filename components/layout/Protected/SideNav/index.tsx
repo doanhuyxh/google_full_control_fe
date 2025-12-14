@@ -74,7 +74,6 @@ export default function SideNav() {
     const [collapsed, setCollapsed] = useState(false);
     const [openKeys, setOpenKeys] = useState<string[]>([]);
 
-    // 🔍 Hàm tìm tất cả menu cha cần mở
     const findOpenKeys = (path: string, items: any[]): string[] => {
         for (const item of items) {
             if (item.children) {
@@ -127,7 +126,7 @@ export default function SideNav() {
                 width={260}
                 className="h-screen shadow-lg"
             >
-                <div className="flex items-center justify-center h-16 border-b text-lg font-semibold">
+                <div className="flex items-center justify-center h-12 border-b text-lg font-semibold">
                     {!collapsed ? "MyApp" : "🧭"}
                 </div>
                 <Menu

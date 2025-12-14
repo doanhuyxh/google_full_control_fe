@@ -1,5 +1,7 @@
+import { useDebounce } from "@/libs/hooks/useDebounce";
 import { Button, Input, Select, Tooltip } from "antd";
 import { MailPlusIcon, PlusCircle, SettingsIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 
 interface GoogleAccountFilterProps {
@@ -12,8 +14,14 @@ interface GoogleAccountFilterProps {
 }
 
 export default function GoogleAccountFilter({ onSearch, value, status, setStatus, handleFormModal, handleSendEmailModal }: GoogleAccountFilterProps) {
+    const [searchTerm, setSearchTerm] = useState(value || "");
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
+    useEffect(() => {
+        onSearch(debouncedSearchTerm);
+    }, [debouncedSearchTerm, onSearch]);
+
     return <div className="flex justify-between items-center mb-5!">
-        <Input placeholder="Search by email or name" className="max-w-[300px] mb-4" onChange={(e) => onSearch(e.target.value)} value={value} />
+        <Input placeholder="Search by email or name" className="max-w-[300px] mb-4" onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm} />
         <div className="flex gap-2">
             <Tooltip title="Add New Google Account">
                 <Button type="primary" icon={<PlusCircle />} onClick={handleFormModal} />
@@ -25,13 +33,16 @@ export default function GoogleAccountFilter({ onSearch, value, status, setStatus
                 <Button icon={<SettingsIcon color="white" />} className="bg-yellow-400! hover:bg-yellow-500!" />
             </Tooltip>
             <Select placeholder="Filter by status"
-                className="full-option"
+                className="full-option min-w-[180px]"
                 allowClear
                 value={status}
                 onChange={setStatus}>
                 <Select.Option value="">All</Select.Option>
                 <Select.Option value="live">Active</Select.Option>
                 <Select.Option value="suspended">Suspended</Select.Option>
+                <Select.Option value="phone_verification">
+                    Phone Verification
+                </Select.Option>
             </Select>
         </div>
     </div>
