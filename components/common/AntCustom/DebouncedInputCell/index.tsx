@@ -31,7 +31,7 @@ const DebouncedInputCell: React.FC<DebouncedInputProps> = ({
         if (debouncedValue !== initialValue) {
             onUpdate(recordId, dataIndex, debouncedValue);
         }
-    }, [debouncedValue, recordId, dataIndex, onUpdate, initialValue]);
+    }, [debouncedValue, recordId, dataIndex]);
 
     switch (type) {
         case 'number':
@@ -52,7 +52,7 @@ const DebouncedInputCell: React.FC<DebouncedInputProps> = ({
                     onChange={(e) => setInputValue(e.target.value)}
                     style={{ width: '100%' }}
                     suffix={isCopy ? <CopyOutlined onClick={() => {
-                        onCopy && onCopy(inputValue);
+                        onCopy?.(inputValue);
                     }} /> : ''}
                 />
             );
