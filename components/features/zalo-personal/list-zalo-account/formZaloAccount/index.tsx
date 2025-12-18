@@ -60,6 +60,9 @@ export default function FormZaloAccount({ isShowModal, onCloseModal, dataForm, h
     }
 
     useEffect(() => {
+        if (!isShowModal) {
+            return;
+        }
         if (dataForm) {
             formData.setFieldsValue(dataForm);
         } else {
@@ -67,7 +70,7 @@ export default function FormZaloAccount({ isShowModal, onCloseModal, dataForm, h
         }
     }, [dataForm, formData, isShowModal]);
 
-    
+
     return (
         <Modal
             title={dataForm ? "Cập nhật tài khoản Zalo" : "Thêm tài khoản Zalo"}

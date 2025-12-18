@@ -70,9 +70,9 @@ export default function ZaloPersonalListAccountComponent() {
                                 setSelectedZaloId(record._id);
                                 setIsModalOpenLoginQr(true);
                             }}
-                            className="bg-blue-500!"
+                            type="primary"
                         >
-                            Login QR
+                        Login QR    
                         </Button>
                     </Tooltip>
 
@@ -97,7 +97,7 @@ export default function ZaloPersonalListAccountComponent() {
                 columns={clolumns}
                 dataSource={accountData}
                 loading={loadingZaloPersonal}
-                rowKey={"updatedAt"}
+                rowKey={(record) => record._id}
                 pagination={{
                     current: pageZaloPersonal,
                     pageSize: limitZaloPersonal,
@@ -105,6 +105,9 @@ export default function ZaloPersonalListAccountComponent() {
                     onChange: (page, pageSize) => {
                         setPageZaloPersonal(page);
                         setLimitZaloPersonal(pageSize);
+                    },
+                    showTotal(total, range) {
+                        return `Hiển thị ${range[0]} - ${range[1]} của ${total} tài khoản`;
                     }
                 }}
                 scroll={{

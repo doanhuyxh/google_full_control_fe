@@ -75,49 +75,51 @@ export default function CloudinaryFormModal({
             open={isModalOpen}
             onCancel={handleCancel}
             onOk={handleOk}
-            title="Thông tin tài khoản"
+            title={
+                <p className="text-center">
+                    {data ? "Cập nhật tài khoản Cloudinary" : "Thêm mới tài khoản Cloudinary"}
+                </p>
+            }
             okText="Lưu"
             cancelText="Hủy"
         >
             <Form
                 form={formData}
-                style={{ marginTop: 20 }}
-                labelCol={{ span: 6, style: { textAlign: "left" } }}
-                wrapperCol={{ span: 18 }}
-                layout="horizontal"
+                style={{ marginTop: 20 }}                
+                layout="vertical"
                 className="w-full"
             >
-                <Form.Item label="Account Mail" name="accountMail" rules={[{ required: true, message: "Tài khoản mail là bắt buộc" }]}>
+                <Form.Item label="Email tài khoản" name="accountMail" rules={[{ required: true, message: "Email tài khoản là bắt buộc" }]}>
                     <Input
-                        placeholder="Enter account mail"
+                        placeholder="Nhập email tài khoản"
                         className="w-full border border-gray-300 rounded px-3 py-2"
                     />
                 </Form.Item>
 
                 <Form.Item label="Cloud Name" name="cloudName" rules={[{ required: true, message: "Cloud name là bắt buộc" }]}>
                     <Input
-                        placeholder="Enter cloud name"
+                        placeholder="Nhập cloud name"
                         className="w-full border border-gray-300 rounded px-3 py-2"
                     />
                 </Form.Item>
 
                 <Form.Item label="API Key" name="apiKey" rules={[{ required: true, message: "API key là bắt buộc" }]}>
                     <Input
-                        placeholder="Enter API key"
+                        placeholder="Nhập API key"
                         className="w-full border border-gray-300 rounded px-3 py-2"
                     />
                 </Form.Item>
 
                 <Form.Item label="API Secret" name="apiSecret" rules={[{ required: true, message: "API secret là bắt buộc" }]}>
                     <Input
-                        placeholder="Enter API secret"
+                        placeholder="Nhập API secret"
                         className="w-full border border-gray-300 rounded px-3 py-2"
                     />
                 </Form.Item>
 
-                <Form.Item label="Note" name="note" rules={[]}>
+                <Form.Item label="Ghi chú" name="note" rules={[]}>
                     <Input.TextArea
-                        placeholder="Enter note"
+                        placeholder="Nhập ghi chú"
                         className="w-full border border-gray-300 rounded px-3 py-2"
                         rows={3}
                     />

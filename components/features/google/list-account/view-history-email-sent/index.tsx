@@ -82,7 +82,11 @@ export default function ViewHistoryEmailSent({ isShowModal, onCloseModal, google
 
     return (
         <Modal
-            title={`Lịch sử email đã gửi - ${emailName || ''}`}
+            title={
+                <p className="text-center">
+                    Lịch sử email đã gửi {emailName ? ` - ${emailName}` : ''}
+                </p>
+            }
             open={isShowModal}
             onCancel={onCloseModal}
             width={1600}
@@ -93,8 +97,9 @@ export default function ViewHistoryEmailSent({ isShowModal, onCloseModal, google
             ]}
         >
             <Table
+                className="mt-4"
                 dataSource={emailHistory ? emailHistory.items : []}
-                rowKey={(record) => record.id}
+                rowKey={(record) => record._id}
                 columns={columns}
                 pagination={{
                     current: page,

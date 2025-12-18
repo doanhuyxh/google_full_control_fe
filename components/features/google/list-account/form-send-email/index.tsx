@@ -99,14 +99,14 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
                 className="w-full"
             >
                 <Form.Item
-                    label="Subject"
+                    label="Tiêu đề"
                     name="subject"
                 >
-                    <Input placeholder="Enter email subject" className="w-full border border-gray-300 rounded px-3 py-2" />
+                    <Input placeholder="Nhập tiêu đề email" className="w-full border border-gray-300 rounded px-3 py-2" />
                 </Form.Item>
 
                 <Form.Item
-                    label="Message"
+                    label="Nội dung email"
                     name="message"
                 >
                     <TiptapComponent
@@ -116,18 +116,18 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
                 </Form.Item>
 
                 <Form.Item
-                    label="Recipient Email Addresses (separated by new line)"
+                    label="Địa chỉ email người nhận (phân tách bằng dòng mới)"
                     name="recipientEmails"
                 >
-                    <Input.TextArea placeholder="Enter recipient email addresses separated by new line" className="w-full border border-gray-300 rounded px-3 py-2" rows={3} />
+                    <Input.TextArea placeholder="Nhập địa chỉ email người nhận, phân tách bằng dòng mới" className="w-full border border-gray-300 rounded px-3 py-2" rows={3} />
                 </Form.Item>
 
                 <Form.Item
-                    label="Sender Email Accounts"
+                    label="Tài khoản email người gửi"
                     name="SenderEmails"
                 >
                     <Select
-                        placeholder="Select recipient email accounts"
+                        placeholder="Chọn tài khoản email người gửi"
                         filterOption={false}
                         showSearch
                         notFoundContent={loadingGoogle ? <Spin size="small" /> : "Không có dữ liệu"}
@@ -139,7 +139,7 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
                             .map(account => (
                                 <Select.Option key={account._id} value={account._id}>
                                     <span className={account.appPassword ? "text-green-500" : "text-red-500"}>
-                                        {account.fullName} ({account.email}) ({account.appPassword ? "Yes" : "No"})
+                                        {account.fullName} ({account.email}) ({account.appPassword ? "Có" : "Không"})
                                     </span>
                                 </Select.Option>
                             ))}

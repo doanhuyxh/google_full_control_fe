@@ -1,8 +1,7 @@
 import { useSocketManager } from "@/libs/hooks/useSocketManager";
 import { initZaloPersonalLogin } from "@/libs/api-client/zalo-personal.api";
-import { Modal } from "antd";
+import { Modal, Image } from "antd";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 
 interface FormZaloAccountProps {
     isShowModal?: boolean;
@@ -52,6 +51,7 @@ export default function FormLoginQr({ isShowModal, onCloseModal, zaloId }: FormZ
                         src={`data:image/png;base64,${formData.data.image}`}
                         alt="Zalo QR Code"
                         className="mb-4"
+                        preview={false}
                     />
                 )}
                 {formData.message && (

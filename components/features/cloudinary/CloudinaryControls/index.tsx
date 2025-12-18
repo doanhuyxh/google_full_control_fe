@@ -15,13 +15,13 @@ export default function CloudinaryControls({
         <div className="flex justify-between gap-2 mb-3">
             <Input
                 className="max-w-[200px]"
-                placeholder="Search Cloudinary Accounts"
+                placeholder="Tìm kiếm Cloudinary..."
                 value={searchCloudinary}
                 onChange={(e) => setSearchCloudinary(e.target.value)}
             />
             <div className="flex gap-2">
                 <Button type="primary" onClick={onAddClick}>
-                    Add
+                    Thêm mới tài khoản
                 </Button>
             </div>
         </div>

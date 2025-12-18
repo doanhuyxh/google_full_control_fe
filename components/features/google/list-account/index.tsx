@@ -114,14 +114,14 @@ export default function GoogleAccountComponent() {
             render: (_: any, __: any, index: number) => (pageGoogle - 1) * limitGoogle + index + 1,
         },
         {
-            title: 'Avatar',
+            title: 'AVATAR',
             dataIndex: 'avatar',
             key: 'avatar',
-            width: 80,
-            render: (avatar: string) => <Avatar src={avatar || 'https://via.placeholder.com/150'} alt="Avatar" size={50} />,
+            width: 100,
+            render: (avatar: string) => <Avatar src={avatar || 'https://via.placeholder.com/150'} alt="Ảnh đại diện" size={50} />,
         },
         {
-            title: 'Full Name',
+            title: 'Họ và tên',
             dataIndex: 'fullName',
             key: 'fullName',
             width: 200,
@@ -144,7 +144,7 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Phone Number',
+            title: 'Số điện thoại',
             dataIndex: 'phoneNumber',
             key: 'phoneNumber',
             width: 180,
@@ -158,10 +158,10 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Password',
+            title: 'Mật khẩu',
             dataIndex: 'currentPassword',
             key: 'currentPassword',
-            width: 80,
+            width: 100,
             render: (currentPassword: string) => (
                 <Button type="default" size="small" icon={<EyeFilled />} onClick={() => handleViewPassword(currentPassword)} />
             ),
@@ -181,7 +181,7 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Recovery Email',
+            title: 'Email khôi phục',
             dataIndex: 'recoveryEmail',
             key: 'recoveryEmail',
             width: 250,
@@ -224,7 +224,7 @@ export default function GoogleAccountComponent() {
             },
         },
         {
-            title: 'Private Code',
+            title: 'Mã bí mật',
             dataIndex: 'privateCode',
             key: 'privateCode',
             width: 300,
@@ -238,7 +238,7 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Status',
+            title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
             width: 100,
@@ -249,15 +249,15 @@ export default function GoogleAccountComponent() {
                     style={{ width: '100%' }}
                     onChange={(value) => handleUpdateData(record._id, 'status', value)}
                     options={[
-                        { value: 'live', label: 'Live' },
-                        { value: 'suspended', label: 'Suspended' },
-                        { value: 'phone_verification', label: 'Phone Verification' }
+                        { value: 'live', label: 'Sống' },
+                        { value: 'suspended', label: 'Cấm' },
+                        { value: 'phone_verification', label: 'Xác minh điện thoại' }
                     ]}
                 />
             ),
         },
         {
-            title: 'Note',
+            title: 'Ghi chú',
             dataIndex: 'note',
             key: 'note',
             width: 150,
@@ -271,7 +271,7 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Created At',
+            title: 'Ngày tạo',
             dataIndex: 'createdAt',
             key: 'createdAt',
             width: 180,
@@ -280,13 +280,14 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Actions',
+            title: 'Hành động',
             key: 'actions',
-            width: 80,
+            width: 120,
             render: (_, record: GoogleAccount) => (
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-end">
                     <Tooltip title="Cập nhật mật khẩu">
                         <Button
+                            type="primary"
                             size="small"
                             icon={<EyeFilled />}
                             onClick={() => {
@@ -294,13 +295,18 @@ export default function GoogleAccountComponent() {
                             }}
                         />
                     </Tooltip>
-
                     <Tooltip title="Lịch sử gửi email từ hệ thống">
-                        <Button size="small" icon={<History />} onClick={() => handleShowEmailHistoryModal(record._id, record.email)} />
+                        <Button
+                            type="dashed"
+                            size="small"
+                            icon={<History />}
+                            onClick={() => handleShowEmailHistoryModal(record._id, record.email)}
+                        />
                     </Tooltip>
                     <Tooltip title="Xóa tài khoản">
                         <Button
                             danger
+                            type="primary"
                             size="small"
                             icon={<DeleteOutlined />}
                             onClick={() => {
@@ -341,7 +347,7 @@ export default function GoogleAccountComponent() {
                 columns={columns}
                 dataSource={accountData}
                 loading={loadingGoogle}
-                rowKey="_id"
+                rowKey={(record) => record._id}
                 rowClassName={(record: GoogleAccount) => {
                     if (record.status === 'live') {
                         return 'bg-green-50 border-l-4 border-green-500';
@@ -362,6 +368,9 @@ export default function GoogleAccountComponent() {
                     onChange: (page, pageSize) => {
                         setPageGoogle(page);
                         setLimitGoogle(pageSize);
+                    },
+                    showTotal(total, range) {
+                        return `Hiển thị ${range[0]} - ${range[1]} của ${total} tài khoản`;
                     },
                 }}
                 scroll={{
