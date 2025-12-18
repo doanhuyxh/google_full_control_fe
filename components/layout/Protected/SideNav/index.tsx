@@ -137,7 +137,7 @@ export default function SideNav() {
                 className="h-screen shadow-lg"
             >
                 <div className="flex items-center justify-center h-12 border-b text-lg font-semibold">
-
+                    {!collapsed ? "Google Full Control" : "GFC"}
                 </div>
                 <Menu
                     mode="inline"

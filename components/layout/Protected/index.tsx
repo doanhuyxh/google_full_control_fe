@@ -20,7 +20,7 @@ export default function AntdLayout({ children, initialTheme }: { children: React
             <AntdRegistry>
                 <ConfigProvider locale={vi_VN} theme={dynamicConfig}>
                     <Layout style={{ minHeight: "100vh" }}>
-                        <SideNav />
+                        <SideNav/>
                         <Layout style={{ flexDirection: "column" }}>
                             <App
                                 message={{

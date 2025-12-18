@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Form, Input, Button, Card, App } from 'antd';
+import { Form, Input, Button, Card } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { loginApi, saveTokenApi } from '@/libs/api-client/auth.api';
 import useBrowserInfo from '@/libs/hooks/useBrowserInfo';
