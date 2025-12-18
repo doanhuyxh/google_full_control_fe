@@ -3,7 +3,7 @@
 import { getLoginHistoryApi } from "@/libs/api-client/auth.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { LoginHistory } from "@/libs/intefaces/authData";
-import { Table } from "antd";
+import { Card, Table } from "antd";
 import { useEffect, useState } from "react";
 
 export default function DevicesComponent() {
@@ -65,7 +65,7 @@ export default function DevicesComponent() {
         fetchLoginHistory();
     }, [page, limit, search]);
 
-    return <div className="p-3 shadow-lg rounded-4xl">
+    return <Card className="p-3 shadow-lg rounded-4xl">
         <div className="flex justify-center items-center">
             <h2 className="text-2xl font-semibold mb-4">Lịch sử đăng nhập</h2>
         </div>
@@ -89,5 +89,5 @@ export default function DevicesComponent() {
             }}
             columns={columns}
         />
-    </div>;
+    </Card>;
 }

@@ -1,6 +1,6 @@
 export const metadata = {
-    title: "Login - Google Full Control FE",
-    description: "Login to access Google Full Control FE.",
+    title: "Đăng nhập - Google Full Control FE",
+    description: "Đăng nhập để truy cập Google Full Control FE.",
 };
 import LoginComponent from "@/components/features/auth/login";
 

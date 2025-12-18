@@ -1,9 +1,12 @@
+import { cookies } from "next/headers";
 import { ReactNode, Suspense } from "react";
 import AntdLayout from "@/components/layout/Protected";
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+    const cookieStore = await cookies();
+    const theme = cookieStore.get("theme")?.value || "light";
     return (
-        <AntdLayout>
+        <AntdLayout initialTheme={theme}>
             <Suspense fallback={<div>Loading...</div>}>
                 {children}
             </Suspense>

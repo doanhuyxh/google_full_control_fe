@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Popconfirm, Table, Tooltip } from "antd";
+import { Button, Card, Popconfirm, Table, Tooltip } from "antd";
 import { useCloudinaryAccount } from "@/libs/hooks/users/cloudinaryAccountHook";
 import { CloudinaryData } from "@/libs/intefaces/cloudinaryData";
 
@@ -132,7 +132,7 @@ export default function CloudinaryComponent() {
     ];
 
     return (
-        <div className="w-full bg-white p-6 rounded-lg shadow-lg">
+        <Card className="w-full p-6 rounded-lg shadow-lg">
             <CloudinaryControls
                 searchCloudinary={searchCloudinary}
                 setSearchCloudinary={setSearchCloudinary}
@@ -173,6 +173,6 @@ export default function CloudinaryComponent() {
                 data={dataCloudinaryUsage}
                 account={accountViewUsage}
             />
-        </div>
+        </Card>
     );
 }

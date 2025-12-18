@@ -1,20 +1,24 @@
 "use client";
 import NextTopLoader from "nextjs-toploader";
-import { ReactNode, Suspense } from "react";
-import { ConfigProvider, Layout, App, Spin } from "antd";
+import { ReactNode, Suspense, useState } from "react";
+import { ConfigProvider, Layout, App, Spin, theme as antdTheme } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import vi_VN from 'antd/locale/vi_VN';
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import antdConfig from "@/libs/constants/antd_config";
 import SideNav from "./SideNav";
 import AppHeader from "./Header";
 
-export default function AntdLayout({ children }: { children: ReactNode }) {
+export default function AntdLayout({ children, initialTheme }: { children: ReactNode, initialTheme: string }) {
+    const [isDark, setIsDark] = useState(initialTheme === "dark");
+    const dynamicConfig = {
+        algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+    };
+
     return (
         <>
-            <NextTopLoader color="#29d" height={5} crawl showSpinner />
+            <NextTopLoader color="red" height={5} crawl showSpinner />
             <AntdRegistry>
-                <ConfigProvider locale={vi_VN} theme={antdConfig}>
+                <ConfigProvider locale={vi_VN} theme={dynamicConfig}>
                     <Layout style={{ minHeight: "100vh" }}>
                         <SideNav />
                         <Layout style={{ flexDirection: "column" }}>
@@ -31,11 +35,10 @@ export default function AntdLayout({ children }: { children: ReactNode }) {
                                 }}
                             >
                                 <Suspense fallback={<Spin size="large" className="m-20" />}>
-                                    <AppHeader />
+                                    <AppHeader isDark={isDark} onToggleTheme={setIsDark} />
                                     <Layout.Content
                                         style={{
                                             padding: 16,
-                                            background: "#fff",
                                             flex: 1,
                                             overflow: "auto",
                                         }}

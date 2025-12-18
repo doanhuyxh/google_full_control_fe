@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Avatar, Button, Input, Select, Tooltip, Modal } from "antd";
+import { Table, Avatar, Button, Input, Select, Tooltip, Modal, Card } from "antd";
 import { useEffect, useState } from "react";
 import { EyeFilled, DeleteOutlined } from "@ant-design/icons";
 import { History } from "lucide-react";
@@ -333,7 +333,7 @@ export default function GoogleAccountComponent() {
     }, [pageGoogle, limitGoogle, statusGoogle, searchGoogle]);
 
     return (
-        <div className="w-full bg-white p-6 rounded-lg shadow-lg">
+        <Card className="w-full p-6 rounded-lg shadow-lg">
             <GoogleAccountFilter
                 value={searchGoogle}
                 onSearch={(value: string) => {
@@ -350,7 +350,7 @@ export default function GoogleAccountComponent() {
                 rowKey={(record) => record._id}
                 rowClassName={(record: GoogleAccount) => {
                     if (record.status === 'live') {
-                        return 'bg-green-50 border-l-4 border-green-500';
+                        // return 'bg-green-50 border-l-4 border-green-500';
                     } else if (record.status === 'suspended') {
                         return 'bg-red-50 border-l-4 border-red-500';
                     }
@@ -412,6 +412,6 @@ export default function GoogleAccountComponent() {
                     />
                 </div>
             </Modal>
-        </div>
+        </Card>
     )
 }

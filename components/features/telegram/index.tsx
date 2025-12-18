@@ -2,7 +2,7 @@
 import { useTelegramAccount } from "@/libs/hooks/users/telegramAccountHook";
 import { useState } from "react";
 import TelegramControl from "./TelegramControl";
-import { Button, Table, Tooltip } from "antd";
+import { Button, Card, Table, Tooltip } from "antd";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import TelegramFormModal from "./TelegramFormModal";
 import { TelegramAccountData } from "@/libs/intefaces/telegramData";
@@ -113,7 +113,7 @@ export default function TelegramComponent() {
     }
 
     return (
-        <div className="flex flex-col flex-1 gap-4 p-4 m-2 rounded-2xl shadow-md">
+        <Card className="flex flex-col flex-1 gap-4 p-4 m-2 rounded-2xl shadow-md">
             <h2 className="text-center">Quản lý Telegram</h2>
             <TelegramControl
                 searchTelegram={searchTele}
@@ -152,6 +152,6 @@ export default function TelegramComponent() {
                 onAddData={addTelegramAccount}
                 onUpdateData={updateTelegramAccount}
             />
-        </div>
+        </Card>
     );
 }

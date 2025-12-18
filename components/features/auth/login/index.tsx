@@ -10,7 +10,7 @@ import { useAntdApp } from '@/libs/hooks/useAntdApp';
 
 export default function LoginComponent() {
   const router = useRouter();
-  const {message, notification} = useAntdApp();
+  const { notification } = useAntdApp();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const { ipAddress, userAgent, coordinates, isLoading: browserInfoLoading, error: browserInfoError } = useBrowserInfo();
@@ -30,7 +30,7 @@ export default function LoginComponent() {
 
       if (browserInfoError) {
         notification.error({
-          message: 'Lỗi',
+          message: 'Lấy thông tin trình duyệt thất bại',
           description: `Lỗi lấy thông tin trình duyệt: ${browserInfoError}`,
         });
         setLoading(false);
@@ -38,7 +38,7 @@ export default function LoginComponent() {
       }
 
       const res = await loginApi(values.email, values.password, ipAddress, userAgent, coordinates);
-      if (!res.status){
+      if (!res.status) {
         notification.error({
           message: 'Đăng nhập thất bại',
           description: res.message || 'Đăng nhập thất bại, vui lòng thử lại.',
@@ -48,11 +48,17 @@ export default function LoginComponent() {
       }
       await saveTokenApi(res.data.token);
       localStorage.setItem('token', res.data.token);
-      message.success('Đăng nhập thành công!');
+      notification.success({
+        message: 'Đăng nhập thành công',
+        description: 'Bạn đã đăng nhập thành công. Vui lòng chờ chuyển hướng...',
+      });
       const redirectTo = searchParams.get('from') || '/dashboard';
       router.push(redirectTo);
     } catch (err: any) {
-      message.error(err.message || 'Đăng nhập thất bại');
+      notification.error({
+        message: 'Lỗi đăng nhập',
+        description: err.message || 'Đã xảy ra lỗi không mong muốn, vui lòng thử lại sau.',
+      });
     } finally {
       setLoading(false);
     }
@@ -65,7 +71,7 @@ export default function LoginComponent() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: '#f5f5f5',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       }}
     >
       <Card

@@ -13,6 +13,7 @@ export default function AppHeader({
     isDark?: boolean;
 }) {
     const [menuOpen, setMenuOpen] = useState(false);
+    const [localDark, setLocalDark] = useState(isDark || false);
 
     const itemsProfile: MenuProps["items"] = [
         {
@@ -34,27 +35,33 @@ export default function AppHeader({
         },
     ];
 
+    const handleTongleDarkMode = () => {
+        onToggleTheme?.(!localDark);
+        setLocalDark(!localDark);
+        document.cookie = `theme=${!localDark ? "dark" : "light"}; path=/; max-age=31536000`;
+    }
+
     return (
         <Header
             style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: "0 20px",
-                height: 50,
                 borderBottom: "1px solid #f0f0f0",
                 backgroundColor: "#353f78",
+                height:"unset",
+                lineHeight:"unset",
             }}
+            className="h-12!"
         >
-            <div />
-            <Space align="center" size="middle">
-
+            <div/>
+            <Space align="center" size="small" style={{ height: "unset", lineHeight: "unset" }}>
                 <Switch
                     size="small"
                     checkedChildren={<SunOutlined />}
                     unCheckedChildren={<MoonOutlined />}
-                    checked={!isDark}
-                    onChange={() => onToggleTheme?.(!isDark)}
+                    checked={!localDark}
+                    onChange={handleTongleDarkMode}
                 />
                 <Dropdown
                     menu={{ items: itemsProfile }}

@@ -38,21 +38,6 @@ body {
   z-index: 1010 !important;
 }
 
-/* Fix để Tailwind classes hoạt động tốt với Antd */
-.ant-table-tbody>tr.ant-table-row:hover>td,
-.ant-table-tbody>tr>td.ant-table-cell-row-hover {
-  background: transparent !important;
-}
-
-/* Đảm bảo Tailwind background classes hoạt động trong table rows */
-.ant-table-tbody>tr.bg-green-50>td {
-  background-color: rgb(240 253 244) !important;
-}
-
-.ant-table-tbody>tr.bg-red-50>td {
-  background-color: rgb(254 242 242) !important;
-}
-
 .full-option .ant-select-selector {
   white-space: nowrap !important;
 }

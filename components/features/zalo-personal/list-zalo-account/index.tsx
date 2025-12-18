@@ -4,7 +4,7 @@ import { useZaloPersonalAccount } from "@/libs/hooks/users/zaloPersonalAccountHo
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import ZaloPersonalData from "@/libs/intefaces/zaloPersonalData";
 import { useState } from "react";
-import { Button, Image, Table, Tooltip } from "antd";
+import { Button, Card, Image, Table, Tooltip } from "antd";
 import ZaloPersonalAccountControls from "./ZaloAccountControls";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import FormZaloAccount from "./formZaloAccount";
@@ -91,7 +91,7 @@ export default function ZaloPersonalListAccountComponent() {
     ]
 
     return (
-        <div className="w-full bg-white p-6 rounded-lg shadow-lg">
+        <Card className="w-full p-6 rounded-lg shadow-lg">
             <ZaloPersonalAccountControls searchZaloPersonal={searchZaloPersonal} setSearchZaloPersonal={setSearchZaloPersonal} onAddClick={() => handleFormModal(null)} />
             <Table
                 columns={clolumns}
@@ -127,6 +127,6 @@ export default function ZaloPersonalListAccountComponent() {
                 }}
             />
             <FormLoginQr isShowModal={isModalOpenLoginQr} onCloseModal={() => setIsModalOpenLoginQr(false)} zaloId={selectedZaloId} />
-        </div>
+        </Card>
     );
 }
