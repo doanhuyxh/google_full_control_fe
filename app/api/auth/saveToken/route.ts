@@ -5,6 +5,6 @@ export async function POST(req: Request) {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
     });
-    response.headers.append('Set-Cookie', `token=${token}; Path=/; HttpOnly; SameSite=Strict`);
+    response.headers.append('Set-Cookie', `access_token=${token}; Path=/; HttpOnly; SameSite=Strict`);
     return response;
 }

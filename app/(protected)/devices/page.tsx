@@ -1,3 +1,5 @@
+import DevicesComponent from "@/components/features/devices";
+import { Suspense } from "react";
 
 export const metadata = {
     title: "Quản lý thiết bị",
@@ -5,5 +7,7 @@ export const metadata = {
 };
 
 export default function DevicesPage() {
-    return <div>Devices Page</div>;
+    return <Suspense fallback={<div>Đang tải trang thiết bị...</div>}>
+        <DevicesComponent />
+    </Suspense>
 }

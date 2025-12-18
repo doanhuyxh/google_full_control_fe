@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Form, Input, Modal, Select, Spin } from "antd";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
@@ -66,6 +66,10 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
         }
     }
 
+    const handleMessageChange = useCallback((val: string) => {
+        formData?.setFieldValue("message", val);
+    }, [formData]);
+
     useEffect(() => {
         if (!isShowModal) {
             return;
@@ -107,7 +111,7 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
                 >
                     <TiptapComponent
                         value={formData.getFieldValue('message') || ""}
-                        onChange={(val) => formData?.setFieldValue("message", val)}
+                        onChange={handleMessageChange}
                     />
                 </Form.Item>
 

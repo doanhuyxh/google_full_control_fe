@@ -27,6 +27,17 @@ export function useGoogleAccount() {
         setAccountData((prevAccounts) => prevAccounts.filter((account) => account._id !== id));
     }
 
+    const handleUpdateDataLocal = async (id: string, key: keyof GoogleAccount, value: any) => {
+        setAccountData((prevAccounts) => {
+            return prevAccounts.map((account) => {
+                if (account._id === id) {
+                    return { ...account, [key]: value };
+                }
+                return account;
+            });
+        });
+    }
+
     return {
         accountData,
         setAccountData,
@@ -42,6 +53,7 @@ export function useGoogleAccount() {
         setSearchGoogle,
         totalPagesGoogle,
         totalItemsGoogle,
+        handleUpdateDataLocal,
         removeGoogleAccountById,
     };
 }

@@ -14,13 +14,13 @@ const useBrowserInfo = () => {
             setIsLoading(true);
             setError(null);
             try {
-                const response = await fetch('https://api.myip.com');
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_BASE_URL}/api/tools/get-info-client`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 const data = await response.json();
-                if (data.ip) {
-                    setIpAddress(data.ip);
+                if (data.data.expressIp) {
+                    setIpAddress(data.data.expressIp);
                 } else {
                     throw new Error(`MyIP API failed: Invalid response format`);
                 }

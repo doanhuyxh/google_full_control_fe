@@ -4,12 +4,13 @@ import { useZaloPersonalAccount } from "@/libs/hooks/users/zaloPersonalAccountHo
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import ZaloPersonalData from "@/libs/intefaces/zaloPersonalData";
 import { useState } from "react";
-import { Button, Image, Table } from "antd";
+import { Button, Image, Table, Tooltip } from "antd";
 import ZaloPersonalAccountControls from "./ZaloAccountControls";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import FormZaloAccount from "./formZaloAccount";
 import { DeleteFilled, EditOutlined } from "@ant-design/icons";
 import { deleteZaloPersonalAccount } from "@/libs/api-client/zalo-personal.api";
+import FormLoginQr from "./formLoginQr";
 
 
 export default function ZaloPersonalListAccountComponent() {
@@ -30,6 +31,8 @@ export default function ZaloPersonalListAccountComponent() {
 
     const [isModalOpenForm, setIsModalOpenForm] = useState(false);
     const [dataForm, setDataForm] = useState<ZaloPersonalData | null>(null);
+    const [isModalOpenLoginQr, setIsModalOpenLoginQr] = useState(false);
+    const [selectedZaloId, setSelectedZaloId] = useState<string | null>(null);
 
     const handleFormModal = (data: ZaloPersonalData | null) => {
         setIsModalOpenForm(true);
@@ -60,12 +63,23 @@ export default function ZaloPersonalListAccountComponent() {
         { title: 'Password', dataIndex: 'password', key: 'password', width: 250 },
         {
             title: 'Actions', key: 'actions', render: (_: any, record: ZaloPersonalData) => (
-                <div className="flex gap-2 justify-end">
+                <div className="flex gap-2 justify-end">                
+                    <Tooltip title="Login via QR Code">
+                        <Button
+                            onClick={() => {
+                                setSelectedZaloId(record._id);
+                                setIsModalOpenLoginQr(true);
+                            }}
+                            className="bg-blue-500!"
+                        >
+                            Login QR
+                        </Button>
+                    </Tooltip>
+
                     <Button
                         icon={<EditOutlined />}
                         className="bg-yellow-500!"
                         onClick={() => handleFormModal(record)} />
-
                     <Button
                         danger
                         onClick={() => handleDeleteAccount(record._id)}
@@ -109,6 +123,7 @@ export default function ZaloPersonalListAccountComponent() {
                     updateZaloPersonalAccount(updatedAccount);
                 }}
             />
+            <FormLoginQr isShowModal={isModalOpenLoginQr} onCloseModal={() => setIsModalOpenLoginQr(false)} zaloId={selectedZaloId} />
         </div>
     );
 }

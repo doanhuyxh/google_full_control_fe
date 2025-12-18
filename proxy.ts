@@ -8,7 +8,7 @@ const PROTECTED_ROUTES = ["/dashboard", "/accounts", "/settings"] as const;
 const AUTH_ROUTES = ["/login", "/register"] as const;
 
 // Cookie names
-const TOKEN_COOKIE = "token" as const;
+const TOKEN_COOKIE = "access_token" as const;
 
 /**
  * Checks if the current path is a protected route

@@ -52,19 +52,23 @@ const menuItems = [
                 label: "Cloudinary",
                 icon: <FolderAddFilled />,
             },
-
+            {
+                key: "/accounts/telegram",
+                label: "Telegram",
+                icon: <MessageCircle size={16} />,
+            }
         ],
     },
     {
         key: "/devices",
         icon: <DatabaseOutlined />,
-        label: "Thiết bị",
+        label: "Thiết bị đăng nhập",
     },
     {
         key: "/settings",
         icon: <SettingOutlined />,
         label: "Cài đặt",
-    },
+    }
 ];
 
 export default function SideNav() {

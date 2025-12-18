@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Avatar, Button, Input, Select, Tooltip } from "antd";
+import { Table, Avatar, Button, Input, Select, Tooltip, Modal } from "antd";
 import { useEffect, useState } from "react";
 import { EyeFilled, DeleteOutlined } from "@ant-design/icons";
 import { History } from "lucide-react";
@@ -17,6 +17,7 @@ import GoogleFormModal from "./form";
 import GoogleFormSendEmail from "./form-send-email";
 import ViewHistoryEmailSent from "./view-history-email-sent";
 import DebouncedInputCell from "@/components/common/AntCustom/DebouncedInputCell";
+import DebouncedInputTextAreaCell from "@/components/common/AntCustom/DebounceInputTextAreaCel";
 
 export default function GoogleAccountComponent() {
     const {
@@ -32,11 +33,13 @@ export default function GoogleAccountComponent() {
         setSearchGoogle,
         totalItemsGoogle,
         fetchGoogleAccounts,
-        removeGoogleAccountById
+        removeGoogleAccountById,
+        handleUpdateDataLocal
     } = useGoogleAccount();
 
     const [isShowModalHistoryEmail, setIsShowModalHistoryEmail] = useState<boolean>(false);
     const [emailShowHistory, setEmailShowHistory] = useState<{ emailName?: string, googleAccountId?: string }>({});
+    const [showModalPassword, setShowModalPassword] = useState<{ isShow: boolean; password?: string, id?: string }>({ isShow: false, password: '', id: '' });
     const { decodeData } = useToolsDataBackEnd();
     const { copiedToClipboard } = useCommon();
     const { notification, modal } = useAntdApp();
@@ -62,6 +65,9 @@ export default function GoogleAccountComponent() {
                 description: 'Dữ liệu đã được cập nhật thành công.',
                 placement: 'topRight',
             });
+            if (field === 'currentPassword') {
+                handleUpdateDataLocal(id, field as keyof GoogleAccount, value);
+            }
         } else {
             notification.error({
                 message: 'Cập nhật thất bại',
@@ -157,7 +163,7 @@ export default function GoogleAccountComponent() {
             key: 'currentPassword',
             width: 80,
             render: (currentPassword: string) => (
-                <Button type="default" size="small" icon={<EyeFilled />} onClick={() => handleViewPassword(currentPassword)}/>
+                <Button type="default" size="small" icon={<EyeFilled />} onClick={() => handleViewPassword(currentPassword)} />
             ),
         },
         {
@@ -223,7 +229,7 @@ export default function GoogleAccountComponent() {
             key: 'privateCode',
             width: 300,
             render: (privateCode: string, record: GoogleAccount) => (
-                <DebouncedInputCell
+                <DebouncedInputTextAreaCell
                     recordId={record._id}
                     initialValue={privateCode}
                     dataIndex="privateCode"
@@ -279,6 +285,16 @@ export default function GoogleAccountComponent() {
             width: 80,
             render: (_, record: GoogleAccount) => (
                 <div className="flex gap-2">
+                    <Tooltip title="Cập nhật mật khẩu">
+                        <Button
+                            size="small"
+                            icon={<EyeFilled />}
+                            onClick={() => {
+                                setShowModalPassword({ isShow: true, password: '', id: record._id });
+                            }}
+                        />
+                    </Tooltip>
+
                     <Tooltip title="Lịch sử gửi email từ hệ thống">
                         <Button size="small" icon={<History />} onClick={() => handleShowEmailHistoryModal(record._id, record.email)} />
                     </Tooltip>
@@ -369,6 +385,24 @@ export default function GoogleAccountComponent() {
                 googleAccountId={emailShowHistory.googleAccountId || ''}
                 emailName={emailShowHistory.emailName || ''}
             />
+
+            <Modal
+                open={showModalPassword.isShow}
+                onCancel={() => setShowModalPassword({ isShow: false, password: '' })}
+                onOk={async () => {
+                    await handleUpdateData(showModalPassword.id || '', 'currentPassword', showModalPassword.password);
+                    setShowModalPassword({ isShow: false, password: '' });
+                }}
+            >
+                <div className="flex flex-col gap-4">
+                    <h3 className="text-lg font-medium">Mật khẩu mới</h3>
+                    <Input.Password
+                        value={showModalPassword.password}
+                        onChange={(e) => setShowModalPassword({ ...showModalPassword, password: e.target.value })}
+                        placeholder="Nhập mật khẩu mới"
+                    />
+                </div>
+            </Modal>
         </div>
     )
 }
