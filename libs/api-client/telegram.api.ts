@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
 import ApiResponse, { PaginatedResponse } from "@/libs/intefaces/apiResponseData";
-import { TelegramAccountData } from "../intefaces/telegramData";
+import { BotTelegramAccountData, TelegramAccountData } from "../intefaces/telegramData";
 
 
 
@@ -39,4 +39,42 @@ export async function updateTelegramAccount(telegramAccId: string, formData: For
         method: 'PUT',
         body: formData,
     });
+}
+
+export async function getBotsByTelegramAccount(telegramAccId: string, page: number, limit: number, search:string): Promise<ApiResponse<PaginatedResponse<BotTelegramAccountData>>> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', page.toString());
+    queryParams.append('limit', limit.toString());
+    if (search) {
+        queryParams.append('search', search);
+    }
+    return await fetcherBackEnd<ApiResponse<PaginatedResponse<BotTelegramAccountData>>>(`/api/telegram-acc/${telegramAccId}/bot?${queryParams.toString()}`);
+}
+
+export async function createBot(telegramAccId: string, botToken: string, botUsername: string, note: string) {
+    return await fetcherBackEnd<ApiResponse<BotTelegramAccountData>>(`/api/telegram-acc/${telegramAccId}/bot`, {
+        method: "POST",
+        body: {
+            botToken,
+            botUsername,
+            note
+        }
+    })
+}
+
+export async function updateBot(telegramAccId: string, botId: string, botToken: string, botUsername: string, note: string): Promise<ApiResponse<BotTelegramAccountData>> {
+    return await fetcherBackEnd<ApiResponse<BotTelegramAccountData>>(`/api/telegram-acc/${telegramAccId}/bot/${botId}`, {
+        method: "PUT",
+        body: {
+            botToken,
+            botUsername,
+            note
+        }
+    })
+}
+
+export async function deleteBot(telegramAccId: string, botId: string): Promise<ApiResponse<any>> {
+    return await fetcherBackEnd<ApiResponse<null>>(`/api/telegram-acc/${telegramAccId}/bot/${botId}`, {
+        method: "DELETE",
+    })
 }
