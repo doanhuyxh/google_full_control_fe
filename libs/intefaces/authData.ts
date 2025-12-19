@@ -19,3 +19,24 @@ export interface AuthResponse {
         email: string;
     };
 }
+
+export interface LoginHistory {
+    _id: string;
+    userAgent: string;
+    ipAddress: string;
+    coordinates: {
+        latitude: number;
+        longitude: number;
+    };
+    createdAt: Date;
+}
+
+export interface LoginHistoryResponse {
+    items: LoginHistory[];
+    pagination: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}

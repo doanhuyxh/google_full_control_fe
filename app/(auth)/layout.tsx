@@ -1,12 +1,12 @@
 import { ReactNode, Suspense } from "react";
-import AntdLayout from "@/components/layout/Guest";
+import AntdLayoutGuest from "@/components/layout/Guest";
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AuthLayout({ children }: { children: ReactNode }) {
     return (
-        <AntdLayout>
+        <AntdLayoutGuest >
             <Suspense fallback={<div>Loading...</div>}>
                 {children}
             </Suspense>
-        </AntdLayout>
+        </AntdLayoutGuest>
     )
 }

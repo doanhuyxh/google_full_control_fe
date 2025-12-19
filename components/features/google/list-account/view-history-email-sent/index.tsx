@@ -1,5 +1,5 @@
 
-import { Button, Modal, Table, Tag } from "antd";
+import { Button, Card, Modal, Table, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { getHistorySentEmail } from "@/libs/api-client/google.api";
@@ -82,7 +82,11 @@ export default function ViewHistoryEmailSent({ isShowModal, onCloseModal, google
 
     return (
         <Modal
-            title={`Lịch sử email đã gửi - ${emailName || ''}`}
+            title={
+                <p className="text-center">
+                    Lịch sử email đã gửi {emailName ? ` - ${emailName}` : ''}
+                </p>
+            }
             open={isShowModal}
             onCancel={onCloseModal}
             width={1600}
@@ -92,27 +96,29 @@ export default function ViewHistoryEmailSent({ isShowModal, onCloseModal, google
                 </Button>
             ]}
         >
-            <Table
-                dataSource={emailHistory ? emailHistory.items : []}
-                rowKey={(record) => record.id}
-                columns={columns}
-                pagination={{
-                    current: page,
-                    pageSize: limit,
-                    total: emailHistory ? emailHistory.pagination.total : 0,
-                    onChange: (newPage, newLimit) => {
-                        setPage(newPage);
-                        setLimit(newLimit);
-                    },
-                    onShowSizeChange: (_current, size) => {
-                        setLimit(size);
-                    }
-                }}
-                scroll={{
-                    x: "max-content",
-                    y: 800,
-                }}
-            />
+            <Card className="mt-4">
+                <Table
+                    dataSource={emailHistory ? emailHistory.items : []}
+                    rowKey={(record) => record._id}
+                    columns={columns}
+                    pagination={{
+                        current: page,
+                        pageSize: limit,
+                        total: emailHistory ? emailHistory.pagination.total : 0,
+                        onChange: (newPage, newLimit) => {
+                            setPage(newPage);
+                            setLimit(newLimit);
+                        },
+                        onShowSizeChange: (_current, size) => {
+                            setLimit(size);
+                        }
+                    }}
+                    scroll={{
+                        x: "max-content",
+                        y: 800,
+                    }}
+                />
+            </Card>
         </Modal>
     );
 }

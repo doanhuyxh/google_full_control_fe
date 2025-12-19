@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Avatar, Button, Input, Select, Tooltip } from "antd";
+import { Table, Avatar, Button, Input, Select, Tooltip, Modal, Card } from "antd";
 import { useEffect, useState } from "react";
 import { EyeFilled, DeleteOutlined } from "@ant-design/icons";
 import { History } from "lucide-react";
@@ -17,6 +17,7 @@ import GoogleFormModal from "./form";
 import GoogleFormSendEmail from "./form-send-email";
 import ViewHistoryEmailSent from "./view-history-email-sent";
 import DebouncedInputCell from "@/components/common/AntCustom/DebouncedInputCell";
+import DebouncedInputTextAreaCell from "@/components/common/AntCustom/DebounceInputTextAreaCel";
 
 export default function GoogleAccountComponent() {
     const {
@@ -32,11 +33,13 @@ export default function GoogleAccountComponent() {
         setSearchGoogle,
         totalItemsGoogle,
         fetchGoogleAccounts,
-        removeGoogleAccountById
+        removeGoogleAccountById,
+        handleUpdateDataLocal
     } = useGoogleAccount();
 
     const [isShowModalHistoryEmail, setIsShowModalHistoryEmail] = useState<boolean>(false);
     const [emailShowHistory, setEmailShowHistory] = useState<{ emailName?: string, googleAccountId?: string }>({});
+    const [showModalPassword, setShowModalPassword] = useState<{ isShow: boolean; password?: string, id?: string }>({ isShow: false, password: '', id: '' });
     const { decodeData } = useToolsDataBackEnd();
     const { copiedToClipboard } = useCommon();
     const { notification, modal } = useAntdApp();
@@ -62,6 +65,9 @@ export default function GoogleAccountComponent() {
                 description: 'Dữ liệu đã được cập nhật thành công.',
                 placement: 'topRight',
             });
+            if (field === 'currentPassword') {
+                handleUpdateDataLocal(id, field as keyof GoogleAccount, value);
+            }
         } else {
             notification.error({
                 message: 'Cập nhật thất bại',
@@ -108,14 +114,14 @@ export default function GoogleAccountComponent() {
             render: (_: any, __: any, index: number) => (pageGoogle - 1) * limitGoogle + index + 1,
         },
         {
-            title: 'Avatar',
+            title: 'AVATAR',
             dataIndex: 'avatar',
             key: 'avatar',
-            width: 80,
-            render: (avatar: string) => <Avatar src={avatar || 'https://via.placeholder.com/150'} alt="Avatar" size={50} />,
+            width: 100,
+            render: (avatar: string) => <Avatar src={avatar || 'https://via.placeholder.com/150'} alt="Ảnh đại diện" size={50} />,
         },
         {
-            title: 'Full Name',
+            title: 'Họ và tên',
             dataIndex: 'fullName',
             key: 'fullName',
             width: 200,
@@ -138,7 +144,7 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Phone Number',
+            title: 'Số điện thoại',
             dataIndex: 'phoneNumber',
             key: 'phoneNumber',
             width: 180,
@@ -152,12 +158,12 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Password',
+            title: 'Mật khẩu',
             dataIndex: 'currentPassword',
             key: 'currentPassword',
-            width: 80,
+            width: 100,
             render: (currentPassword: string) => (
-                <Button type="default" size="small" icon={<EyeFilled />} onClick={() => handleViewPassword(currentPassword)}/>
+                <Button type="default" size="small" icon={<EyeFilled />} onClick={() => handleViewPassword(currentPassword)} />
             ),
         },
         {
@@ -175,7 +181,7 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Recovery Email',
+            title: 'Email khôi phục',
             dataIndex: 'recoveryEmail',
             key: 'recoveryEmail',
             width: 250,
@@ -218,12 +224,12 @@ export default function GoogleAccountComponent() {
             },
         },
         {
-            title: 'Private Code',
+            title: 'Mã bí mật',
             dataIndex: 'privateCode',
             key: 'privateCode',
             width: 300,
             render: (privateCode: string, record: GoogleAccount) => (
-                <DebouncedInputCell
+                <DebouncedInputTextAreaCell
                     recordId={record._id}
                     initialValue={privateCode}
                     dataIndex="privateCode"
@@ -232,7 +238,7 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Status',
+            title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
             width: 100,
@@ -243,15 +249,15 @@ export default function GoogleAccountComponent() {
                     style={{ width: '100%' }}
                     onChange={(value) => handleUpdateData(record._id, 'status', value)}
                     options={[
-                        { value: 'live', label: 'Live' },
-                        { value: 'suspended', label: 'Suspended' },
-                        { value: 'phone_verification', label: 'Phone Verification' }
+                        { value: 'live', label: 'Sống' },
+                        { value: 'suspended', label: 'Cấm' },
+                        { value: 'phone_verification', label: 'Xác minh điện thoại' }
                     ]}
                 />
             ),
         },
         {
-            title: 'Note',
+            title: 'Ghi chú',
             dataIndex: 'note',
             key: 'note',
             width: 150,
@@ -265,7 +271,7 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Created At',
+            title: 'Ngày tạo',
             dataIndex: 'createdAt',
             key: 'createdAt',
             width: 180,
@@ -274,17 +280,33 @@ export default function GoogleAccountComponent() {
             ),
         },
         {
-            title: 'Actions',
+            title: 'Hành động',
             key: 'actions',
-            width: 80,
+            width: 120,
             render: (_, record: GoogleAccount) => (
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-end">
+                    <Tooltip title="Cập nhật mật khẩu">
+                        <Button
+                            type="primary"
+                            size="small"
+                            icon={<EyeFilled />}
+                            onClick={() => {
+                                setShowModalPassword({ isShow: true, password: '', id: record._id });
+                            }}
+                        />
+                    </Tooltip>
                     <Tooltip title="Lịch sử gửi email từ hệ thống">
-                        <Button size="small" icon={<History />} onClick={() => handleShowEmailHistoryModal(record._id, record.email)} />
+                        <Button
+                            type="dashed"
+                            size="small"
+                            icon={<History />}
+                            onClick={() => handleShowEmailHistoryModal(record._id, record.email)}
+                        />
                     </Tooltip>
                     <Tooltip title="Xóa tài khoản">
                         <Button
                             danger
+                            type="primary"
                             size="small"
                             icon={<DeleteOutlined />}
                             onClick={() => {
@@ -311,7 +333,7 @@ export default function GoogleAccountComponent() {
     }, [pageGoogle, limitGoogle, statusGoogle, searchGoogle]);
 
     return (
-        <div className="w-full bg-white p-6 rounded-lg shadow-lg">
+        <Card className="w-full p-6 rounded-lg shadow-lg">
             <GoogleAccountFilter
                 value={searchGoogle}
                 onSearch={(value: string) => {
@@ -325,10 +347,10 @@ export default function GoogleAccountComponent() {
                 columns={columns}
                 dataSource={accountData}
                 loading={loadingGoogle}
-                rowKey="_id"
+                rowKey={(record) => record._id}
                 rowClassName={(record: GoogleAccount) => {
                     if (record.status === 'live') {
-                        return 'bg-green-50 border-l-4 border-green-500';
+                        // return 'bg-green-50 border-l-4 border-green-500';
                     } else if (record.status === 'suspended') {
                         return 'bg-red-50 border-l-4 border-red-500';
                     }
@@ -346,6 +368,9 @@ export default function GoogleAccountComponent() {
                     onChange: (page, pageSize) => {
                         setPageGoogle(page);
                         setLimitGoogle(pageSize);
+                    },
+                    showTotal(total, range) {
+                        return `Hiển thị ${range[0]} - ${range[1]} của ${total} tài khoản`;
                     },
                 }}
                 scroll={{
@@ -369,6 +394,24 @@ export default function GoogleAccountComponent() {
                 googleAccountId={emailShowHistory.googleAccountId || ''}
                 emailName={emailShowHistory.emailName || ''}
             />
-        </div>
+
+            <Modal
+                open={showModalPassword.isShow}
+                onCancel={() => setShowModalPassword({ isShow: false, password: '' })}
+                onOk={async () => {
+                    await handleUpdateData(showModalPassword.id || '', 'currentPassword', showModalPassword.password);
+                    setShowModalPassword({ isShow: false, password: '' });
+                }}
+            >
+                <div className="flex flex-col gap-4">
+                    <h3 className="text-lg font-medium">Mật khẩu mới</h3>
+                    <Input.Password
+                        value={showModalPassword.password}
+                        onChange={(e) => setShowModalPassword({ ...showModalPassword, password: e.target.value })}
+                        placeholder="Nhập mật khẩu mới"
+                    />
+                </div>
+            </Modal>
+        </Card>
     )
 }

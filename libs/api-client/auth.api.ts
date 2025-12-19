@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
 import ApiResponse from "../intefaces/apiResponseData";
-import { AuthResponse } from "../intefaces/authData";
+import { AuthResponse, LoginHistoryResponse } from "../intefaces/authData";
 
 export async function loginApi(email: string, password: string, ipAddress: string, userAgent: string, coordinates: { latitude: number; longitude: number }): Promise<ApiResponse<AuthResponse>> {
     return await fetcherBackEnd<ApiResponse<AuthResponse>>("/api/auth/login", {
@@ -39,6 +39,19 @@ export async function registerApi(
 
 export async function getProfileApi() {
     return await fetcherBackEnd("/auth/me", {
+        method: "GET",
+    });
+}
+
+export function getLoginHistoryApi(page: number, limit: number, search: string) {
+    const queryParams = new URLSearchParams();
+    queryParams.append("page", page.toString());
+    queryParams.append("limit", limit.toString());
+    if (search) {
+        queryParams.append("search", search);
+    }
+    const queryString = queryParams.toString();
+    return fetcherBackEnd<ApiResponse<LoginHistoryResponse>>(`/api/auth/login-history?${queryString}`, {
         method: "GET",
     });
 }

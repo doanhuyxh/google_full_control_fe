@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useEffect, useState } from "react";
-import { Layout, Menu, Skeleton } from "antd";
+import { Layout, Menu, Skeleton, theme } from "antd";
 import {
     AppstoreOutlined,
     SettingOutlined,
@@ -52,19 +52,23 @@ const menuItems = [
                 label: "Cloudinary",
                 icon: <FolderAddFilled />,
             },
-
+            {
+                key: "/accounts/telegram",
+                label: "Telegram",
+                icon: <MessageCircle size={16} />,
+            }
         ],
     },
     {
         key: "/devices",
         icon: <DatabaseOutlined />,
-        label: "Thiết bị",
+        label: "Thiết bị đăng nhập",
     },
     {
         key: "/settings",
         icon: <SettingOutlined />,
         label: "Cài đặt",
-    },
+    }
 ];
 
 export default function SideNav() {
@@ -73,6 +77,7 @@ export default function SideNav() {
     const router = useRouter();
     const [collapsed, setCollapsed] = useState(false);
     const [openKeys, setOpenKeys] = useState<string[]>([]);
+    const { token } = theme.useToken();
 
     const findOpenKeys = (path: string, items: any[]): string[] => {
         for (const item of items) {
@@ -124,10 +129,15 @@ export default function SideNav() {
                 collapsed={collapsed}
                 onCollapse={setCollapsed}
                 width={260}
+                style={{
+                    backgroundColor: token.colorBgContainer,
+                    color: token.colorText,
+                    borderColor: token.colorBorderSecondary,
+                }}
                 className="h-screen shadow-lg"
             >
                 <div className="flex items-center justify-center h-12 border-b text-lg font-semibold">
-                    {!collapsed ? "MyApp" : "🧭"}
+                    {!collapsed ? "Google Full Control" : "GFC"}
                 </div>
                 <Menu
                     mode="inline"

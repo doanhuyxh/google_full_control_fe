@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Popconfirm, Table, Tooltip } from "antd";
+import { Button, Card, Popconfirm, Table, Tooltip } from "antd";
 import { useCloudinaryAccount } from "@/libs/hooks/users/cloudinaryAccountHook";
 import { CloudinaryData } from "@/libs/intefaces/cloudinaryData";
 
@@ -83,25 +83,25 @@ export default function CloudinaryComponent() {
             render: (_: any, __: any, index: number) =>
                 index + 1 + (pageCloudinary - 1) * limitCloudinary,
         },
-        { title: "Account Mail", dataIndex: "accountMail" },
+        { title: "Email", dataIndex: "accountMail" },
         { title: "Cloud Name", dataIndex: "cloudName" },
         { title: "API Key", dataIndex: "apiKey" },
         { title: "API Secret", dataIndex: "apiSecret" },
-        { title: "Note", dataIndex: "note" },
-        { title: "Created At", dataIndex: "createdAt", render: (date: string) => formatUtcToLocal(date) },
+        { title: "Ghi chú", dataIndex: "note" },
+        { title: "Thời gian", dataIndex: "createdAt", render: (date: string) => formatUtcToLocal(date) },
         {
-            title: "Actions",
+            title: "Hành động",
             dataIndex: "actions",
             render: (_: any, record: CloudinaryData) => (
                 <div className="flex gap-2">
-                    <Tooltip title="Update">
+                    <Tooltip title="Cập nhật">
                         <Button
                             type="primary"
                             onClick={() => handleFormModal(record)}
                             icon={<Edit3 size={16} />}
                         />
                     </Tooltip>
-                    <Tooltip title="Usage">
+                    <Tooltip title="Sử dụng">
                         <Button
                             type="dashed"
                             onClick={() => handleShowUsageModal(record._id)}
@@ -109,7 +109,7 @@ export default function CloudinaryComponent() {
                             loading={waitLoadingDataCloudinaryUsage}
                         />
                     </Tooltip>
-                    <Tooltip title="Delete">
+                    <Tooltip title="Xóa">
                         <Popconfirm
                             title="Bạn có chắc chắn muốn xóa tài khoản này?"
                             description="Hành động này không thể hoàn tác."
@@ -132,7 +132,7 @@ export default function CloudinaryComponent() {
     ];
 
     return (
-        <div className="w-full bg-white p-6 rounded-lg shadow-lg">
+        <Card className="w-full p-6 rounded-lg shadow-lg">
             <CloudinaryControls
                 searchCloudinary={searchCloudinary}
                 setSearchCloudinary={setSearchCloudinary}
@@ -152,6 +152,9 @@ export default function CloudinaryComponent() {
                         setPageCloudinary(page);
                         setLimitCloudinary(pageSize);
                     },
+                    showTotal(total, range) {
+                        return `Hiển thị ${range[0]} - ${range[1]} của ${total} tài khoản`;
+                    },
                 }}
                 scroll={{
                     x: 'max-content',
@@ -170,6 +173,6 @@ export default function CloudinaryComponent() {
                 data={dataCloudinaryUsage}
                 account={accountViewUsage}
             />
-        </div>
+        </Card>
     );
 }

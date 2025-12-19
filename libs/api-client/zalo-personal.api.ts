@@ -35,3 +35,9 @@ export async function updateZaloPersonalAccount(id: string, formUpdate:ZaloPerso
         },
     })
 }
+
+export async function initZaloPersonalLogin(id:string, socketId: string) {
+    return await fetcherBackEnd<ApiResponse<{ loginUrl: string }>>(`/api/zalo-personal/${id}/login?clientId=${socketId}`, {
+        method: "GET",
+    })
+}

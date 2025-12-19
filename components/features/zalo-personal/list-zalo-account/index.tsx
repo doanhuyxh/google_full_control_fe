@@ -4,12 +4,13 @@ import { useZaloPersonalAccount } from "@/libs/hooks/users/zaloPersonalAccountHo
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import ZaloPersonalData from "@/libs/intefaces/zaloPersonalData";
 import { useState } from "react";
-import { Button, Image, Table } from "antd";
+import { Button, Card, Image, Table, Tooltip } from "antd";
 import ZaloPersonalAccountControls from "./ZaloAccountControls";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import FormZaloAccount from "./formZaloAccount";
 import { DeleteFilled, EditOutlined } from "@ant-design/icons";
 import { deleteZaloPersonalAccount } from "@/libs/api-client/zalo-personal.api";
+import FormLoginQr from "./formLoginQr";
 
 
 export default function ZaloPersonalListAccountComponent() {
@@ -30,6 +31,8 @@ export default function ZaloPersonalListAccountComponent() {
 
     const [isModalOpenForm, setIsModalOpenForm] = useState(false);
     const [dataForm, setDataForm] = useState<ZaloPersonalData | null>(null);
+    const [isModalOpenLoginQr, setIsModalOpenLoginQr] = useState(false);
+    const [selectedZaloId, setSelectedZaloId] = useState<string | null>(null);
 
     const handleFormModal = (data: ZaloPersonalData | null) => {
         setIsModalOpenForm(true);
@@ -60,12 +63,23 @@ export default function ZaloPersonalListAccountComponent() {
         { title: 'Password', dataIndex: 'password', key: 'password', width: 250 },
         {
             title: 'Actions', key: 'actions', render: (_: any, record: ZaloPersonalData) => (
-                <div className="flex gap-2 justify-end">
+                <div className="flex gap-2 justify-end">                
+                    <Tooltip title="Login via QR Code">
+                        <Button
+                            onClick={() => {
+                                setSelectedZaloId(record._id);
+                                setIsModalOpenLoginQr(true);
+                            }}
+                            type="primary"
+                        >
+                        Login QR    
+                        </Button>
+                    </Tooltip>
+
                     <Button
                         icon={<EditOutlined />}
                         className="bg-yellow-500!"
                         onClick={() => handleFormModal(record)} />
-
                     <Button
                         danger
                         onClick={() => handleDeleteAccount(record._id)}
@@ -77,13 +91,13 @@ export default function ZaloPersonalListAccountComponent() {
     ]
 
     return (
-        <div className="w-full bg-white p-6 rounded-lg shadow-lg">
+        <Card className="w-full p-6 rounded-lg shadow-lg">
             <ZaloPersonalAccountControls searchZaloPersonal={searchZaloPersonal} setSearchZaloPersonal={setSearchZaloPersonal} onAddClick={() => handleFormModal(null)} />
             <Table
                 columns={clolumns}
                 dataSource={accountData}
                 loading={loadingZaloPersonal}
-                rowKey={"updatedAt"}
+                rowKey={(record) => record._id}
                 pagination={{
                     current: pageZaloPersonal,
                     pageSize: limitZaloPersonal,
@@ -91,6 +105,9 @@ export default function ZaloPersonalListAccountComponent() {
                     onChange: (page, pageSize) => {
                         setPageZaloPersonal(page);
                         setLimitZaloPersonal(pageSize);
+                    },
+                    showTotal(total, range) {
+                        return `Hiển thị ${range[0]} - ${range[1]} của ${total} tài khoản`;
                     }
                 }}
                 scroll={{
@@ -109,6 +126,7 @@ export default function ZaloPersonalListAccountComponent() {
                     updateZaloPersonalAccount(updatedAccount);
                 }}
             />
-        </div>
+            <FormLoginQr isShowModal={isModalOpenLoginQr} onCloseModal={() => setIsModalOpenLoginQr(false)} zaloId={selectedZaloId} />
+        </Card>
     );
 }

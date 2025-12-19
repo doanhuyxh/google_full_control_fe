@@ -50,7 +50,12 @@ export async function fetcherBackEnd<T = any>(endpoint: string, options: FetchOp
         }
         return json;
     } catch (error: any) {
-        return Promise.resolve(error);
+        return Promise.resolve({
+            status: false,
+            message: error.message || 'An unexpected error occurred',
+            data: null,
+            statusCode: error.statusCode || 500,
+        } as T);
     }
 }
 

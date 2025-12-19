@@ -4,10 +4,9 @@ import { ReactNode, Suspense } from "react";
 import { ConfigProvider, Layout, App, Spin } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import antdConfig from "@/libs/constants/antd_config";
 
 
-export default function AntdLayout({ children }: { children: ReactNode }) {
+export default function AntdLayoutGuest({ children }: { children: ReactNode }) {
     return (
         <>
             <NextTopLoader
@@ -21,7 +20,7 @@ export default function AntdLayout({ children }: { children: ReactNode }) {
                 speed={200}
             />
             <AntdRegistry>
-                <ConfigProvider theme={antdConfig}>
+                <ConfigProvider>
                     <Layout style={{ minHeight: "100vh" }}>
                         <Layout style={{ flexDirection: "column" }}>
                             <App

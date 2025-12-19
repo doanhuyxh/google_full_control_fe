@@ -16,6 +16,7 @@ export default function FormZaloAccount({ isShowModal, onCloseModal, dataForm, h
     const [formData] = Form.useForm();
     const { notification } = useAntdApp();
 
+
     const handleSaveData = async () => {
         try {
             const values = await formData.validateFields();
@@ -45,7 +46,7 @@ export default function FormZaloAccount({ isShowModal, onCloseModal, dataForm, h
                     description: response.message || 'An error occurred while saving data.',
                 });
                 return;
-            }else{
+            } else {
                 notification.success({
                     message: 'Success',
                     description: 'Data saved successfully',
@@ -59,12 +60,16 @@ export default function FormZaloAccount({ isShowModal, onCloseModal, dataForm, h
     }
 
     useEffect(() => {
+        if (!isShowModal) {
+            return;
+        }
         if (dataForm) {
             formData.setFieldsValue(dataForm);
         } else {
             formData.resetFields();
         }
     }, [dataForm, formData, isShowModal]);
+
 
     return (
         <Modal
@@ -79,7 +84,7 @@ export default function FormZaloAccount({ isShowModal, onCloseModal, dataForm, h
                 <Form.Item label="Họ tên" name="display_name">
                     <Input type="text" className="w-full border border-gray-300 rounded px-2 py-1" />
                 </Form.Item>
-                <Form.Item label="Số điện thoại" name="phoneNumber" rules={[{required:true, message:"Vui lòng nhập số điện thoại"}]}>
+                <Form.Item label="Số điện thoại" name="phoneNumber" rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>
                     <Input type="text" className="w-full border border-gray-300 rounded px-2 py-1" />
                 </Form.Item>
                 <Form.Item label="Mật khẩu" name="password">
