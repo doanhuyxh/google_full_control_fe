@@ -1,11 +1,11 @@
 import { Button, Input, Modal, Table } from "antd";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { getBotsByTelegramAccount, deleteBot, updateBot } from "@/libs/api-client/telegram.api";
+import { getBotsByTelegramAccount, deleteBot, updateBot, testBotConnection } from "@/libs/api-client/telegram.api";
 import { useDebounce } from "@/libs/hooks/useDebounce";
 import { useCommon } from "@/libs/hooks/useCommon";
 import debounce from "lodash/debounce";
-import { CopyFilled, DeleteFilled } from "@ant-design/icons";
+import { CopyFilled, DeleteFilled, SendOutlined } from "@ant-design/icons";
 
 interface ListBotModalProp {
     telegramId: string;
@@ -22,6 +22,7 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
     const [search] = useState("");
     const [totalItems, setTotalItems] = useState(0);
     const debouncedSearch = useDebounce(search, 500);
+    const [loadingTest, setLoadingTest] = useState<boolean>(false);
     const { copiedToClipboard } = useCommon();
 
     const fetchBotList = async () => {
@@ -60,7 +61,7 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
                 message: "Lỗi khi cập nhật bot",
                 description: response.message || "Đã xảy ra lỗi không xác định.",
             });
-        }else{
+        } else {
             notification.success({
                 message: "Cập nhật bot thành công",
             });
@@ -76,7 +77,7 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
                 return updatedRecord;
             }
             return bot;
-        }));        
+        }));
         if (updatedRecord) {
             debouncedApiUpdate(botId, updatedRecord);
         }
@@ -92,6 +93,22 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
         } else {
             notification.error({
                 message: "Lỗi khi xóa bot",
+                description: response.message || "Đã xảy ra lỗi không xác định.",
+            });
+        }
+    }
+
+    const handleTestBot = async (botId: string) => {
+        setLoadingTest(true);
+        const response = await testBotConnection(telegramId, botId);
+        setLoadingTest(false);
+        if (response.status) {
+            notification.success({
+                message: "Gửi tin nhắn test thành công",
+            });
+        } else {
+            notification.error({
+                message: "Lỗi khi gửi tin nhắn test",
                 description: response.message || "Đã xảy ra lỗi không xác định.",
             });
         }
@@ -152,13 +169,19 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
             render: (_: any, record: any) => (
                 <div className="flex gap-2">
                     <Button
+                        loading={loadingTest}
+                        onClick={() => handleTestBot(record._id)}
+                        type="primary"
+                        icon={<SendOutlined />}
+                    />
+                    <Button
                         onClick={() => handleDeleteBot(record._id)}
                         danger
                         icon={<DeleteFilled />}
                     />
                 </div>
             ),
-            width: 80,
+            width: 120,
         }
     ]
 

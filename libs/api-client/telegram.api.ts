@@ -78,3 +78,9 @@ export async function deleteBot(telegramAccId: string, botId: string): Promise<A
         method: "DELETE",
     })
 }
+
+export async function testBotConnection(telegramAccId: string, botId: string): Promise<ApiResponse<any>> {
+    return await fetcherBackEnd<ApiResponse<any>>(`/api/telegram-acc/${telegramAccId}/bot/${botId}/send-test-message`, {
+        method: "POST",
+    })
+}
