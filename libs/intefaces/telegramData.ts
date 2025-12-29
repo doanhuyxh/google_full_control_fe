@@ -28,3 +28,9 @@ export interface FormTelegramAccount {
     email?: string;
     f2a?: string;
 }
+
+export interface FormBotTelegram {
+    botToken:string;
+    botUsername:string;
+    note:string
+}

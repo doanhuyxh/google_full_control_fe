@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   trailingSlash: false,
   basePath: "",
   assetPrefix: "",
+  output: "standalone", // Required for Docker deployment
   turbopack: {
     resolveExtensions: [".js", ".jsx", ".ts", ".tsx"],
   }

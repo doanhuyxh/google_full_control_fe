@@ -5,19 +5,35 @@ import TelegramControl from "./TelegramControl";
 import { Button, Card, Table, Tooltip } from "antd";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import TelegramFormModal from "./TelegramFormModal";
+import BotFormModal from "./BotFormModal"
 import { TelegramAccountData } from "@/libs/intefaces/telegramData";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { deleteTelegramAccount } from "@/libs/api-client/telegram.api";
+import { PersonStanding } from "lucide-react";
+import ListBotModal from "./ListBotModal";
 
 
 export default function TelegramComponent() {
-    const {notification, modal} = useAntdApp()
+    const { notification, modal } = useAntdApp()
     const { listTelegramAccount, loadingTele, pageTele, setPageTele, limitTele, setLimitTele, searchTele, setSearchTele, totalItemsTele, removeTelegramAccountById, addTelegramAccount, updateTelegramAccount } = useTelegramAccount();
     const [formDataTelegram, setFormDataTelegram] = useState<{ isShowModal: boolean, teleId: string }>({
         isShowModal: false, teleId: ''
     })
+
+    const [formModalAddBot, setFormModalAddBot] = useState<{ isShowModal: boolean, telegramId: string }>({
+        isShowModal: false,
+        telegramId: ""
+    })
+
     
+    const [formModalListBot, setFormModalListBot] = useState<{ isShowModal: boolean, telegramId: string }>({
+        isShowModal: false,
+        telegramId: ""
+    })
+
+
+
 
     const columns = [
         {
@@ -61,9 +77,29 @@ export default function TelegramComponent() {
             key: 'actions',
             render: (_: any, record: TelegramAccountData) => (
                 <div className="flex gap-2 flex-wrap">
+
+                    <Tooltip title='Thêm bot'>
+                        <Button
+                            onClick={() => setFormModalAddBot({
+                                isShowModal: true,
+                                telegramId: record._id
+                            })}
+                            icon={<PlusOutlined />} />
+                    </Tooltip>
+
+                        <Tooltip title='Danh sách bot'>
+                        <Button
+                            onClick={() => setFormModalListBot({
+                                isShowModal: true,
+                                telegramId: record._id
+                            })}
+                            icon={<PersonStanding />} />
+                        </Tooltip>
+
                     <Tooltip title="Cập nhật tài khoản">
                         <Button
                             onClick={() => setFormDataTelegram({ isShowModal: true, teleId: record._id })}
+                            type="primary"
                             icon={<EditOutlined />}
                         />
                     </Tooltip>
@@ -152,6 +188,29 @@ export default function TelegramComponent() {
                 onAddData={addTelegramAccount}
                 onUpdateData={updateTelegramAccount}
             />
+
+            <BotFormModal
+                isShowModal={formModalAddBot.isShowModal}
+                telegramId={formModalAddBot.telegramId}
+                onClose={() => {
+                    setFormModalAddBot({
+                        isShowModal: false,
+                        telegramId: ""
+                    })
+                }}
+            />
+
+            <ListBotModal
+                isShowModal={formModalListBot.isShowModal}
+                telegramId={formModalListBot.telegramId}
+                onClose={() => {
+                    setFormModalListBot({
+                        isShowModal: false,
+                        telegramId: ""
+                    })
+                }}
+            />
+
         </Card>
     );
 }
