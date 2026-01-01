@@ -36,8 +36,20 @@ export async function updateZaloPersonalAccount(id: string, formUpdate:ZaloPerso
     })
 }
 
-export async function initZaloPersonalLogin(id:string, socketId: string) {
-    return await fetcherBackEnd<ApiResponse<{ loginUrl: string }>>(`/api/zalo-personal/${id}/login?clientId=${socketId}`, {
+export async function initZaloPersonalLoginQr(id:string, socketId: string) {
+    return await fetcherBackEnd<ApiResponse<{ loginUrl: string }>>(`/api/zalo-personal/${id}/login-qr?clientId=${socketId}`, {
+        method: "GET",
+    })
+}
+
+export async function loginZaloPersonalViaCookie(id:string) {
+    return await fetcherBackEnd<ApiResponse<null>>(`/api/zalo-personal/${id}/login-cookie`, {
+        method: "GET",
+    })
+}
+
+export async function getInfoAccZalo(id:string) {
+    return await fetcherBackEnd<ApiResponse<any>>(`/api/zalo-personal/${id}/get-info`, {
         method: "GET",
     })
 }

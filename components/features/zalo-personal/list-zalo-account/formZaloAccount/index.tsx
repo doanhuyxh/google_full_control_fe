@@ -26,6 +26,8 @@ export default function FormZaloAccount({ isShowModal, onCloseModal, dataForm, h
                     ...dataForm,
                     ...values,
                 };
+                const fieldsToRemove = ['_id', 'avatar', 'isLogin', 'createdAt', 'updatedAt', '__v'];
+                fieldsToRemove.forEach(field => delete (updatedAccount as any)[field]);
                 response = await updateZaloPersonalAccount(dataForm._id, updatedAccount);
                 if (response.status) {
                     handleUpdateSuccess(response.data);

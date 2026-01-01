@@ -2,6 +2,7 @@
 
 import { getLoginHistoryApi } from "@/libs/api-client/auth.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
+import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { LoginHistory } from "@/libs/intefaces/authData";
 import { Card, Table } from "antd";
 import { useEffect, useState } from "react";
@@ -37,27 +38,32 @@ export default function DevicesComponent() {
             dataIndex: "index",
             key: "index",
             render: (_: any, __: any, index: number) => (page - 1) * limit + index + 1,
+            width: 80,
         },
         {
             title: "Địa chỉ IP",
             dataIndex: "ipAddress",
             key: "ipAddress",
+            width: 150,
         }, {
             title: "Tọa độ",
             dataIndex: "coordinates",
             key: "coordinates",
             render: (coordinates: { latitude: number; longitude: number }) =>
                 `(${coordinates.latitude.toFixed(4)}, ${coordinates.longitude.toFixed(4)})`,
+            width: 200,
         },
         {
             title: "Trình duyệt",
             dataIndex: "userAgent",
             key: "userAgent",
+            width: 300,
         }, {
             title: "Thời gian đăng nhập",
             dataIndex: "createdAt",
             key: "createdAt",
             render: (createdAt: string) => new Date(createdAt).toLocaleString(),
+            width: 200,
         }
     ]
 
@@ -65,7 +71,7 @@ export default function DevicesComponent() {
         fetchLoginHistory();
     }, [page, limit, search]);
 
-    return <Card className="p-3 shadow-lg rounded-4xl">
+    return <Card className="shadow-lg rounded-4xl">
         <div className="flex justify-center items-center">
             <h2 className="text-2xl font-semibold mb-4">Lịch sử đăng nhập</h2>
         </div>
@@ -86,6 +92,9 @@ export default function DevicesComponent() {
                     return `Đang hiển thị ${range[0]}-${range[1]} trong tổng số ${total} mục`;
                 },
                 showLessItems: true,
+            }}
+            scroll={{
+                y:useDynamicAntdTableScrollHeight()
             }}
             columns={columns}
         />

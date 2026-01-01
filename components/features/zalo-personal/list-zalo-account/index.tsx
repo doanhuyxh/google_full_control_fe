@@ -9,8 +9,9 @@ import ZaloPersonalAccountControls from "./ZaloAccountControls";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import FormZaloAccount from "./formZaloAccount";
 import { DeleteFilled, EditOutlined } from "@ant-design/icons";
-import { deleteZaloPersonalAccount } from "@/libs/api-client/zalo-personal.api";
+import { deleteZaloPersonalAccount, getInfoAccZalo, loginZaloPersonalViaCookie } from "@/libs/api-client/zalo-personal.api";
 import FormLoginQr from "./formLoginQr";
+import { Cookie } from "lucide-react";
 
 
 export default function ZaloPersonalListAccountComponent() {
@@ -55,16 +56,79 @@ export default function ZaloPersonalListAccountComponent() {
         });
     }
 
+    const handleLoginViaCookie = async (id: string) => {
+        const response = await loginZaloPersonalViaCookie(id);
+        if (!response.status) {
+            notification.error({
+                message: "Error",
+                description: response.message || "An error occurred while logging in via cookie.",
+            });
+            return;
+        }
+        notification.success({
+            message: "Success",
+            description: "Login via cookie initiated successfully.",
+        });
+    }
+
+    const handleGetInfoAccount = async (id: string) => {
+        const response = await getInfoAccZalo(id);
+        if (!response.status) {
+            notification.error({
+                message: "Error",
+                description: response.message || "An error occurred while fetching account info.",
+            });
+            return;
+        }
+        const accountInfo = response.data.data.info;
+        const acc = accountData.find(acc => acc._id === id);
+        if (acc) {
+            const updatedAcc = { ...acc, display_name: accountInfo.name, avatar: accountInfo.avatar, isLogin: true };
+            updateZaloPersonalAccount(updatedAcc);
+        }
+        notification.success({
+            message: "Success",
+            description: "Account info fetched successfully.",
+        });
+    }
+
     const clolumns = [
         { title: "STT", key: "stt", render: (_: any, __: any, index: number) => (index + 1 + (pageZaloPersonal - 1) * limitZaloPersonal), width: 80 },
         { title: 'avatar', dataIndex: 'avatar', key: 'avatar', render: (avatar: string) => (<Image src={avatar || 'https://adminlte.io/themes/v3/dist/img/user2-160x160.jpg'} sizes="8" alt="avatar" className="w-10 h-10 rounded-full" />), width: 120 },
         { title: 'Họ tên', dataIndex: 'display_name', key: 'display_name', width: 250 },
         { title: 'Phone Number', dataIndex: 'phoneNumber', key: 'phoneNumber', width: 150 },
-        { title: 'Password', dataIndex: 'password', key: 'password', width: 250 },
+        {
+            title: 'Password', dataIndex: 'password', key: 'password', width: 250,
+        },
+        {
+            title: 'Login', dataIndex: 'isLogin', key: 'isLogin', width: 150, render: (isLogin: boolean) => {
+                return isLogin ? <span className="text-green-500 font-semibold">Logged In</span> : <span className="text-red-500 font-semibold">Not Logged In</span>
+            }
+        },
         {
             title: 'Actions', key: 'actions', render: (_: any, record: ZaloPersonalData) => (
-                <div className="flex gap-2 justify-end">                
-                    <Tooltip title="Login via QR Code">
+                <div className="flex gap-2 justify-end">
+                    
+                    <Tooltip title="Lấy thông tin tài khoản">
+                        <Button
+                            disabled={record.isLogin === false}
+                            onClick={handleGetInfoAccount.bind(null, record._id)}
+                            type="primary"
+                        >
+                            Info
+                        </Button>
+                    </Tooltip>
+
+                    <Tooltip title="Đăng nhập qua Cookie">
+                        <Button
+                            disabled={record.imei === "" || record.imei === null}
+                            onClick={handleLoginViaCookie.bind(null, record._id)}
+                            type="primary"
+                        >
+                            <Cookie />
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title="Đăng nhập qua QR Code">
                         <Button
                             onClick={() => {
                                 setSelectedZaloId(record._id);
@@ -72,10 +136,9 @@ export default function ZaloPersonalListAccountComponent() {
                             }}
                             type="primary"
                         >
-                        Login QR    
+                            QR
                         </Button>
                     </Tooltip>
-
                     <Button
                         icon={<EditOutlined />}
                         className="bg-yellow-500!"
