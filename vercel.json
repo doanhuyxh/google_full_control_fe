@@ -3,8 +3,10 @@
         "silent": true
     },
     "ignoreCommand": "bash -c '[ \"$VERCEL_GIT_COMMIT_REF\" != \"master\" ]'",
-    "cron": {
-        "path": "/api/cron",
-        "schedule": "* * * * *"
-    }
+    "crons": [
+        {
+            "path": "/api/cron",
+            "schedule": "* * * * *"
+        }
+    ]
 }
