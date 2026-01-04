@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {TelegramAccountData} from "@/libs/intefaces/telegramData";
-import { getTelegramAccounts } from "@/libs/api-client/telegram.api";
+import { getTelegramAccounts } from "@/libs/network/telegram.api";
 import { useDebounce } from "../useDebounce";
 import { useAntdApp } from "../useAntdApp";
 

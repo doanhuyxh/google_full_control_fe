@@ -1,4 +1,4 @@
-import { createTelegramAccount, getTelegramAccountDetail, updateTelegramAccount } from "@/libs/api-client/telegram.api";
+import { createTelegramAccount, getTelegramAccountDetail, updateTelegramAccount } from "@/libs/network/telegram.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { Modal, Form, Input, InputNumber } from "antd";
 import { useEffect } from "react";

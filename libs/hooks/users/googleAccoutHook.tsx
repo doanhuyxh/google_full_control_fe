@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { GoogleAccount } from "@/libs/intefaces/googleData";
-import { getGoogleAccount } from "@/libs/api-client/google.api";
+import { getGoogleAccount } from "@/libs/network/google.api";
 
 export function useGoogleAccount() {
     const [accountData, setAccountData] = useState<GoogleAccount[]>([]);

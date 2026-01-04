@@ -1,5 +1,5 @@
 import { useSocketManager } from "@/libs/hooks/useSocketManager";
-import { initZaloPersonalLoginQr } from "@/libs/api-client/zalo-personal.api";
+import { initZaloPersonalLoginQr } from "@/libs/network/zalo-personal.api";
 import { Modal, Image } from "antd";
 import { useEffect, useState } from "react";
 

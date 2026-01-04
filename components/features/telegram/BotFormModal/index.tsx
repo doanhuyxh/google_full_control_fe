@@ -1,4 +1,4 @@
-import { createBot } from "@/libs/api-client/telegram.api";
+import { createBot } from "@/libs/network/telegram.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { Form, Input, Modal } from "antd";
 import { useState } from "react";

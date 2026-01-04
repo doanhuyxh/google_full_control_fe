@@ -1,4 +1,5 @@
 import { useDebounce } from "@/libs/hooks/useDebounce";
+import { GoogleAccountStatusOptions } from "@/libs/intefaces/googleData";
 import { Button, Input, Select, Tooltip } from "antd";
 import { MailPlusIcon, PlusCircle, SettingsIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -37,12 +38,10 @@ export default function GoogleAccountFilter({ onSearch, value, status, setStatus
                 allowClear
                 value={status}
                 onChange={setStatus}>
-                <Select.Option value="">All</Select.Option>
-                <Select.Option value="live">Active</Select.Option>
-                <Select.Option value="suspended">Suspended</Select.Option>
-                <Select.Option value="phone_verification">
-                    Phone Verification
-                </Select.Option>
+                <Select.Option value="">Tất cả</Select.Option>
+                {GoogleAccountStatusOptions.map((option) => (
+                    <Select.Option key={option.value} value={option.value}>{option.label}</Select.Option>
+                ))}
             </Select>
         </div>
     </div>

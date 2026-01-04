@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useDebounce } from "@/libs/hooks/useDebounce";
 import ZaloPersonalData from "@/libs/intefaces/zaloPersonalData";
-import { getZaloPersonalAccount } from "@/libs/api-client/zalo-personal.api";
+import { getZaloPersonalAccount } from "@/libs/network/zalo-personal.api";
 
 export function useZaloPersonalAccount() {
     const [accountData, setAccountData] = useState<ZaloPersonalData[]>([]);

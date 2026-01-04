@@ -3,7 +3,7 @@
 import { Modal, Form, Input } from "antd";
 import { useEffect } from "react";
 import { CloudinaryData } from "@/libs/intefaces/cloudinaryData";
-import { createCloudinaryAccount, updateCloudinaryAccount } from "@/libs/api-client/cloudinary.api";
+import { createCloudinaryAccount, updateCloudinaryAccount } from "@/libs/network/cloudinary.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 
 interface CloudinaryFormModalProps {

@@ -9,7 +9,7 @@ import BotFormModal from "./BotFormModal"
 import { TelegramAccountData } from "@/libs/intefaces/telegramData";
 import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { deleteTelegramAccount } from "@/libs/api-client/telegram.api";
+import { deleteTelegramAccount } from "@/libs/network/telegram.api";
 import { PersonStanding } from "lucide-react";
 import ListBotModal from "./ListBotModal";
 
@@ -43,12 +43,12 @@ export default function TelegramComponent() {
             render: (_: any, __: any, index: number) => (pageTele - 1) * limitTele + index + 1,
         },
         {
-            title: 'Tên tài khoản',
+            title: 'Tên',
             dataIndex: 'name',
             key: 'name',
         },
         {
-            title: 'Username',
+            title: 'Tài khoản',
             dataIndex: 'username',
             key: 'username',
         },

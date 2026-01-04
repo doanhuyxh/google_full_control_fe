@@ -3,8 +3,8 @@ export const metadata = {
   description: 'Celebrate the holiday season with our interactive Merry Christmas 3D experience!',
 }
 
-import ChristmasPage from "@/components/features/christmas";
+import HomePageComponent from "@/components/features/home-page";
 
-export default function MeryChristmasPage() {
-  return <ChristmasPage/>
+export default function Home() {
+  return <HomePageComponent/>
 }

@@ -34,3 +34,9 @@ export interface GoogleAccountCreateData {
     recoveryEmail: string;
     f2a: string;
 }
+
+export const GoogleAccountStatusOptions = [
+    { value: 'live', label: 'Sống' },
+    { value: 'suspended', label: 'Cấm (Khóa)' },
+    { value: 'phone_verification', label: 'Xác minh điện thoại' }
+];

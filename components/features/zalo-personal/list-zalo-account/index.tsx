@@ -9,7 +9,7 @@ import ZaloPersonalAccountControls from "./ZaloAccountControls";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import FormZaloAccount from "./formZaloAccount";
 import { DeleteFilled, EditOutlined } from "@ant-design/icons";
-import { deleteZaloPersonalAccount, getInfoAccZalo, loginZaloPersonalViaCookie } from "@/libs/api-client/zalo-personal.api";
+import { deleteZaloPersonalAccount, getInfoAccZalo, loginZaloPersonalViaCookie } from "@/libs/network/zalo-personal.api";
 import FormLoginQr from "./formLoginQr";
 import { Cookie } from "lucide-react";
 
@@ -93,12 +93,20 @@ export default function ZaloPersonalListAccountComponent() {
     }
 
     const clolumns = [
-        { title: "STT", key: "stt", render: (_: any, __: any, index: number) => (index + 1 + (pageZaloPersonal - 1) * limitZaloPersonal), width: 80 },
-        { title: 'avatar', dataIndex: 'avatar', key: 'avatar', render: (avatar: string) => (<Image src={avatar || 'https://adminlte.io/themes/v3/dist/img/user2-160x160.jpg'} sizes="8" alt="avatar" className="w-10 h-10 rounded-full" />), width: 120 },
-        { title: 'Họ tên', dataIndex: 'display_name', key: 'display_name', width: 250 },
-        { title: 'Số điện thoại', dataIndex: 'phoneNumber', key: 'phoneNumber', width: 150 },
         {
-            title: 'Password', dataIndex: 'password', key: 'password', width: 250,
+            title: "STT", key: "stt", render: (_: any, __: any, index: number) => (index + 1 + (pageZaloPersonal - 1) * limitZaloPersonal), width: 80
+        },
+        {
+            title: 'avatar', dataIndex: 'avatar', key: 'avatar', render: (avatar: string) => (<Image src={avatar || 'https://adminlte.io/themes/v3/dist/img/user2-160x160.jpg'} sizes="8" alt="avatar" className="w-10 h-10 rounded-full" />), width: 120
+        },
+        {
+            title: 'Họ tên', dataIndex: 'display_name', key: 'display_name', width: 250
+        },
+        {
+            title: 'Số điện thoại', dataIndex: 'phoneNumber', key: 'phoneNumber', width: 150
+        },
+        {
+            title: 'Mật khẩu', dataIndex: 'password', key: 'password', width: 250,
         },
         {
             title: 'Trạng thái', dataIndex: 'isLogin', key: 'isLogin', width: 150, render: (isLogin: boolean) => {
@@ -106,9 +114,8 @@ export default function ZaloPersonalListAccountComponent() {
             }
         },
         {
-            title: 'Actions', key: 'actions', render: (_: any, record: ZaloPersonalData) => (
+            title: 'Hành động', key: 'actions', render: (_: any, record: ZaloPersonalData) => (
                 <div className="flex gap-2 justify-end">
-                    
                     <Tooltip title="Lấy thông tin tài khoản">
                         <Button
                             disabled={record.isLogin === false}
@@ -153,7 +160,7 @@ export default function ZaloPersonalListAccountComponent() {
     ]
 
     return (
-        <Card className="w-full p-6 rounded-lg shadow-lg">
+        <Card className="w-full p-6 rounded-lg border-2 border-gray-200 shadow-sm">
             <ZaloPersonalAccountControls searchZaloPersonal={searchZaloPersonal} setSearchZaloPersonal={setSearchZaloPersonal} onAddClick={() => handleFormModal(null)} />
             <Table
                 columns={clolumns}

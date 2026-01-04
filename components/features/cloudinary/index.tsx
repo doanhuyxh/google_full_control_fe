@@ -11,7 +11,7 @@ import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScr
 import { formatUtcToLocal } from "@/libs/utils/timeUtils";
 import { Edit3 } from "lucide-react";
 import { DeleteFilled, BarChartOutlined } from "@ant-design/icons";
-import { deleteCloudinaryAccount, getCloudinaryUsage } from "@/libs/api-client/cloudinary.api";
+import { deleteCloudinaryAccount, getCloudinaryUsage } from "@/libs/network/cloudinary.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import CloudinaryUsageModal from "./CloudinaryUsageModal";
 

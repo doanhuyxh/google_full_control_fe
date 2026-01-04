@@ -1,4 +1,4 @@
-import { createZaloPersonalAccount, updateZaloPersonalAccount } from "@/libs/api-client/zalo-personal.api";
+import { createZaloPersonalAccount, updateZaloPersonalAccount } from "@/libs/network/zalo-personal.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData } from "@/libs/intefaces/zaloPersonalData";
 import { Form, Input, Modal } from "antd";

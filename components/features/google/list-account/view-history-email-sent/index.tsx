@@ -2,7 +2,7 @@
 import { Button, Card, Modal, Table, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { getHistorySentEmail } from "@/libs/api-client/google.api";
+import { getHistorySentEmail } from "@/libs/network/google.api";
 
 
 interface ViewEmailSentProps {

@@ -11,3 +11,9 @@ export const COLOR = {
   900: "#001620",
   borderColor: "#E7EAF3B2"
 };
+
+export const antdComponentConfig = {
+  Table: {
+    headerBg: COLOR[600],
+  },
+};

@@ -2,7 +2,7 @@
 
 import { Spin } from "antd";
 import { useEffect } from "react";
-import {logoutApi} from "@/libs/api-client/auth.api"
+import {logoutApi} from "@/libs/network/auth.api"
 
 export default function LogoutComponent() {
 
