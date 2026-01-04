@@ -96,13 +96,13 @@ export default function ZaloPersonalListAccountComponent() {
         { title: "STT", key: "stt", render: (_: any, __: any, index: number) => (index + 1 + (pageZaloPersonal - 1) * limitZaloPersonal), width: 80 },
         { title: 'avatar', dataIndex: 'avatar', key: 'avatar', render: (avatar: string) => (<Image src={avatar || 'https://adminlte.io/themes/v3/dist/img/user2-160x160.jpg'} sizes="8" alt="avatar" className="w-10 h-10 rounded-full" />), width: 120 },
         { title: 'Họ tên', dataIndex: 'display_name', key: 'display_name', width: 250 },
-        { title: 'Phone Number', dataIndex: 'phoneNumber', key: 'phoneNumber', width: 150 },
+        { title: 'Số điện thoại', dataIndex: 'phoneNumber', key: 'phoneNumber', width: 150 },
         {
             title: 'Password', dataIndex: 'password', key: 'password', width: 250,
         },
         {
-            title: 'Login', dataIndex: 'isLogin', key: 'isLogin', width: 150, render: (isLogin: boolean) => {
-                return isLogin ? <span className="text-green-500 font-semibold">Logged In</span> : <span className="text-red-500 font-semibold">Not Logged In</span>
+            title: 'Trạng thái', dataIndex: 'isLogin', key: 'isLogin', width: 150, render: (isLogin: boolean) => {
+                return isLogin ? <span className="text-green-500 font-semibold">Đã đăng nhập</span> : <span className="text-red-500 font-semibold">Chưa đăng nhập</span>
             }
         },
         {
@@ -115,10 +115,9 @@ export default function ZaloPersonalListAccountComponent() {
                             onClick={handleGetInfoAccount.bind(null, record._id)}
                             type="primary"
                         >
-                            Info
+                            Thông tin
                         </Button>
                     </Tooltip>
-
                     <Tooltip title="Đăng nhập qua Cookie">
                         <Button
                             disabled={record.imei === "" || record.imei === null}
