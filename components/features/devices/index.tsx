@@ -1,6 +1,6 @@
 "use client";
 
-import { getLoginHistoryApi } from "@/libs/api-client/auth.api";
+import { getLoginHistoryApi } from "@/libs/network/auth.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { LoginHistory } from "@/libs/intefaces/authData";

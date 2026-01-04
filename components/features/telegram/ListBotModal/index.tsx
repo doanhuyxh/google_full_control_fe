@@ -1,7 +1,7 @@
 import { Button, Input, Modal, Table } from "antd";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { getBotsByTelegramAccount, deleteBot, updateBot, testBotConnection } from "@/libs/api-client/telegram.api";
+import { getBotsByTelegramAccount, deleteBot, updateBot, testBotConnection } from "@/libs/network/telegram.api";
 import { useDebounce } from "@/libs/hooks/useDebounce";
 import { useCommon } from "@/libs/hooks/useCommon";
 import debounce from "lodash/debounce";

@@ -10,8 +10,8 @@ import { useToolsDataBackEnd } from "@/libs/hooks/useToolsDataBackEnd";
 import { useCommon } from "@/libs/hooks/useCommon";
 import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { GoogleAccount } from "@/libs/intefaces/googleData";
-import { updateGoogleAccount, deleteGoogleAccount } from "@/libs/api-client/google.api";
+import { GoogleAccount, GoogleAccountStatusOptions } from "@/libs/intefaces/googleData";
+import { updateGoogleAccount, deleteGoogleAccount } from "@/libs/network/google.api";
 import GoogleAccountFilter from "./filter";
 import GoogleFormModal from "./form";
 import GoogleFormSendEmail from "./form-send-email";
@@ -241,18 +241,14 @@ export default function GoogleAccountComponent() {
             title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
-            width: 100,
+            width: 180,
             render: (status: string, record: GoogleAccount) => (
                 <Select
                     size="small"
                     defaultValue={status}
                     style={{ width: '100%' }}
                     onChange={(value) => handleUpdateData(record._id, 'status', value)}
-                    options={[
-                        { value: 'live', label: 'Sống' },
-                        { value: 'suspended', label: 'Cấm' },
-                        { value: 'phone_verification', label: 'Xác minh điện thoại' }
-                    ]}
+                    options={GoogleAccountStatusOptions}
                 />
             ),
         },
@@ -348,17 +344,6 @@ export default function GoogleAccountComponent() {
                 dataSource={accountData}
                 loading={loadingGoogle}
                 rowKey={(record) => record._id}
-                rowClassName={(record: GoogleAccount) => {
-                    if (record.status === 'live') {
-                        // return 'bg-green-50 border-l-4 border-green-500';
-                    } else if (record.status === 'suspended') {
-                        return 'bg-red-50 border-l-4 border-red-500';
-                    }
-                    else if (record.status === 'phone_verification') {
-                        return 'bg-yellow-50 border-l-4 border-yellow-500';
-                    }
-                    return '';
-                }}
                 pagination={{
                     current: pageGoogle,
                     pageSize: limitGoogle,

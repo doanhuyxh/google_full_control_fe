@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { useDebounce } from "@/libs/hooks/useDebounce";
-import { getAccountCloudinary } from "@/libs/api-client/cloudinary.api";
+import { getAccountCloudinary } from "@/libs/network/cloudinary.api";
 import { CloudinaryData } from "@/libs/intefaces/cloudinaryData";
 
 export function useCloudinaryAccount() {

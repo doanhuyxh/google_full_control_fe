@@ -1,17 +1,21 @@
 "use client";
 import NextTopLoader from "nextjs-toploader";
 import { ReactNode, Suspense, useState } from "react";
-import { ConfigProvider, Layout, App, Spin, theme as antdTheme } from "antd";
+import { ConfigProvider, Layout, App, Spin, theme as antdTheme, ThemeConfig } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import vi_VN from 'antd/locale/vi_VN';
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import SideNav from "./SideNav";
 import AppHeader from "./Header";
+import { antdComponentConfig } from "@/libs/constants/colors";
 
 export default function AntdLayout({ children, initialTheme }: { children: ReactNode, initialTheme: string }) {
     const [isDark, setIsDark] = useState(initialTheme === "dark");
-    const dynamicConfig = {
+    const dynamicConfig: ThemeConfig = {
         algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+        components: {
+            ...antdComponentConfig
+        }
     };
 
     return (
