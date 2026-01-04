@@ -1,5 +1,5 @@
 import { useSocketManager } from "@/libs/hooks/useSocketManager";
-import { initZaloPersonalLogin } from "@/libs/api-client/zalo-personal.api";
+import { initZaloPersonalLoginQr } from "@/libs/api-client/zalo-personal.api";
 import { Modal, Image } from "antd";
 import { useEffect, useState } from "react";
 
@@ -19,7 +19,7 @@ export default function FormLoginQr({ isShowModal, onCloseModal, zaloId }: FormZ
 
     useEffect(() => {
         if (!zaloId || !isShowModal || !zaloSocket) return;
-        initZaloPersonalLogin(zaloId, zaloSocket.id || "")
+        initZaloPersonalLoginQr(zaloId, zaloSocket.id || "")
     }, [zaloId, zaloSocket, isShowModal]);
 
     useEffect(() => {

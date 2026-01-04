@@ -10,6 +10,7 @@ export default interface ZaloPersonalData {
     imei: string;
     secret_key: string;
     cookie: string;
+    isLogin: boolean;
     createdAt: string;
     updatedAt: string;
 }
