@@ -29,13 +29,14 @@ export default function AntdLayout({ children, initialTheme }: { children: React
                             <App
                                 message={{
                                     top: 80,
-                                    duration: 5,
+                                    duration: 3,
                                     maxCount: 10,
                                 }}
                                 notification={{
                                     placement: "topRight",
-                                    duration: 4,
+                                    duration: 3,
                                     maxCount: 10,
+                                    showProgress: true,
                                 }}
                             >
                                 <AppHeader isDark={isDark} onToggleTheme={setIsDark} />

@@ -1,10 +1,10 @@
-import CloudinaryComponent from '@/components/features/cloudinary';
+import AppleIDComponent from '@/components/features/appleid';
 
 export const metadata = {
-    title: 'Cloudinary Admin Page',
-    description: 'Admin page for managing Cloudinary accounts and settings.',
+    title: 'Apple ID Admin Page',
+    description: 'Admin page for managing Apple ID accounts and settings.',
 };
 
-export default function CloudinaryPage() {
-    return <CloudinaryComponent />
+export default function AppleIDPage() {
+    return <AppleIDComponent />
 }
