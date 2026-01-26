@@ -5,6 +5,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { TextStyleKit } from '@tiptap/extension-text-style'
 import Text from '@tiptap/extension-text'
 import Youtube from '@tiptap/extension-youtube'
+import Link from '@tiptap/extension-link'
 import { MenuBar } from './MenuBar'
 import { memo } from 'react'
 
@@ -14,7 +15,12 @@ interface TiptapComponentProp {
     onChange: (value: string) => void
 }
 
-const extensions = [TextStyleKit, StarterKit, Text, Youtube]
+const extensions = [TextStyleKit, StarterKit, Text, Youtube, Link.configure({
+    openOnClick: false,
+    HTMLAttributes: {
+        class: 'text-blue-600 underline cursor-pointer',
+    },
+})]
 
 const TiptapComponent = ({ value, onChange }: TiptapComponentProp) => {
     const editor = useEditor({
@@ -30,7 +36,7 @@ const TiptapComponent = ({ value, onChange }: TiptapComponentProp) => {
                     'prose prose-sm sm:prose lg:prose-lg focus:outline-none p-2 border border-gray-300 rounded min-h-[200px] w-full overflow-auto',
             },
         },
-        immediatelyRender: true,
+        immediatelyRender: false,
     })
 
     return <div>

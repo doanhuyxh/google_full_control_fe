@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import CloudinaryComponent from '@/components/features/cloudinary';
 
 export const metadata = {
@@ -7,9 +6,5 @@ export const metadata = {
 };
 
 export default function CloudinaryPage() {
-    return (
-        <Suspense fallback={<div>Loading Cloudinary Account Management...</div>}>
-           <CloudinaryComponent />
-        </Suspense>
-    )
+    return <CloudinaryComponent />
 }

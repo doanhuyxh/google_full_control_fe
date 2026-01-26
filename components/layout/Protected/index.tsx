@@ -1,7 +1,7 @@
 "use client";
 import NextTopLoader from "nextjs-toploader";
-import { ReactNode, Suspense, useState } from "react";
-import { ConfigProvider, Layout, App, Spin, theme as antdTheme, ThemeConfig } from "antd";
+import { ReactNode, useState } from "react";
+import { ConfigProvider, Layout, App, theme as antdTheme, ThemeConfig } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import vi_VN from 'antd/locale/vi_VN';
 import { AntdRegistry } from "@ant-design/nextjs-registry";
@@ -24,32 +24,31 @@ export default function AntdLayout({ children, initialTheme }: { children: React
             <AntdRegistry>
                 <ConfigProvider locale={vi_VN} theme={dynamicConfig}>
                     <Layout style={{ minHeight: "100vh" }}>
-                        <SideNav/>
+                        <SideNav />
                         <Layout style={{ flexDirection: "column" }}>
                             <App
                                 message={{
                                     top: 80,
-                                    duration: 5,
+                                    duration: 3,
                                     maxCount: 10,
                                 }}
                                 notification={{
                                     placement: "topRight",
-                                    duration: 4,
+                                    duration: 3,
                                     maxCount: 10,
+                                    showProgress: true,
                                 }}
                             >
-                                <Suspense fallback={<Spin size="large" className="m-20" />}>
-                                    <AppHeader isDark={isDark} onToggleTheme={setIsDark} />
-                                    <Layout.Content
-                                        style={{
-                                            padding: 16,
-                                            flex: 1,
-                                            overflow: "auto",
-                                        }}
-                                    >
-                                        {children}
-                                    </Layout.Content>
-                                </Suspense>
+                                <AppHeader isDark={isDark} onToggleTheme={setIsDark} />
+                                <Layout.Content
+                                    style={{
+                                        padding: 16,
+                                        flex: 1,
+                                        overflow: "auto",
+                                    }}
+                                >
+                                    {children}
+                                </Layout.Content>
                             </App>
                         </Layout>
                     </Layout>
