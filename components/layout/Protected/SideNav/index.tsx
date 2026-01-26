@@ -10,7 +10,7 @@ import {
     FolderAddFilled
 } from "@ant-design/icons";
 import { usePathname, useRouter } from "next/navigation";
-import { BookTemplateIcon, Mail, MessageCircle } from "lucide-react";
+import { AppleIcon, BookTemplateIcon, Mail, MessageCircle } from "lucide-react";
 
 const { Sider } = Layout;
 
@@ -56,6 +56,11 @@ const menuItems = [
                 key: "/accounts/telegram",
                 label: "Telegram",
                 icon: <MessageCircle size={16} />,
+            },
+            {
+                key: "/accounts/appleid",
+                label: "Apple ID",
+                icon: <AppleIcon size={16} />,
             }
         ],
     },

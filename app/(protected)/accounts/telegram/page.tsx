@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import TelegramComponent from "@/components/features/telegram";
 
 export const metadata = {
@@ -7,9 +6,5 @@ export const metadata = {
 };
 
 export default function TelegramAccountsPage() {
-    return (
-        <Suspense fallback={<div>Loading Telegram Accounts...</div>}>
-            <TelegramComponent />
-        </Suspense>
-    );
+    return <TelegramComponent />
 }

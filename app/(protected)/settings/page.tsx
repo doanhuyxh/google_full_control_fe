@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 
 export const metadata = {
     title: 'Settings Page',

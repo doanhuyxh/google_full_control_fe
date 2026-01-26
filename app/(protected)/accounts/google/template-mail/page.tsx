@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import GoogleTemplateMail from "@/components/features/google/template-mail";
 
 export const metadata = {
@@ -7,9 +6,5 @@ export const metadata = {
 };
 
 export default function GoogleTemplateMailPage() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <GoogleTemplateMail />
-        </Suspense>
-    );
+    return <GoogleTemplateMail />
 }

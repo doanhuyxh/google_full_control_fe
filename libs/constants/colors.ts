@@ -15,5 +15,7 @@ export const COLOR = {
 export const antdComponentConfig = {
   Table: {
     headerBg: COLOR[600],
+    headerColor: "#FFFFFF",
+    rowHoverBg: COLOR[50],
   },
 };
