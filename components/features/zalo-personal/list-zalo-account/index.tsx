@@ -97,7 +97,7 @@ export default function ZaloPersonalListAccountComponent() {
             title: "STT", key: "stt", render: (_: any, __: any, index: number) => (index + 1 + (pageZaloPersonal - 1) * limitZaloPersonal), width: 80
         },
         {
-            title: 'avatar', dataIndex: 'avatar', key: 'avatar', render: (avatar: string) => (<Image src={avatar || 'https://adminlte.io/themes/v3/dist/img/user2-160x160.jpg'} sizes="8" alt="avatar" className="w-10 h-10 rounded-full" />), width: 120
+            title: 'avatar', dataIndex: 'avatar', key: 'avatar', render: (avatar: string) => (<Image src={avatar || 'https://adminlte.io/themes/v3/dist/img/user2-100x100.jpg'} sizes="20" alt="avatar" className="w-10 h-10 rounded-full" />), width: 120
         },
         {
             title: 'Họ tên', dataIndex: 'display_name', key: 'display_name', width: 250
@@ -115,7 +115,7 @@ export default function ZaloPersonalListAccountComponent() {
         },
         {
             title: 'Hành động', key: 'actions', render: (_: any, record: ZaloPersonalData) => (
-                <div className="flex gap-2 justify-end">
+                <div className="flex gap-2 justify-end flex-wrap">
                     <Tooltip title="Lấy thông tin tài khoản">
                         <Button
                             disabled={record.isLogin === false}
