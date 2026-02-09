@@ -33,7 +33,7 @@ export default function AntdLayout({ children, initialTheme }: { children: React
                                     maxCount: 10,
                                 }}
                                 notification={{
-                                    placement: "topRight",
+                                    placement: "bottomRight",
                                     duration: 3,
                                     maxCount: 10,
                                     showProgress: true,
