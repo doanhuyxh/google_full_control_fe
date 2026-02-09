@@ -49,7 +49,7 @@ export async function loginZaloPersonalViaCookie(id:string) {
 }
 
 export async function getInfoAccZalo(id:string) {
-    return await fetcherBackEnd<ApiResponse<any>>(`/api/zalo-personal/${id}/get-info`, {
+    return await fetcherBackEnd<ApiResponse<any>>(`/api/zalo-personal/${id}/get-account-info`, {
         method: "GET",
     })
 }
