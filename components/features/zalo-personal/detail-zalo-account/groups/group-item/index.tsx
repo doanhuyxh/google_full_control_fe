@@ -1,7 +1,7 @@
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { ProfilesMemberGroup, ZaloGroupInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { getMemberInZaloGroup } from "@/libs/network/zalo-personal.api";
-import { getAllValueFromObject } from "@/libs/utils/JsUtils";
+import { getAllValueFromObject, merchObjectToObject } from "@/libs/utils/JsUtils";
 import { formatTimestampToLocal } from "@/libs/utils/timeUtils";
 import { Button, Modal } from "antd";
 import { useState } from "react";
@@ -20,35 +20,59 @@ export default function GroupItem({ item, accountId }: GroupItemProps) {
 
     const handleShowMembers = async () => {
         setIsShowMembers(true);
-        const memberIds = getAllValueFromObject(item.memVerList || {}) || [];
-        const response = await getMemberInZaloGroup(accountId, item.groupId, memberIds);
-        setLoadingMembers(false);
-        if (!response.status) {
-            notification.error({
-                message: "Lỗi",
-                description: response.message || "Đã có lỗi xảy ra khi lấy thông tin thành viên nhóm.",
-            });
-            return;
-        }
-        if (response.data.error_code != 0) {
-            notification.error({
-                message: "Lỗi",
-                description: response.data.error_message || "Đã có lỗi xảy ra khi lấy thông tin thành viên nhóm.",
-            });
-            return;
-        }
-        if (!response.data.data || !response.data.data.profiles) {
-            notification.warning({
-                message: "Không có thành viên",
-                description: "Nhóm này hiện không có thành viên nào hoặc đã có lỗi khi lấy thông tin thành viên.",
-            });
-            setMembers([]);
-            return;
-        }
-        setMembers(getAllValueFromObject(response.data.data.profiles) || []);
-        setIsShowMembers(true);
+        setLoadingMembers(true);
 
-    }
+        try {
+            const memberIds = getAllValueFromObject(item.memVerList || {}) || [];
+            if (memberIds.length === 0) {
+                setMembers([]);
+                notification.warning({
+                    message: "Không có thành viên",
+                    description: "Nhóm này hiện không có thành viên nào hoặc đã có lỗi khi lấy thông tin thành viên.",
+                });
+                return;
+            }
+
+            const profilesMap: Record<string, ProfilesMemberGroup> = {};
+
+            for (let i = 0; i < memberIds.length; i += 10) {
+                const chunkMemberIds = memberIds.slice(i, i + 10);
+                const response = await getMemberInZaloGroup(accountId, item.groupId, chunkMemberIds);
+
+                if (!response.status) {
+                    notification.error({
+                        message: "Lỗi",
+                        description: response.message || "Đã có lỗi xảy ra khi lấy thông tin thành viên nhóm.",
+                    });
+                    return;
+                }
+
+                if (response.data.error_code != 0) {
+                    notification.error({
+                        message: "Lỗi",
+                        description: response.data.error_message || "Đã có lỗi xảy ra khi lấy thông tin thành viên nhóm.",
+                    });
+                    return;
+                }
+
+                if (response.data.data?.profiles) {
+                    merchObjectToObject(profilesMap, response.data.data.profiles);
+                }
+            }
+
+            const nextMembers = getAllValueFromObject(profilesMap) || [];
+            if (nextMembers.length === 0) {
+                notification.warning({
+                    message: "Không có thành viên",
+                    description: "Nhóm này hiện không có thành viên nào hoặc đã có lỗi khi lấy thông tin thành viên.",
+                });
+            }
+
+            setMembers(nextMembers);
+        } finally {
+            setLoadingMembers(false);
+        }
+    };
 
     return (
         <>
@@ -68,6 +92,7 @@ export default function GroupItem({ item, accountId }: GroupItemProps) {
                 onCancel={() => setIsShowMembers(false)}
                 title={`Thành viên nhóm ${item.name}`}
                 style={{ top: 20 }}
+                maskClosable={false}
                 width={1600}
                 loading={loadingMembers}
                 footer={
@@ -76,13 +101,12 @@ export default function GroupItem({ item, accountId }: GroupItemProps) {
                     </div>
                 }
             >
-                <div className="w-full max-h-[80vh] overflow-auto">
+                <div className="grid w-full max-h-[80vh] grid-cols-1 gap-4 overflow-auto md:grid-cols-2 xl:grid-cols-5">
                     {members.map((member) => (
                         <MemberItemGroup key={member.id} item={member} />
                     ))}
                 </div>
             </Modal>
         </>
-
-    )
+    );
 }
