@@ -1,15 +1,14 @@
 "use client";
 
-import useLocalStorage from "@/libs/hooks/useLocalStorage";
-import { ZaloGroup, ZaloGroupInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
-import { getZaloPersonalGroups, getZaloPersonalGroupsDetails, leaveZaloGroup } from "@/libs/network/zalo-personal.api";
-import { getAllKeyFromObject, getAllValueFromObject, merchObjectToObject } from "@/libs/utils/JsUtils";
+import { ZaloGroupInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { leaveZaloGroup } from "@/libs/network/zalo-personal.api";
 import { LogoutOutlined, MessageOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { Button, Checkbox, Collapse, Skeleton, Space, Tooltip, type CollapseProps } from "antd";
 import GroupItem from "./group-item";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useModal } from "@/libs/hooks/useModal";
+import useGroupListData from "./useGroupListData";
 
 interface GroupListZaloAccountProps {
 	id: string;
@@ -17,23 +16,18 @@ interface GroupListZaloAccountProps {
 
 export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) {
 	const { notification } = useAntdApp();
-	const [mounted, setMounted] = useState(false); // ⭐ tránh hydration lỗi
-	const [loading, setLoading] = useState(true); // ⭐ skeleton state
-	const [gridVerMap, setGridVerMap] = useState<string[]>([]);
-	const [groupDetails, setGroupDetails] = useLocalStorage<ZaloGroupInfo[]>(`groupDetails_${id}`, []);
+	const [mounted, setMounted] = useState(false);
+	const { loading, groupDetails, setGroupDetails } = useGroupListData(id);
 	const [activeKeys, setActiveKeys] = useState<string[]>([]);
 	const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
 	const { showConfirm } = useModal();
 
-	// ⭐ đảm bảo chỉ render sau khi mount client
 	useEffect(() => {
 		setMounted(true);
 	}, []);
 
-	// ⭐ reset khi đổi account
 	useEffect(() => {
-		setGroupDetails([]);
-		setGridVerMap([]);
+		setActiveKeys([]);
 		setSelectedGroupIds([]);
 	}, [id]);
 
@@ -132,50 +126,8 @@ export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) 
 		setActiveKeys(Array.isArray(key) ? key : [key]);
 	};
 
-	const fetchGroups = async () => {
-		if (!id) return;
-
-		// đã có cache → không cần loading skeleton
-		if (groupDetails.length > 0) {
-			setLoading(false);
-			return;
-		}
-
-		const response = await getZaloPersonalGroups(id);
-		if (response.status) {
-			setGridVerMap(getAllKeyFromObject(response.data.data.gridVerMap) || []);
-		}
-	};
-
-	const fetchDetailsGroup = async () => {
-		if (gridVerMap.length === 0) return;
-
-		const dataMap: Record<string, ZaloGroup> = {};
-
-		for (let i = 0; i < gridVerMap.length; i += 10) {
-			const batch = gridVerMap.slice(i, i + 10);
-			const response = await getZaloPersonalGroupsDetails(id, batch);
-			if (!response.status) continue;
-
-			merchObjectToObject(dataMap, response.data.data.gridInfoMap);
-		}
-
-		setGroupDetails(getAllValueFromObject(dataMap) || []);
-		setLoading(false); // ⭐ xong loading
-	};
-
-	useEffect(() => {
-		fetchGroups();
-	}, [id]);
-
-	useEffect(() => {
-		fetchDetailsGroup();
-	}, [gridVerMap]);
-
-	// ⭐ tránh hydration mismatch hoàn toàn
 	if (!mounted) return null;
 
-	// ⭐ Skeleton UI
 	if (loading) {
 		return (
 			<section className="rounded-lg border border-gray-200 bg-white p-4">
@@ -184,7 +136,6 @@ export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) 
 		);
 	}
 
-	// ⭐ Không có dữ liệu
 	if (groupDetails.length === 0) {
 		return <div>Không có nhóm nào</div>;
 	}

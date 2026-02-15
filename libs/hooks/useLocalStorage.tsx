@@ -1,8 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 type SetValue<T> = T | ((val: T) => T);
 
 function useLocalStorage<T>(key: string, initialValue: T): [T, (value: SetValue<T>) => void] {
+    const initialValueRef = useRef(initialValue);
+
+    useEffect(() => {
+        initialValueRef.current = initialValue;
+    }, [initialValue]);
+
     const [storedValue, setStoredValue] = useState<T>(() => {
         try {
             if (typeof window === 'undefined') return initialValue;
@@ -31,11 +37,15 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: SetValue<
         const handleStorageChange = () => {
             try {
                 const item = window.localStorage.getItem(key);
-                setStoredValue(item ? JSON.parse(item) : initialValue);
+                setStoredValue(item ? JSON.parse(item) : initialValueRef.current);
             } catch (error) {
                 console.log(`error retrieving localStorage key “${key}”:`, error);
             }
         };
+
+        if (typeof window !== 'undefined') {
+            handleStorageChange();
+        }
 
         window.addEventListener('storage', handleStorageChange);
         window.addEventListener('local-storage', handleStorageChange);
@@ -44,7 +54,7 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: SetValue<
             window.removeEventListener('storage', handleStorageChange);
             window.removeEventListener('local-storage', handleStorageChange);
         };
-    }, [key, initialValue]);
+    }, [key]);
 
     return [storedValue, setValue];
 }
