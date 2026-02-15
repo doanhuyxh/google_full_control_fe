@@ -74,6 +74,11 @@ export default function ZaloPersonalListAccountComponent() {
             message: "Success",
             description: "Login via cookie initiated successfully.",
         });
+        const accountIndex = accountData.findIndex((account) => account._id === id);
+        if (accountIndex !== -1) {
+            const updatedAccount = { ...accountData[accountIndex], isLogin: true };
+            updateZaloPersonalAccount(updatedAccount);
+        }
     }
 
     const handleDetailAccount = async (id: string) => {

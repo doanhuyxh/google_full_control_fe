@@ -48,10 +48,10 @@ export default function DetailZaloAccount({ id }: DetailZaloAccountProps) {
             )}
             <Card className="flex-1">
                 <Row gutter={16} className="h-full">
-                    <Col span={12} className="h-full">
+                    <Col span={8} className="h-full">
                         <Tabs activeKey={tab} onChange={(key) => setTab(key)} items={items} />
                     </Col>
-                    <Col span={12} className="h-full">
+                    <Col span={16} className="h-full">
                         <MessageChatZaloAccount accountId={id} />
                     </Col>
                 </Row>
