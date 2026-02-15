@@ -6,9 +6,10 @@ import { getZaloPersonalGroups, getZaloPersonalGroupsDetails, leaveZaloGroup } f
 import { getAllKeyFromObject, getAllValueFromObject, merchObjectToObject } from "@/libs/utils/JsUtils";
 import { LogoutOutlined, MessageOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
-import { App, Button, Checkbox, Collapse, Skeleton, Space, Tooltip, type CollapseProps } from "antd";
+import { Button, Checkbox, Collapse, Skeleton, Space, Tooltip, type CollapseProps } from "antd";
 import GroupItem from "./group-item";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
+import { useModal } from "@/libs/hooks/useModal";
 
 interface GroupListZaloAccountProps {
 	id: string;
@@ -22,6 +23,7 @@ export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) 
 	const [groupDetails, setGroupDetails] = useLocalStorage<ZaloGroupInfo[]>(`groupDetails_${id}`, []);
 	const [activeKeys, setActiveKeys] = useState<string[]>([]);
 	const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
+	const { showConfirm } = useModal();
 
 	// ⭐ đảm bảo chỉ render sau khi mount client
 	useEffect(() => {
@@ -46,29 +48,34 @@ export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) 
 	};
 
 	const handleLeaveGroup = async (group: ZaloGroupInfo) => {
-		const confirmLeave = window.confirm(`Bạn có chắc chắn muốn rời nhóm "${group.name}"?`);
-		if (!confirmLeave) return;
-		const response = await leaveZaloGroup(id, group.groupId);
-		if (!response.status) {
-			notification.error({
-				message: "Lỗi",
-				description: response.message || "Đã có lỗi xảy ra khi rời nhóm.",
-			});
-			return;
-		}
-		if (response.data.error_code != 0) {
-			notification.error({
-				message: "Lỗi",
-				description: response.data.error_message || "Đã có lỗi xảy ra khi rời nhóm.",
-			});
-			return;
-		}
-		notification.success({
-			message: "Thành công",
-			description: `Bạn đã rời nhóm "${group.name}" thành công.`,
+		showConfirm({
+			title: "Xác nhận rời nhóm",
+			content: `Bạn có chắc chắn muốn rời nhóm "${group.name}"?`,
+			okType: "danger",
+			onOk: async () => {
+				const response = await leaveZaloGroup(id, group.groupId);
+				if (!response.status) {
+					notification.error({
+						message: "Lỗi",
+						description: response.message || "Đã có lỗi xảy ra khi rời nhóm.",
+					});
+					return;
+				}
+				if (response.data.error_code != 0) {
+					notification.error({
+						message: "Lỗi",
+						description: response.data.error_message || "Đã có lỗi xảy ra khi rời nhóm.",
+					});
+					return;
+				}
+				notification.success({
+					message: "Thành công",
+					description: `Bạn đã rời nhóm "${group.name}" thành công.`,
+				});
+				setGroupDetails((prev) => prev.filter((g) => g.groupId !== group.groupId));
+				setSelectedGroupIds((prev) => prev.filter((id) => id !== group.groupId));
+			},
 		});
-		setGroupDetails((prev) => prev.filter((g) => g.groupId !== group.groupId));
-		setSelectedGroupIds((prev) => prev.filter((id) => id !== group.groupId));
 	};
 
 	const handleSendDefaultMessage = (group: ZaloGroupInfo) => {

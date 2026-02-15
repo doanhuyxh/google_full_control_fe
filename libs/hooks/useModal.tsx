@@ -24,15 +24,26 @@ export const useModal = (): UseModalReturn => {
       });
     },
 
-    showConfirm: (config: ModalFuncProps) => {
-      modal.confirm({
-        centered: true,
-        maskClosable: true,          
-        okText: "Xác nhận",
-        cancelText: "Hủy",
-        ...config,
+    showConfirm: (config: ModalFuncProps): any => {
+      return new Promise<boolean>((resolve) => {
+        modal.confirm({
+          centered: true,
+          maskClosable: true,
+          okText: "Xác nhận",
+          cancelText: "Hủy",
+          ...config,
+          onOk: async () => {
+            await config.onOk?.();
+            resolve(true);
+          },
+          onCancel: () => {
+            config.onCancel?.();
+            resolve(false);
+          },
+        });
       });
     },
+
 
     showWarning: (config: ModalFuncProps) => {
       modal.warning({
