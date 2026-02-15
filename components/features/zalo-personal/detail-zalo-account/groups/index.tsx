@@ -3,11 +3,12 @@
 import { ZaloGroupInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { leaveZaloGroup } from "@/libs/network/zalo-personal.api";
 import { LogoutOutlined, MessageOutlined } from "@ant-design/icons";
-import { useEffect, useState } from "react";
-import { Button, Checkbox, Collapse, Skeleton, Space, Tooltip, type CollapseProps } from "antd";
+import { useEffect, useMemo, useState } from "react";
+import { Button, Checkbox, Collapse, Input, Skeleton, Space, Tooltip, type CollapseProps } from "antd";
 import GroupItem from "./group-item";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useModal } from "@/libs/hooks/useModal";
+import { useDebounce } from "@/libs/hooks/useDebounce";
 import useGroupListData from "./useGroupListData";
 
 interface GroupListZaloAccountProps {
@@ -18,6 +19,8 @@ export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) 
 	const { notification } = useAntdApp();
 	const [mounted, setMounted] = useState(false);
 	const { loading, groupDetails, setGroupDetails } = useGroupListData(id);
+	const [searchText, setSearchText] = useState("");
+	const debouncedSearchText = useDebounce(searchText, 300);
 	const [activeKeys, setActiveKeys] = useState<string[]>([]);
 	const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
 	const { showConfirm } = useModal();
@@ -29,7 +32,15 @@ export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) 
 	useEffect(() => {
 		setActiveKeys([]);
 		setSelectedGroupIds([]);
+		setSearchText("");
 	}, [id]);
+
+	const filteredGroups = useMemo(() => {
+		const keyword = debouncedSearchText.trim().toLowerCase();
+		if (!keyword) return groupDetails;
+
+		return groupDetails.filter((group) => group.name?.toLowerCase().includes(keyword));
+	}, [groupDetails, debouncedSearchText]);
 
 	const toggleGroupSelection = (groupId: string, checked: boolean) => {
 		setSelectedGroupIds((prev) => {
@@ -81,7 +92,7 @@ export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) 
 
 	const renderGroupLabel = (group: ZaloGroupInfo) => (
 		<div className="flex w-full items-center justify-between gap-2 pr-2">
-			<span className="truncate">{group.name}</span>
+			<p className="line-clamp-2">{group.name}</p>
 			<Space size={4} onClick={(event) => event.stopPropagation()}>
 				<Tooltip title="Gửi tin nhắn mặc định vào nhóm">
 					<Button
@@ -116,7 +127,7 @@ export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) 
 		</div>
 	);
 
-	const items: CollapseProps["items"] = groupDetails.map((group) => ({
+	const items: CollapseProps["items"] = filteredGroups.map((group) => ({
 		key: group.groupId,
 		label: renderGroupLabel(group),
 		children: <GroupItem item={group} />,
@@ -141,8 +152,23 @@ export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) 
 	}
 
 	return (
-		<section className="rounded-lg border border-gray-200 max-h-[78vh] overflow-auto">
-			<Collapse items={items} activeKey={activeKeys} onChange={onChange} />
+		<section className="rounded-lg">
+			<Input.Search
+				placeholder="Tìm kiếm nhóm"
+				className="mb-4"
+				allowClear
+				value={searchText}
+				onChange={(event) => setSearchText(event.target.value)}
+			/>
+			{filteredGroups.length === 0 ? (
+				<div>Không tìm thấy nhóm phù hợp</div>
+			) : (
+				<Collapse
+					className="max-h-[70vh] overflow-auto"
+					items={items}
+					activeKey={activeKeys}
+					onChange={onChange} />
+			)}
 		</section>
 	);
 }
