@@ -5,7 +5,12 @@ export const metadata = {
     description: 'Manage your Zalo personal account settings and information.',
 };
 
-export default async function ZaloPersonalAccountDetailPage({ params }: { params: { id: string } }) {
+type ZaloPersonalAccountDetailProps = {
+    params: Promise<{ id: string }>;
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function ZaloPersonalAccountDetailPage({ params }: ZaloPersonalAccountDetailProps) {
     const { id } = await params;
     return (
         <DetailZaloAccount id={id} />

@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
 import ApiResponse, { PaginatedResponse } from "@/libs/intefaces/apiResponseData";
-import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData } from "@/libs/intefaces/zaloPersonalData";
+import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData } from "@/libs/intefaces/zaloPersonal";
 
 export async function getZaloPersonalAccount(page: number, limit: number, search: string): Promise<ApiResponse<PaginatedResponse<ZaloPersonalData>>> {
     const queryParams = new URLSearchParams();
@@ -48,8 +48,8 @@ export async function loginZaloPersonalViaCookie(id:string) {
     })
 }
 
-export async function getInfoAccZalo(id:string) {
-    return await fetcherBackEnd<ApiResponse<any>>(`/api/zalo-personal/${id}/get-account-info`, {
+export async function getLoginInfoAccZalo(id:string) {
+    return await fetcherBackEnd<ApiResponse<any>>(`/api/zalo-personal/${id}/get-account-login-info`, {
         method: "GET",
     })
 }

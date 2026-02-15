@@ -2,14 +2,14 @@
 
 import { useZaloPersonalAccount } from "@/libs/hooks/users/zaloPersonalAccountHook";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import ZaloPersonalData from "@/libs/intefaces/zaloPersonalData";
+import ZaloPersonalData from "@/libs/intefaces/zaloPersonal";
 import { useState } from "react";
 import { Button, Card, Image, Table, Tooltip } from "antd";
 import ZaloPersonalAccountControls from "./ZaloAccountControls";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import FormZaloAccount from "./formZaloAccount";
 import { DeleteFilled, EditOutlined } from "@ant-design/icons";
-import { deleteZaloPersonalAccount, getInfoAccZalo, loginZaloPersonalViaCookie } from "@/libs/network/zalo-personal.api";
+import { deleteZaloPersonalAccount, loginZaloPersonalViaCookie } from "@/libs/network/zalo-personal.api";
 import FormLoginQr from "./formLoginQr";
 import { Cookie } from "lucide-react";
 
@@ -71,27 +71,6 @@ export default function ZaloPersonalListAccountComponent() {
         });
     }
 
-    const handleGetInfoAccount = async (id: string) => {
-        const response = await getInfoAccZalo(id);
-        if (!response.status) {
-            notification.error({
-                message: "Error",
-                description: response.message || "An error occurred while fetching account info.",
-            });
-            return;
-        }
-        const accountInfo = response.data.data.info;
-        const acc = accountData.find(acc => acc._id === id);
-        if (acc) {
-            const updatedAcc = { ...acc, display_name: accountInfo.name, avatar: accountInfo.avatar, isLogin: true };
-            updateZaloPersonalAccount(updatedAcc);
-        }
-        notification.success({
-            message: "Success",
-            description: "Account info fetched successfully.",
-        });
-    }
-
     const clolumns = [
         {
             title: "STT", key: "stt", render: (_: any, __: any, index: number) => (index + 1 + (pageZaloPersonal - 1) * limitZaloPersonal), width: 80
@@ -119,8 +98,8 @@ export default function ZaloPersonalListAccountComponent() {
                     <Tooltip title="Lấy thông tin tài khoản">
                         <Button
                             disabled={record.isLogin === false}
-                            onClick={handleGetInfoAccount.bind(null, record._id)}
-                            type="primary"
+                            type="link"
+                            href={`/accounts/zalo-personal/${record._id}`}
                         >
                             Thông tin
                         </Button>

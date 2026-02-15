@@ -7,10 +7,19 @@ export default interface ApiResponse<T> {
 
 export interface PaginatedResponse<T> {
     items: T[];
-    pagination:{
+    pagination: {
         total: number;
         page: number;
         limit: number;
         totalPages: number;
     }
+}
+
+export interface ZaloPersonalAccountDataResponse {
+    error_code: number;
+    error_message: string;
+    data: Record<string, any>;
+}
+
+export interface ApiZaloResponse extends ApiResponse<ZaloPersonalAccountDataResponse> {
 }

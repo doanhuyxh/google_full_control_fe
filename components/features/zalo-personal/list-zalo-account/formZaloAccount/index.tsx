@@ -1,6 +1,6 @@
 import { createZaloPersonalAccount, updateZaloPersonalAccount } from "@/libs/network/zalo-personal.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData } from "@/libs/intefaces/zaloPersonalData";
+import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData } from "@/libs/intefaces/zaloPersonal";
 import { Form, Input, Modal } from "antd";
 import { useEffect } from "react";
 
@@ -81,6 +81,7 @@ export default function FormZaloAccount({ isShowModal, onCloseModal, dataForm, h
                 if (onCloseModal) onCloseModal();
             }}
             onOk={handleSaveData}
+            className="text-center"
         >
             <Form form={formData} layout="vertical">
                 <Form.Item label="Họ tên" name="display_name">
