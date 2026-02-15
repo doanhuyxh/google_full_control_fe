@@ -9,6 +9,8 @@ interface DetailZaloAccountProps {
 }
 
 export default function DetailZaloAccount({ id }: DetailZaloAccountProps) {
+    const [tab, setTab] = []
+
     return (
         <div className="space-y-4">
             <InfoZaloAccount id={id} />
