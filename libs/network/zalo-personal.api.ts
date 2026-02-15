@@ -70,3 +70,9 @@ export async function getZaloPersonalGroupsDetails(id:string, groupIds: string[]
         method: "GET",
     })
 }
+
+export async function leaveZaloGroup(id:string, groupId: string) {
+    return await fetcherBackEnd<ApiZaloResponse<any>>(`/api/zalo-personal/${id}/leave-group/${groupId}`, {
+        method: "DELETE",
+    })
+}
