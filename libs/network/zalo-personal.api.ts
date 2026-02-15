@@ -1,6 +1,7 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
-import ApiResponse, { PaginatedResponse } from "@/libs/intefaces/apiResponseData";
+import ApiResponse, { ApiZaloResponse, PaginatedResponse } from "@/libs/intefaces/apiResponseData";
 import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData } from "@/libs/intefaces/zaloPersonal";
+import { ZaloGroup, ZaloLoginInfo, ZaloPersonalGroupData } from "../intefaces/zaloPersonal/zaloAccData";
 
 export async function getZaloPersonalAccount(page: number, limit: number, search: string): Promise<ApiResponse<PaginatedResponse<ZaloPersonalData>>> {
     const queryParams = new URLSearchParams();
@@ -49,7 +50,23 @@ export async function loginZaloPersonalViaCookie(id:string) {
 }
 
 export async function getLoginInfoAccZalo(id:string) {
-    return await fetcherBackEnd<ApiResponse<any>>(`/api/zalo-personal/${id}/get-account-login-info`, {
+    return await fetcherBackEnd<ApiZaloResponse<ZaloLoginInfo>>(`/api/zalo-personal/${id}/get-account-login-info`, {
+        method: "GET",
+    })
+}
+
+export async function getZaloPersonalGroups(id:string) {
+    return await fetcherBackEnd<ApiZaloResponse<ZaloGroup>>(`/api/zalo-personal/${id}/get-all-groups`, {
+        method: "GET",
+    })
+}
+
+export async function getZaloPersonalGroupsDetails(id:string, groupIds: string[]) {
+    const params = new URLSearchParams();
+    groupIds.forEach((gId) => {
+        params.append('groupIds', gId);
+    });
+    return await fetcherBackEnd<ApiZaloResponse<ZaloPersonalGroupData>>(`/api/zalo-personal/${id}/get-groups-info?${params.toString()}`, {
         method: "GET",
     })
 }

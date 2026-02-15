@@ -15,11 +15,11 @@ export interface PaginatedResponse<T> {
     }
 }
 
-export interface ZaloPersonalAccountDataResponse {
+export interface ZaloPersonalAccountDataResponse<T> {
     error_code: number;
     error_message: string;
-    data: Record<string, any>;
+    data: T;
 }
 
-export interface ApiZaloResponse extends ApiResponse<ZaloPersonalAccountDataResponse> {
+export interface ApiZaloResponse<T> extends ApiResponse<ZaloPersonalAccountDataResponse<T>> {
 }
