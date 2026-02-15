@@ -130,7 +130,7 @@ export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) 
 	const items: CollapseProps["items"] = filteredGroups.map((group) => ({
 		key: group.groupId,
 		label: renderGroupLabel(group),
-		children: <GroupItem item={group} />,
+		children: <GroupItem item={group} accountId={id} />,
 	}));
 
 	const onChange = (key: string | string[]) => {

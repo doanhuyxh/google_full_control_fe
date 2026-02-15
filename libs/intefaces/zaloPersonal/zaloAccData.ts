@@ -119,3 +119,19 @@ export interface ZaloPersonalGroupData {
     unchangedsGroup: any[]
     gridInfoMap: Record<string, ZaloGroupInfo>
 }
+
+export interface ProfilesMemberGroup {
+    displayName: string
+    zaloName: string
+    avatar: string
+    accountStatus: number
+    type: number
+    lastUpdateTime: number
+    globalId: string
+    id: string
+}
+
+export interface ZaloPersonalGroupMemberData {
+    profiles: Record<string, ProfilesMemberGroup>
+    unchangeds_profile: any[]
+}

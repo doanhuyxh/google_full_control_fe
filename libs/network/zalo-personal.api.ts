@@ -1,7 +1,7 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
 import ApiResponse, { ApiZaloResponse, PaginatedResponse } from "@/libs/intefaces/apiResponseData";
 import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData } from "@/libs/intefaces/zaloPersonal";
-import { ZaloGroup, ZaloLoginInfo, ZaloPersonalGroupData } from "../intefaces/zaloPersonal/zaloAccData";
+import { ZaloGroup, ZaloLoginInfo, ZaloPersonalGroupData, ZaloPersonalGroupMemberData } from "../intefaces/zaloPersonal/zaloAccData";
 
 export async function getZaloPersonalAccount(page: number, limit: number, search: string): Promise<ApiResponse<PaginatedResponse<ZaloPersonalData>>> {
     const queryParams = new URLSearchParams();
@@ -74,5 +74,15 @@ export async function getZaloPersonalGroupsDetails(id:string, groupIds: string[]
 export async function leaveZaloGroup(id:string, groupId: string) {
     return await fetcherBackEnd<ApiZaloResponse<any>>(`/api/zalo-personal/${id}/leave-group/${groupId}`, {
         method: "DELETE",
+    })
+}
+
+export async function getMemberInZaloGroup(id:string, groupId: string, memberIds: string[]) {
+    const params = new URLSearchParams();
+    memberIds.forEach((mId) => {
+        params.append('memberIds', mId);
+    });
+    return await fetcherBackEnd<ApiZaloResponse<ZaloPersonalGroupMemberData>>(`/api/zalo-personal/${id}/get-group-members/${groupId}?${params.toString()}`, {
+        method: "GET",
     })
 }
