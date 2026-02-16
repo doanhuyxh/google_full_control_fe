@@ -135,3 +135,26 @@ export interface ZaloPersonalGroupMemberData {
     profiles: Record<string, ProfilesMemberGroup>
     unchangeds_profile: any[]
 }
+
+export enum ZaloThreadType {
+    USER = 0,
+    GROUP = 1,
+    UNKNOWN = 3,
+}
+
+export enum ZaloMsgTypeEnum {
+    WEBCHAT = 'webchat',
+    VOICE = 'chat.voice',
+    PHOTO = 'chat.photo',
+    STICKER = 'chat.sticker',
+    DELETE = 'chat.delete',
+    DOODLE = 'chat.doodle',
+    RECOMMENDED = 'chat.recommended',
+    LINK = 'chat.link',
+    ECARD = 'chat.ecard',
+    LOCATION = 'chat.location.new',
+    VIDEO = 'chat.video.msg',
+    FILE = 'share.file',
+    GIF = 'chat.gif',
+    UNKNOWN = 'unknown',
+}
