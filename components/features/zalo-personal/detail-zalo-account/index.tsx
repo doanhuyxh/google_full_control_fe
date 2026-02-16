@@ -10,23 +10,39 @@ import BreadcrumbComponent from "@/components/breadcrumb";
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
 import { ZaloLoginInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { ReloadOutlined } from "@ant-design/icons";
+import { useAppDispatch, useAppSelector } from "@/libs/redux/hooks";
+import {
+    setActiveTab,
+    setFriendCount,
+    setGroupCount,
+    triggerFriendReload,
+    triggerGroupReload,
+    type ZaloDetailTab,
+} from "@/libs/redux/slices/zaloDetail.slice";
 
 interface DetailZaloAccountProps {
     id: string;
 }
 
 export default function DetailZaloAccount({ id }: DetailZaloAccountProps) {
+    const dispatch = useAppDispatch();
     const [mounted, setMounted] = useState(false);
-    const [tab, setTab] = useSearchParamsClient<string>("tab", "groups");
+    const [searchTab, setSearchTab] = useSearchParamsClient<string>("tab", "groups");
     const [zaloInfo] = useLocalStorage<ZaloLoginInfo | null>("zaloInfoDetail", null);
-    const [groupCount, setGroupCount] = useState(0);
-    const [friendCount, setFriendCount] = useState(0);
-    const [groupReloadSignal, setGroupReloadSignal] = useState(0);
-    const [friendReloadSignal, setFriendReloadSignal] = useState(0);
+    const { activeTab, groupCount, friendCount, groupReloadSignal, friendReloadSignal } = useAppSelector(
+        (state) => state.zaloDetail
+    );
+    const currentTab: ZaloDetailTab = searchTab === "friends" ? "friends" : "groups";
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    useEffect(() => {
+        if (currentTab !== activeTab) {
+            dispatch(setActiveTab(currentTab));
+        }
+    }, [activeTab, currentTab, dispatch]);
 
     const items: TabsProps["items"] = [
         {
@@ -37,7 +53,13 @@ export default function DetailZaloAccount({ id }: DetailZaloAccountProps) {
                     <Badge count={groupCount} showZero overflowCount={999999} />
                 </Space>
             ),
-            children: <GroupListZaloAccount id={id} reloadSignal={groupReloadSignal} onCountChange={setGroupCount} />,
+            children: (
+                <GroupListZaloAccount
+                    id={id}
+                    reloadSignal={groupReloadSignal}
+                    onCountChange={(count) => dispatch(setGroupCount(count))}
+                />
+            ),
         },
         {
             key: "friends",
@@ -47,17 +69,23 @@ export default function DetailZaloAccount({ id }: DetailZaloAccountProps) {
                     <Badge count={friendCount} showZero overflowCount={999999} />
                 </Space>
             ),
-            children: <FriendListZaloAccount id={id} reloadSignal={friendReloadSignal} onCountChange={setFriendCount} />,
+            children: (
+                <FriendListZaloAccount
+                    id={id}
+                    reloadSignal={friendReloadSignal}
+                    onCountChange={(count) => dispatch(setFriendCount(count))}
+                />
+            ),
         },
     ];
 
     const handleReloadCurrentTab = () => {
-        if (tab === "friends") {
-            setFriendReloadSignal((prev) => prev + 1);
+        if (currentTab === "friends") {
+            dispatch(triggerFriendReload());
             return;
         }
 
-        setGroupReloadSignal((prev) => prev + 1);
+        dispatch(triggerGroupReload());
     };
 
     return (
@@ -74,8 +102,11 @@ export default function DetailZaloAccount({ id }: DetailZaloAccountProps) {
                 <Row gutter={16} className="h-full">
                     <Col span={8} className="h-full">
                         <Tabs
-                            activeKey={tab}
-                            onChange={(key) => setTab(key)}
+                            activeKey={currentTab}
+                            onChange={(key) => {
+                                const nextTab: ZaloDetailTab = key === "friends" ? "friends" : "groups";
+                                setSearchTab(nextTab);
+                            }}
                             items={items}
                             tabBarExtraContent={{
                                 right: (
