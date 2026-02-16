@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
 import { ZaloGroup, ZaloGroupInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { getZaloPersonalGroups, getZaloPersonalGroupsDetails } from "@/libs/network/zalo-personal.api";
+import { useAppDispatch, useAppSelector } from "@/libs/redux/hooks";
+import { setGroupsByAccount } from "@/libs/redux/slices/zaloDetail.slice";
 import { getAllKeyFromObject, getAllValueFromObject, merchObjectToObject } from "@/libs/utils/JsUtils";
 
 interface UseGroupListDataResult {
@@ -13,9 +15,25 @@ interface UseGroupListDataResult {
 }
 
 export default function useGroupListData(id: string, reloadSignal = 0): UseGroupListDataResult {
+	const dispatch = useAppDispatch();
 	const [loading, setLoading] = useState(true);
-	const [groupDetails, setGroupDetails] = useLocalStorage<ZaloGroupInfo[]>(`groupDetails_${id}`, []);
+	const groupDetails = useAppSelector((state) => state.zaloDetail.groupsByAccount[id] || []);
+	const [cachedGroupDetails, setCachedGroupDetails] = useLocalStorage<ZaloGroupInfo[]>(`groupDetails_${id}`, []);
 	const [groupVersion, setGroupVersion] = useLocalStorage<string>(`groupDetailsVersion_${id}`, "");
+
+	const setGroupDetails = (value: ZaloGroupInfo[] | ((value: ZaloGroupInfo[]) => ZaloGroupInfo[])) => {
+		const nextValue = value instanceof Function ? value(groupDetails) : value;
+		dispatch(setGroupsByAccount({ accountId: id, groups: nextValue }));
+		setCachedGroupDetails(nextValue);
+	};
+
+	useEffect(() => {
+		if (!id) return;
+		if (groupDetails.length > 0) return;
+		if ((cachedGroupDetails || []).length === 0) return;
+
+		dispatch(setGroupsByAccount({ accountId: id, groups: cachedGroupDetails }));
+	}, [id, groupDetails.length, cachedGroupDetails, dispatch]);
 
 	useEffect(() => {
 		setLoading(true);
@@ -43,8 +61,11 @@ export default function useGroupListData(id: string, reloadSignal = 0): UseGroup
 			}
 
 			const currentVersion = String(groupsResponse.data.data.version || "");
-			const canUseCachedGroups = currentVersion !== "" && currentVersion === groupVersion && groupDetails.length > 0;
+			const canUseCachedGroups = currentVersion !== "" && currentVersion === groupVersion && (groupDetails.length > 0 || cachedGroupDetails.length > 0);
 			if (canUseCachedGroups) {
+				if (!cancelled && groupDetails.length === 0 && cachedGroupDetails.length > 0) {
+					dispatch(setGroupsByAccount({ accountId: id, groups: cachedGroupDetails }));
+				}
 				if (!cancelled) setLoading(false);
 				return;
 			}
@@ -81,7 +102,7 @@ export default function useGroupListData(id: string, reloadSignal = 0): UseGroup
 		return () => {
 			cancelled = true;
 		};
-	}, [id, groupVersion, groupDetails.length, reloadSignal]);
+	}, [id, groupVersion, groupDetails.length, cachedGroupDetails.length, dispatch, reloadSignal]);
 
 	return {
 		loading,

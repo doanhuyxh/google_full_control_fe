@@ -10,6 +10,7 @@ import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useModal } from "@/libs/hooks/useModal";
 import { useDebounce } from "@/libs/hooks/useDebounce";
 import useGroupListData from "./useGroupListData";
+import useSearchParamsClient from "@/libs/hooks/useSearchParamsClient";
 
 interface GroupListZaloAccountProps {
 	id: string;
@@ -26,6 +27,8 @@ export default function GroupListZaloAccount({ id, reloadSignal = 0, onCountChan
 	const [activeKeys, setActiveKeys] = useState<string[]>([]);
 	const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
 	const { showConfirm } = useModal();
+	const [_, setZaloChatThreadId] = useSearchParamsClient<string>("threadId", "");
+	const [__, setZaloThreadType] = useSearchParamsClient<string>("threadType", "1");
 
 	useEffect(() => {
 		setMounted(true);
@@ -89,11 +92,9 @@ export default function GroupListZaloAccount({ id, reloadSignal = 0, onCountChan
 		});
 	};
 
-	const handleSendDefaultMessage = (group: ZaloGroupInfo) => {
-		notification.info({
-			message: "Thông báo",
-			description: `Đã chọn gửi tin nhắn mặc định vào nhóm: ${group.name}`,
-		});
+	const handleSendMessage = (group: ZaloGroupInfo) => {
+		setZaloChatThreadId(group.groupId);
+		setZaloThreadType("1");
 	};
 
 	const renderGroupLabel = (group: ZaloGroupInfo) => (
@@ -107,7 +108,7 @@ export default function GroupListZaloAccount({ id, reloadSignal = 0, onCountChan
 						icon={<MessageOutlined />}
 						onClick={(event) => {
 							event.stopPropagation();
-							handleSendDefaultMessage(group);
+							handleSendMessage(group);
 						}}
 					/>
 				</Tooltip>

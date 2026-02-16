@@ -3,8 +3,11 @@
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useDebounce } from "@/libs/hooks/useDebounce";
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
+import useSearchParamsClient from "@/libs/hooks/useSearchParamsClient";
 import { ChangedProfiles } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { getAllFrendInZalo } from "@/libs/network/zalo-personal.api";
+import { useAppDispatch, useAppSelector } from "@/libs/redux/hooks";
+import { setFriendsByAccount } from "@/libs/redux/slices/zaloDetail.slice";
 import { MessageOutlined } from "@ant-design/icons";
 import { Avatar, Button, Checkbox, Collapse, Input, Skeleton, Space, Tooltip, type CollapseProps } from "antd";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -17,16 +20,18 @@ interface FriendListZaloAccountProps {
 
 export default function FriendListZaloAccount({ id, reloadSignal = 0, onCountChange }: FriendListZaloAccountProps) {
 	const { notification } = useAntdApp();
+	const dispatch = useAppDispatch();
 	const [mounted, setMounted] = useState(false);
-	const [friends, setFriends] = useState<ChangedProfiles[]>([]);
+	const friends = useAppSelector((state) => state.zaloDetail.friendsByAccount[id] || []);
 	const [cachedFriends, setCachedFriends] = useLocalStorage<ChangedProfiles[]>(`zalo-personal-friends:${id}`, []);
-	const hydratedCacheForIdRef = useRef<string | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [searchText, setSearchText] = useState("");
 	const debouncedSearchText = useDebounce(searchText, 300);
 	const [activeKeys, setActiveKeys] = useState<string[]>([]);
 	const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
 	const firstReloadRenderRef = useRef(true);
+	const [currentThreadId, setZaloChatThreadId] = useSearchParamsClient<string>("threadId", "");
+	const [__, setZaloThreadType] = useSearchParamsClient<string>("threadType", "0");
 
 	const fetchFriends = async () => {
 		setLoading(true);
@@ -48,7 +53,7 @@ export default function FriendListZaloAccount({ id, reloadSignal = 0, onCountCha
 			return;
 		}
 		const latestFriends = response.data.data || [];
-		setFriends(latestFriends);
+		dispatch(setFriendsByAccount({ accountId: id, friends: latestFriends }));
 		setCachedFriends(latestFriends);
 		setLoading(false);
 	};
@@ -58,20 +63,17 @@ export default function FriendListZaloAccount({ id, reloadSignal = 0, onCountCha
 	}, []);
 
 	useEffect(() => {
-		hydratedCacheForIdRef.current = null;
-	}, [id]);
+		if (!id) return;
+		if (friends.length > 0) return;
+		if ((cachedFriends || []).length === 0) return;
 
-	useEffect(() => {
-		if (hydratedCacheForIdRef.current === id) return;
-		setFriends(cachedFriends || []);
-		hydratedCacheForIdRef.current = id;
-	}, [cachedFriends, id]);
+		dispatch(setFriendsByAccount({ accountId: id, friends: cachedFriends }));
+	}, [id, cachedFriends, friends.length, dispatch]);
 
 	useEffect(() => {
 		setActiveKeys([]);
 		setSelectedFriendIds([]);
 		setSearchText("");
-		setFriends([]);
 		fetchFriends();
 	}, [id]);
 
@@ -107,28 +109,36 @@ export default function FriendListZaloAccount({ id, reloadSignal = 0, onCountCha
 		});
 	};
 
-	const handleSendDefaultMessage = (friend: ChangedProfiles) => {
-		notification.info({
-			message: "Thông báo",
-			description: `Đã chọn gửi tin nhắn mặc định cho bạn bè: ${friend.displayName || friend.userId}`,
-		});
+	const handleSendMessage = (friend: ChangedProfiles) => {
+		setZaloChatThreadId(friend.userId);
+		setZaloThreadType("0");
+		setActiveKeys([friend.userId]);
 	};
 
-	const renderFriendLabel = (friend: ChangedProfiles) => (
-		<div className="flex w-full items-center justify-between gap-2 pr-2">
+	const renderFriendLabel = (friend: ChangedProfiles) => {
+		const isCurrentThread = currentThreadId === friend.userId;
+
+		return (
+		<div
+			className={`flex w-full items-center justify-between gap-2 rounded-md px-2 py-1 pr-2 transition-colors ${
+				isCurrentThread ? "bg-blue-50" : ""
+			}`}
+		>
 			<div className="flex min-w-0 items-center gap-2">
 				<Avatar src={friend.avatar} alt={friend.displayName} size={30} />
-				<p className="line-clamp-2">{friend.displayName || friend.userId}</p>
+				<p className={`line-clamp-2 ${isCurrentThread ? "text-blue-600 font-medium" : ""}`}>
+					{friend.displayName || friend.userId}
+				</p>
 			</div>
 			<Space size={4} onClick={(event) => event.stopPropagation()}>
 				<Tooltip title="Gửi tin nhắn mặc định cho bạn bè">
 					<Button
-						type="text"
+						type={isCurrentThread ? "primary" : "text"}
 						size="small"
 						icon={<MessageOutlined />}
 						onClick={(event) => {
 							event.stopPropagation();
-							handleSendDefaultMessage(friend);
+							handleSendMessage(friend);
 						}}
 					/>
 				</Tooltip>
@@ -140,11 +150,13 @@ export default function FriendListZaloAccount({ id, reloadSignal = 0, onCountCha
 				</div>
 			</Space>
 		</div>
-	);
+		);
+	};
 
 	const items: CollapseProps["items"] = filteredFriends.map((friend) => ({
 		key: friend.userId,
 		label: renderFriendLabel(friend),
+		className: currentThreadId === friend.userId ? "!border-blue-500" : undefined,
 		children: (
 			<div className="grid grid-cols-1 gap-2 text-sm md:grid-cols-2">
 				<div>

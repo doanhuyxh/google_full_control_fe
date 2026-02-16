@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { ChangedProfiles, ZaloGroupInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 
 export type ZaloDetailTab = "groups" | "friends";
 
@@ -8,6 +9,8 @@ type ZaloDetailState = {
     friendCount: number;
     groupReloadSignal: number;
     friendReloadSignal: number;
+    friendsByAccount: Record<string, ChangedProfiles[]>;
+    groupsByAccount: Record<string, ZaloGroupInfo[]>;
 };
 
 const initialState: ZaloDetailState = {
@@ -16,6 +19,8 @@ const initialState: ZaloDetailState = {
     friendCount: 0,
     groupReloadSignal: 0,
     friendReloadSignal: 0,
+    friendsByAccount: {},
+    groupsByAccount: {},
 };
 
 const zaloDetailSlice = createSlice({
@@ -37,6 +42,24 @@ const zaloDetailSlice = createSlice({
         triggerFriendReload(state) {
             state.friendReloadSignal += 1;
         },
+        setFriendsByAccount(
+            state,
+            action: PayloadAction<{ accountId: string; friends: ChangedProfiles[] }>
+        ) {
+            state.friendsByAccount[action.payload.accountId] = action.payload.friends;
+        },
+        setGroupsByAccount(
+            state,
+            action: PayloadAction<{ accountId: string; groups: ZaloGroupInfo[] }>
+        ) {
+            state.groupsByAccount[action.payload.accountId] = action.payload.groups;
+        },
+        removeFriendsByAccount(state, action: PayloadAction<string>) {
+            delete state.friendsByAccount[action.payload];
+        },
+        removeGroupsByAccount(state, action: PayloadAction<string>) {
+            delete state.groupsByAccount[action.payload];
+        },
         resetZaloDetailState() {
             return initialState;
         },
@@ -49,6 +72,10 @@ export const {
     setFriendCount,
     triggerGroupReload,
     triggerFriendReload,
+    setFriendsByAccount,
+    setGroupsByAccount,
+    removeFriendsByAccount,
+    removeGroupsByAccount,
     resetZaloDetailState,
 } = zaloDetailSlice.actions;
 
