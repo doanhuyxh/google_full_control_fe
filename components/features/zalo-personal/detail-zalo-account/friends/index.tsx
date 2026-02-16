@@ -2,25 +2,31 @@
 
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useDebounce } from "@/libs/hooks/useDebounce";
+import useLocalStorage from "@/libs/hooks/useLocalStorage";
 import { ChangedProfiles } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { getAllFrendInZalo } from "@/libs/network/zalo-personal.api";
 import { MessageOutlined } from "@ant-design/icons";
 import { Avatar, Button, Checkbox, Collapse, Input, Skeleton, Space, Tooltip, type CollapseProps } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface FriendListZaloAccountProps {
 	id: string;
+	reloadSignal?: number;
+	onCountChange?: (count: number) => void;
 }
 
-export default function FriendListZaloAccount({ id }: FriendListZaloAccountProps) {
+export default function FriendListZaloAccount({ id, reloadSignal = 0, onCountChange }: FriendListZaloAccountProps) {
 	const { notification } = useAntdApp();
 	const [mounted, setMounted] = useState(false);
 	const [friends, setFriends] = useState<ChangedProfiles[]>([]);
+	const [cachedFriends, setCachedFriends] = useLocalStorage<ChangedProfiles[]>(`zalo-personal-friends:${id}`, []);
+	const hydratedCacheForIdRef = useRef<string | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [searchText, setSearchText] = useState("");
 	const debouncedSearchText = useDebounce(searchText, 300);
 	const [activeKeys, setActiveKeys] = useState<string[]>([]);
 	const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
+	const firstReloadRenderRef = useRef(true);
 
 	const fetchFriends = async () => {
 		setLoading(true);
@@ -41,7 +47,9 @@ export default function FriendListZaloAccount({ id }: FriendListZaloAccountProps
 			setLoading(false);
 			return;
 		}
-		setFriends(response.data.data || []);
+		const latestFriends = response.data.data || [];
+		setFriends(latestFriends);
+		setCachedFriends(latestFriends);
 		setLoading(false);
 	};
 
@@ -50,11 +58,34 @@ export default function FriendListZaloAccount({ id }: FriendListZaloAccountProps
 	}, []);
 
 	useEffect(() => {
+		hydratedCacheForIdRef.current = null;
+	}, [id]);
+
+	useEffect(() => {
+		if (hydratedCacheForIdRef.current === id) return;
+		setFriends(cachedFriends || []);
+		hydratedCacheForIdRef.current = id;
+	}, [cachedFriends, id]);
+
+	useEffect(() => {
 		setActiveKeys([]);
 		setSelectedFriendIds([]);
 		setSearchText("");
+		setFriends([]);
 		fetchFriends();
 	}, [id]);
+
+	useEffect(() => {
+		if (firstReloadRenderRef.current) {
+			firstReloadRenderRef.current = false;
+			return;
+		}
+		fetchFriends();
+	}, [reloadSignal]);
+
+	useEffect(() => {
+		onCountChange?.(friends.length);
+	}, [friends.length, onCountChange]);
 
 	const filteredFriends = useMemo(() => {
 		const keyword = debouncedSearchText.trim().toLowerCase();

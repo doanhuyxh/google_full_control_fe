@@ -12,7 +12,7 @@ interface UseGroupListDataResult {
 	setGroupDetails: (value: ZaloGroupInfo[] | ((value: ZaloGroupInfo[]) => ZaloGroupInfo[])) => void;
 }
 
-export default function useGroupListData(id: string): UseGroupListDataResult {
+export default function useGroupListData(id: string, reloadSignal = 0): UseGroupListDataResult {
 	const [loading, setLoading] = useState(true);
 	const [groupDetails, setGroupDetails] = useLocalStorage<ZaloGroupInfo[]>(`groupDetails_${id}`, []);
 	const [groupVersion, setGroupVersion] = useLocalStorage<string>(`groupDetailsVersion_${id}`, "");
@@ -81,7 +81,7 @@ export default function useGroupListData(id: string): UseGroupListDataResult {
 		return () => {
 			cancelled = true;
 		};
-	}, [id, groupVersion, groupDetails.length]);
+	}, [id, groupVersion, groupDetails.length, reloadSignal]);
 
 	return {
 		loading,

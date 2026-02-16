@@ -13,12 +13,14 @@ import useGroupListData from "./useGroupListData";
 
 interface GroupListZaloAccountProps {
 	id: string;
+	reloadSignal?: number;
+	onCountChange?: (count: number) => void;
 }
 
-export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) {
+export default function GroupListZaloAccount({ id, reloadSignal = 0, onCountChange }: GroupListZaloAccountProps) {
 	const { notification } = useAntdApp();
 	const [mounted, setMounted] = useState(false);
-	const { loading, groupDetails, setGroupDetails } = useGroupListData(id);
+	const { loading, groupDetails, setGroupDetails } = useGroupListData(id, reloadSignal);
 	const [searchText, setSearchText] = useState("");
 	const debouncedSearchText = useDebounce(searchText, 300);
 	const [activeKeys, setActiveKeys] = useState<string[]>([]);
@@ -34,6 +36,10 @@ export default function GroupListZaloAccount({ id }: GroupListZaloAccountProps) 
 		setSelectedGroupIds([]);
 		setSearchText("");
 	}, [id]);
+
+	useEffect(() => {
+		onCountChange?.(groupDetails.length);
+	}, [groupDetails.length, onCountChange]);
 
 	const filteredGroups = useMemo(() => {
 		const keyword = debouncedSearchText.trim().toLowerCase();
