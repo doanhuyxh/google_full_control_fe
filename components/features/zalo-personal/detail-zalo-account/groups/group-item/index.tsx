@@ -6,6 +6,7 @@ import { formatTimestampToLocal } from "@/libs/utils/timeUtils";
 import { Avatar, Button, Modal, Tag, Typography } from "antd";
 import { useState } from "react";
 import MemberItemGroup from "./member-item-group";
+import { useCommon } from "@/libs/hooks/useCommon";
 
 const { Text } = Typography;
 
@@ -19,13 +20,7 @@ export default function GroupItem({ item, accountId }: GroupItemProps) {
     const [loadingMembers, setLoadingMembers] = useState(false);
     const [isShowMembers, setIsShowMembers] = useState(false);
     const [members, setMembers] = useState<ProfilesMemberGroup[]>([]);
-
-    const handleChatGroup = () => {
-        notification.info({
-            message: "Chat nhóm",
-            description: `Đang mở chat nhóm ${item.name}`,
-        });
-    };
+    const { copiedToClipboard } = useCommon();
 
     const privacyLabel = item.visibility === 1 ? "Riêng tư" : "Công khai";
 
@@ -88,27 +83,35 @@ export default function GroupItem({ item, accountId }: GroupItemProps) {
     return (
         <>
             <div className="rounded-lg border border-gray-200 p-4">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                <div className="flex flex-row gap-4">
                     <div className="flex items-start gap-3">
-                        <Avatar src={item.fullAvt || item.avt ||"ttps://adminlte.io/themes/v3/dist/img/user2-100x100.jpg"} size={56} />
+                        <Avatar src={item.fullAvt || item.avt || "ttps://adminlte.io/themes/v3/dist/img/user2-100x100.jpg"} size={56} />
                         <div className="space-y-1">
                             <p className="text-base font-semibold">{item.name || "Nhóm chưa đặt tên"}</p>
+                            <p className="text-sm text-gray-500">
+                                ID:
+                                <span
+                                    onClick={() => copiedToClipboard(item.groupId)}
+                                    className="font-mono cursor-copy">{item.groupId}</span>
+                            </p>
                             <Text type="secondary">{item.desc || "Không có mô tả"}</Text>
                             <div className="flex flex-wrap gap-2">
                                 <Tag color="blue">{privacyLabel}</Tag>
                                 {item.e2ee === 1 ? <Tag color="green">Mã hoá đầu cuối</Tag> : null}
                             </div>
+                            <p className="text-sm">
+                                <span className="font-medium">Ngày tạo:</span> {formatTimestampToLocal(item.createdTime)}
+                            </p>
                         </div>
                     </div>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap justify-end gap-2">
                     <Button
                         loading={loadingMembers}
                         type="primary"
                         onClick={handleShowMembers}>
                         Xem thành viên
                     </Button>
-                    <Button onClick={handleChatGroup}>Chat</Button>
                 </div>
             </div>
             <Modal open={isShowMembers}
