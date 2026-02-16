@@ -1,7 +1,7 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
 import ApiResponse, { ApiZaloResponse, PaginatedResponse } from "@/libs/intefaces/apiResponseData";
 import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData } from "@/libs/intefaces/zaloPersonal";
-import { ZaloGroup, ZaloLoginInfo, ZaloPersonalGroupData, ZaloPersonalGroupMemberData } from "../intefaces/zaloPersonal/zaloAccData";
+import { ChangedProfiles, ZaloGroup, ZaloLoginInfo, ZaloPersonalGroupData, ZaloPersonalGroupMemberData } from "../intefaces/zaloPersonal/zaloAccData";
 
 export async function getZaloPersonalAccount(page: number, limit: number, search: string): Promise<ApiResponse<PaginatedResponse<ZaloPersonalData>>> {
     const queryParams = new URLSearchParams();
@@ -83,6 +83,15 @@ export async function getMemberInZaloGroup(id:string, groupId: string, memberIds
         params.append('memberIds', mId);
     });
     return await fetcherBackEnd<ApiZaloResponse<ZaloPersonalGroupMemberData>>(`/api/zalo-personal/${id}/get-group-members/${groupId}?${params.toString()}`, {
+        method: "GET",
+    })
+}
+
+export async function getAllFrendInZalo(id:string) {
+    const params = new URLSearchParams();
+    params.append('page', "1");
+    params.append('count', "2000");
+    return await fetcherBackEnd<ApiZaloResponse<ChangedProfiles[]>>(`/api/zalo-personal/${id}/get-all-friends?${params.toString()}`, {
         method: "GET",
     })
 }
