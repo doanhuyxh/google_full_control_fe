@@ -64,6 +64,7 @@ export default function AppleIdComponent() {
             dataIndex: "stt",
             render: (_: any, __: any, index: number) =>
                 index + 1 + (pageAppleId - 1) * limitAppleId,
+            width: 60,
         },
         { title: "Họ tên", dataIndex: "fullName" },
         { title: "Ngày sinh", dataIndex: "birthday" },
