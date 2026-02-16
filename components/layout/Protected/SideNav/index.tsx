@@ -84,6 +84,26 @@ export default function SideNav() {
     const [openKeys, setOpenKeys] = useState<string[]>([]);
     const { token } = theme.useToken();
 
+    const findActiveMenuKey = (path: string, items: any[]): string => {
+        let bestMatch = "";
+        const walk = (menuItems: any[]) => {
+            for (const item of menuItems) {
+                if (typeof item.key === "string") {
+                    const isExact = path === item.key;
+                    const isNested = path.startsWith(`${item.key}/`);
+                    if ((isExact || isNested) && item.key.length > bestMatch.length) {
+                        bestMatch = item.key;
+                    }
+                }
+                if (item.children) {
+                    walk(item.children);
+                }
+            }
+        };
+        walk(items);
+        return bestMatch;
+    };
+
     const findOpenKeys = (path: string, items: any[]): string[] => {
         for (const item of items) {
             if (item.children) {
@@ -97,10 +117,12 @@ export default function SideNav() {
         return [];
     };
 
+    const activeMenuKey = findActiveMenuKey(pathname, menuItems) || pathname;
+
     useEffect(() => {
-        const keys = findOpenKeys(pathname, menuItems);
+        const keys = findOpenKeys(activeMenuKey, menuItems);
         setOpenKeys(keys);
-    }, [pathname]);
+    }, [activeMenuKey]);
 
     useEffect(() => {
         const handleResize = () => setCollapsed(window.innerWidth < 768);
@@ -146,7 +168,7 @@ export default function SideNav() {
                 </div>
                 <Menu
                     mode="inline"
-                    selectedKeys={[pathname]}
+                    selectedKeys={[activeMenuKey]}
                     openKeys={openKeys}
                     onOpenChange={setOpenKeys}
                     items={menuItems}

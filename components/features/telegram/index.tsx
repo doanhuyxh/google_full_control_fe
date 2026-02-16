@@ -26,7 +26,7 @@ export default function TelegramComponent() {
         telegramId: ""
     })
 
-    
+
     const [formModalListBot, setFormModalListBot] = useState<{ isShowModal: boolean, telegramId: string }>({
         isShowModal: false,
         telegramId: ""
@@ -41,6 +41,7 @@ export default function TelegramComponent() {
             dataIndex: "index",
             key: "index",
             render: (_: any, __: any, index: number) => (pageTele - 1) * limitTele + index + 1,
+            width: 60,
         },
         {
             title: 'Tên',
@@ -87,14 +88,14 @@ export default function TelegramComponent() {
                             icon={<PlusOutlined />} />
                     </Tooltip>
 
-                        <Tooltip title='Danh sách bot'>
+                    <Tooltip title='Danh sách bot'>
                         <Button
                             onClick={() => setFormModalListBot({
                                 isShowModal: true,
                                 telegramId: record._id
                             })}
                             icon={<PersonStanding />} />
-                        </Tooltip>
+                    </Tooltip>
 
                     <Tooltip title="Cập nhật tài khoản">
                         <Button

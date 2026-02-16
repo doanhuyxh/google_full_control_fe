@@ -2,16 +2,19 @@
 
 import { useZaloPersonalAccount } from "@/libs/hooks/users/zaloPersonalAccountHook";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import ZaloPersonalData from "@/libs/intefaces/zaloPersonalData";
+import ZaloPersonalData from "@/libs/intefaces/zaloPersonal";
 import { useState } from "react";
 import { Button, Card, Image, Table, Tooltip } from "antd";
 import ZaloPersonalAccountControls from "./ZaloAccountControls";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import FormZaloAccount from "./formZaloAccount";
 import { DeleteFilled, EditOutlined } from "@ant-design/icons";
-import { deleteZaloPersonalAccount, getInfoAccZalo, loginZaloPersonalViaCookie } from "@/libs/network/zalo-personal.api";
+import { deleteZaloPersonalAccount, getLoginInfoAccZalo, loginZaloPersonalViaCookie } from "@/libs/network/zalo-personal.api";
 import FormLoginQr from "./formLoginQr";
 import { Cookie } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ZaloLoginInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import useLocalStorage from "@/libs/hooks/useLocalStorage";
 
 
 export default function ZaloPersonalListAccountComponent() {
@@ -29,11 +32,13 @@ export default function ZaloPersonalListAccountComponent() {
         loadingZaloPersonal
     } = useZaloPersonalAccount();
     const { notification } = useAntdApp();
+    const navigation = useRouter();
 
     const [isModalOpenForm, setIsModalOpenForm] = useState(false);
     const [dataForm, setDataForm] = useState<ZaloPersonalData | null>(null);
     const [isModalOpenLoginQr, setIsModalOpenLoginQr] = useState(false);
     const [selectedZaloId, setSelectedZaloId] = useState<string | null>(null);
+    const [_, setZaloInfoDetail] = useLocalStorage<ZaloLoginInfo | null>("zaloInfoDetail", null);
 
     const handleFormModal = (data: ZaloPersonalData | null) => {
         setIsModalOpenForm(true);
@@ -69,27 +74,25 @@ export default function ZaloPersonalListAccountComponent() {
             message: "Success",
             description: "Login via cookie initiated successfully.",
         });
+        const accountIndex = accountData.findIndex((account) => account._id === id);
+        if (accountIndex !== -1) {
+            const updatedAccount = { ...accountData[accountIndex], isLogin: true };
+            updateZaloPersonalAccount(updatedAccount);
+        }
     }
 
-    const handleGetInfoAccount = async (id: string) => {
-        const response = await getInfoAccZalo(id);
+    const handleDetailAccount = async (id: string) => {
+        const response = await getLoginInfoAccZalo(id);
         if (!response.status) {
             notification.error({
                 message: "Error",
-                description: response.message || "An error occurred while fetching account info.",
+                description: response.message || "An error occurred while fetching account details.",
             });
             return;
         }
-        const accountInfo = response.data.data.info;
-        const acc = accountData.find(acc => acc._id === id);
-        if (acc) {
-            const updatedAcc = { ...acc, display_name: accountInfo.name, avatar: accountInfo.avatar, isLogin: true };
-            updateZaloPersonalAccount(updatedAcc);
-        }
-        notification.success({
-            message: "Success",
-            description: "Account info fetched successfully.",
-        });
+        setZaloInfoDetail(response.data.data);
+        navigation.push(`/accounts/zalo-personal/${id}?tab=groups`);
+
     }
 
     const clolumns = [
@@ -97,7 +100,7 @@ export default function ZaloPersonalListAccountComponent() {
             title: "STT", key: "stt", render: (_: any, __: any, index: number) => (index + 1 + (pageZaloPersonal - 1) * limitZaloPersonal), width: 80
         },
         {
-            title: 'avatar', dataIndex: 'avatar', key: 'avatar', render: (avatar: string) => (<Image src={avatar || 'https://adminlte.io/themes/v3/dist/img/user2-160x160.jpg'} sizes="8" alt="avatar" className="w-10 h-10 rounded-full" />), width: 120
+            title: 'avatar', dataIndex: 'avatar', key: 'avatar', render: (avatar: string) => (<Image src={avatar || 'https://adminlte.io/themes/v3/dist/img/user2-100x100.jpg'} sizes="20" alt="avatar" className="w-5 h-5 rounded-full" />), width: 80
         },
         {
             title: 'Họ tên', dataIndex: 'display_name', key: 'display_name', width: 250
@@ -115,12 +118,12 @@ export default function ZaloPersonalListAccountComponent() {
         },
         {
             title: 'Hành động', key: 'actions', render: (_: any, record: ZaloPersonalData) => (
-                <div className="flex gap-2 justify-end">
+                <div className="flex gap-2 justify-end flex-wrap">
                     <Tooltip title="Lấy thông tin tài khoản">
                         <Button
                             disabled={record.isLogin === false}
-                            onClick={handleGetInfoAccount.bind(null, record._id)}
                             type="primary"
+                            onClick={() => handleDetailAccount(record._id)}
                         >
                             Thông tin
                         </Button>
@@ -180,7 +183,7 @@ export default function ZaloPersonalListAccountComponent() {
                     }
                 }}
                 scroll={{
-                    x: "100%",
+                    x: "max-content",
                     y: useDynamicAntdTableScrollHeight()
                 }}
             />

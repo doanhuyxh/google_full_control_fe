@@ -1,4 +1,5 @@
 import { Input, Button } from "antd";
+import { Plus } from "lucide-react";
 
 interface ZaloPersonalAccountControlsProps {
     searchZaloPersonal: string;
@@ -15,12 +16,16 @@ export default function ZaloPersonalAccountControls({
         <div className="flex justify-between gap-2 mb-3">
             <Input
                 className="max-w-[200px]"
-                placeholder="Search Zalo Personal Accounts"
+                placeholder="Tìm kiếm theo tên hiển thị hoặc số điện thoại"
                 value={searchZaloPersonal}
                 onChange={(e) => setSearchZaloPersonal(e.target.value)}
             />
             <div className="flex gap-2">
-                <Button type="primary" onClick={onAddClick} icon={<span>+</span>}/>                    
+                <Button type="primary"
+                    onClick={onAddClick}
+                    icon={<Plus className="m-auto" />} >
+                    Thêm tài khoản
+                </Button>
             </div>
         </div>
     );

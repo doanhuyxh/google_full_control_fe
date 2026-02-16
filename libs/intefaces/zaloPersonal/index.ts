@@ -1,5 +1,3 @@
-
-
 export default interface ZaloPersonalData {
     _id: string;
     display_name: string;
@@ -26,3 +24,5 @@ export interface ZaloPersonalDataUpdateData extends ZaloPersonalDataFormData {
     secret_key: string;
     cookie: string;
 }
+
+
