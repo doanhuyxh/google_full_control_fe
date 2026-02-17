@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
 import ApiResponse, { ApiZaloResponse, PaginatedResponse } from "@/libs/intefaces/apiResponseData";
-import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData } from "@/libs/intefaces/zaloPersonal";
+import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData, ZaloPersonalMessageHistoryData } from "@/libs/intefaces/zaloPersonal";
 import { ChangedProfiles, ZaloGroup, ZaloLoginInfo, ZaloPersonalGroupData, ZaloPersonalGroupMemberData, ZaloThreadType } from "../intefaces/zaloPersonal/zaloAccData";
 
 export async function getZaloPersonalAccount(page: number, limit: number, search: string): Promise<ApiResponse<PaginatedResponse<ZaloPersonalData>>> {
@@ -115,5 +115,16 @@ export async function sendMessageToZaloUser(id: string, zaloId: string, text: st
             threadId: zaloId,
             threadType: ZaloThreadType.USER,
         },
+    })
+}
+
+export async function getZaloPersonalMessageHistory(id: string, threadId: string, threadType: ZaloThreadType, page: number, limit: number) {
+    const params = new URLSearchParams();
+    params.append('threadId', threadId);
+    params.append('threadType', threadType.toString());
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+    return await fetcherBackEnd<ApiResponse<PaginatedResponse<ZaloPersonalMessageHistoryData>>>(`/api/zalo-personal/${id}/get-message-history?${params.toString()}`, {
+        method: "GET",
     })
 }
