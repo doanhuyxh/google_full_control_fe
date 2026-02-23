@@ -19,7 +19,7 @@ const { Title, Text } = Typography;
 
 export default function DashboardPage() {
     const modal = useModal();
-    const { stream, error, startCamera, startScreenShare, stopStream } = useMediaStream();
+    const { stream, error, startCamera, startScreenShare, stopStream, capturePhoto } = useMediaStream();
     const videoRef = useRef<HTMLVideoElement>(null);
     const [customModalOpen, setCustomModalOpen] = useState(false);
     const [infoModalOpen, setInfoModalOpen] = useState(false);
@@ -150,6 +150,12 @@ export default function DashboardPage() {
                             >
                                 Dừng phát
                             </Button>
+                            <Button onClick={async () => {
+                                const photo = await capturePhoto();
+                                if (photo) {
+                                    console.log("Captured photo:", photo);
+                                }
+                            }}>Chụp ảnh</Button>
                         </div>
                     </Card>
                 </Col>
