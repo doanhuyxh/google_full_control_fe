@@ -29,7 +29,7 @@ export const useSocketManager = () => {
         });
 
         socketInstance.on('connected', (payload) => {
-            console.log('✅ Socket connected:', payload``);
+            console.log('✅ Socket connected:', payload);
         });
 
         socketInstance.on('connect_error', (err) => {

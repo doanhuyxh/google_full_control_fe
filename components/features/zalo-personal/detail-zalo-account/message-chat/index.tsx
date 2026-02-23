@@ -16,6 +16,8 @@ interface MessageChatZaloAccountProps {
 
 const MESSAGE_PAGE = 1;
 const MESSAGE_LIMIT = 100;
+const EMPTY_FRIENDS: ChangedProfiles[] = [];
+const EMPTY_GROUPS: ZaloGroupInfo[] = [];
 
 const formatTime = (value: string) => {
     const date = new Date(value);
@@ -30,8 +32,8 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
     const [threadId] = useSearchParamsClient<string>("threadId", "");
     const [fullName, setFullName] = useState<string>("Vui lòng chọn cuộc trò chuyện");
     const [avatarUrl, setAvatarUrl] = useState<string>("https://static-zmp3.zadn.vn/default_avatar.png");
-    const reduxFriends = useAppSelector((state) => state.zaloDetail.friendsByAccount[accountId] || []);
-    const reduxGroups = useAppSelector((state) => state.zaloDetail.groupsByAccount[accountId] || []);
+    const reduxFriends = useAppSelector((state) => state.zaloDetail.friendsByAccount[accountId] || EMPTY_FRIENDS);
+    const reduxGroups = useAppSelector((state) => state.zaloDetail.groupsByAccount[accountId] || EMPTY_GROUPS);
     const [cachedFriends] = useLocalStorage<ChangedProfiles[]>(`zalo-personal-friends:${accountId}`, []);
     const [groupDetails] = useLocalStorage<ZaloGroupInfo[]>(`groupDetails_${accountId}`, []);
 

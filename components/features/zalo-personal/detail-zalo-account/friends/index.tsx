@@ -18,11 +18,13 @@ interface FriendListZaloAccountProps {
 	onCountChange?: (count: number) => void;
 }
 
+const EMPTY_FRIENDS: ChangedProfiles[] = [];
+
 export default function FriendListZaloAccount({ id, reloadSignal = 0, onCountChange }: FriendListZaloAccountProps) {
 	const { notification } = useAntdApp();
 	const dispatch = useAppDispatch();
 	const [mounted, setMounted] = useState(false);
-	const friends = useAppSelector((state) => state.zaloDetail.friendsByAccount[id] || []);
+	const friends = useAppSelector((state) => state.zaloDetail.friendsByAccount[id] || EMPTY_FRIENDS);
 	const [cachedFriends, setCachedFriends] = useLocalStorage<ChangedProfiles[]>(`zalo-personal-friends:${id}`, []);
 	const [loading, setLoading] = useState(false);
 	const [searchText, setSearchText] = useState("");
