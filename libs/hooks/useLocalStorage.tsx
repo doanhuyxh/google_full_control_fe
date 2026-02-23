@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef } from 'react';
 
 type SetValue<T> = T | ((val: T) => T);

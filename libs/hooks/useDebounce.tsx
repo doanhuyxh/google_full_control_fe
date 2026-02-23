@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 /**
  * Hook giúp debounce giá trị (chỉ cập nhật sau một khoảng delay nhất định)
