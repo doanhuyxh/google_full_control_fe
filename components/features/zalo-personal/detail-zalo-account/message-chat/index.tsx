@@ -1,59 +1,45 @@
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
 import useSearchParamsClient from "@/libs/hooks/useSearchParamsClient";
 import { ChangedProfiles, ZaloGroupInfo, ZaloThreadType } from "@/libs/intefaces/zaloPersonal/zaloAccData";
-import { sendMessageToZaloGroup, sendMessageToZaloUser } from "@/libs/network/zalo-personal.api";
+import { ZaloMsgTypeEnum } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { getZaloPersonalMessageHistory, sendMessageToZaloGroup, sendMessageToZaloUser } from "@/libs/network/zalo-personal.api";
 import { useAppSelector } from "@/libs/redux/hooks";
-import { Avatar } from "antd";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-
-type ChatMessage = {
-    id: string;
-    senderName: string;
-    content: string;
-    createdAt: string;
-    isMe: boolean;
-};
+import MessageChatComposer from "./MessageChatComposer";
+import MessageChatHeader from "./MessageChatHeader";
+import MessageChatList from "./MessageChatList";
+import { ChatMessage } from "./types";
 
 interface MessageChatZaloAccountProps {
     accountId: string;
 }
 
-const DEFAULT_MESSAGES: ChatMessage[] = [
-    {
-        id: "m1",
-        senderName: "Nguyễn Văn A",
-        content: "Chào bạn, bên mình đã nhận được thông tin rồi nhé.",
-        createdAt: "09:20",
-        isMe: false,
-    },
-    {
-        id: "m2",
-        senderName: "Bạn",
-        content: "Dạ cảm ơn, mình muốn hỏi thêm về gói dịch vụ.",
-        createdAt: "09:22",
-        isMe: true,
-    },
-    {
-        id: "m3",
-        senderName: "Nguyễn Văn A",
-        content: "Bạn cứ nhắn câu hỏi, mình hỗ trợ ngay.",
-        createdAt: "09:24",
-        isMe: false,
-    },
-];
+const MESSAGE_PAGE = 1;
+const MESSAGE_LIMIT = 100;
+const EMPTY_FRIENDS: ChangedProfiles[] = [];
+const EMPTY_GROUPS: ZaloGroupInfo[] = [];
+
+const formatTime = (value: string) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes}`;
+};
 
 export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAccountProps) {
     const [threadTypeRaw] = useSearchParamsClient<string>("threadType", "");
     const [threadId] = useSearchParamsClient<string>("threadId", "");
     const [fullName, setFullName] = useState<string>("Vui lòng chọn cuộc trò chuyện");
     const [avatarUrl, setAvatarUrl] = useState<string>("https://static-zmp3.zadn.vn/default_avatar.png");
-    const reduxFriends = useAppSelector((state) => state.zaloDetail.friendsByAccount[accountId] || []);
-    const reduxGroups = useAppSelector((state) => state.zaloDetail.groupsByAccount[accountId] || []);
+    const reduxFriends = useAppSelector((state) => state.zaloDetail.friendsByAccount[accountId] || EMPTY_FRIENDS);
+    const reduxGroups = useAppSelector((state) => state.zaloDetail.groupsByAccount[accountId] || EMPTY_GROUPS);
     const [cachedFriends] = useLocalStorage<ChangedProfiles[]>(`zalo-personal-friends:${accountId}`, []);
     const [groupDetails] = useLocalStorage<ZaloGroupInfo[]>(`groupDetails_${accountId}`, []);
 
-    const [messages, setMessages] = useState<ChatMessage[]>(DEFAULT_MESSAGES);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [draftMessage, setDraftMessage] = useState<string>("");
+    const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false);
     const threadType = useMemo(() => Number(threadTypeRaw), [threadTypeRaw]);
     const friendsData = useMemo(() => (reduxFriends.length > 0 ? reduxFriends : cachedFriends), [reduxFriends, cachedFriends]);
     const groupsData = useMemo(() => (reduxGroups.length > 0 ? reduxGroups : groupDetails), [reduxGroups, groupDetails]);
@@ -85,12 +71,62 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
                 id: `${Date.now()}`,
                 senderName: "Bạn",
                 content: trimmedContent,
+                msgType: ZaloMsgTypeEnum.WEBCHAT,
                 createdAt,
                 isMe: true,
             },
         ]);
         setDraftMessage("");
     };
+
+    useEffect(() => {
+        if (!accountId || !threadId || ![ZaloThreadType.USER, ZaloThreadType.GROUP].includes(threadType as ZaloThreadType)) {
+            setMessages([]);
+            return;
+        }
+
+        let isMounted = true;
+
+        const loadMessageHistory = async () => {
+            setIsLoadingMessages(true);
+            try {
+                const response = await getZaloPersonalMessageHistory(
+                    accountId,
+                    threadId,
+                    threadType as ZaloThreadType,
+                    MESSAGE_PAGE,
+                    MESSAGE_LIMIT,
+                );
+
+                if (!isMounted) return;
+
+                const mappedMessages: ChatMessage[] = (response.data?.items || []).map((item) => ({
+                    id: item._id || item.msgId,
+                    senderName: item.dName || "Không rõ",
+                    content: item.content || "",
+                    msgType: item.msgType || ZaloMsgTypeEnum.UNKNOWN,
+                    createdAt: formatTime(item.createdAt),
+                    isMe: threadType === ZaloThreadType.USER ? item.uidFrom !== threadId : false,
+                }));
+
+                setMessages(mappedMessages.reverse());
+            } catch (error) {
+                console.error("Failed to load zalo message history", error);
+                if (isMounted) {
+                    setMessages([]);
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoadingMessages(false);
+                }
+            }
+        };
+
+        loadMessageHistory();
+        return () => {
+            isMounted = false;
+        };
+    }, [accountId, threadId, threadType]);
 
     useEffect(() => {
         if (threadType === ZaloThreadType.USER) {
@@ -122,61 +158,9 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
 
     return (
         <div className="p-4 h-full min-h-[80vh] flex flex-col bg-white rounded-lg border border-gray-200">
-            <header className="pb-4 border-b border-gray-200 flex gap-2 items-center">
-                <Avatar src={avatarUrl} alt={fullName} size={40} className="mb-1" />
-                <h2 className="text-lg font-semibold text-gray-900">{fullName}</h2>
-            </header>
-
-            <div className="flex-1 max-h-[65vh] overflow-y-auto py-4 space-y-3">
-                {messages.map((message) => (
-                    <div
-                        key={message.id}
-                        className={`flex ${message.isMe ? "justify-end" : "justify-start"}`}
-                    >
-                        <div
-                            className={`max-w-[90%] rounded-2xl px-3 py-2 ${message.isMe
-                                ? "bg-blue-600 text-white rounded-br-md"
-                                : "bg-gray-100 text-gray-900 rounded-bl-md"
-                                }`}
-                        >
-                            {!message.isMe && (
-                                <p className="text-xs font-medium mb-1 text-gray-600">{message.senderName}</p>
-                            )}
-                            <p className="whitespace-pre-wrap wrap-break-word text-sm">{message.content}</p>
-                            <p
-                                className={`text-[11px] mt-1 ${message.isMe ? "text-blue-100" : "text-gray-500"
-                                    }`}
-                            >
-                                {message.createdAt}
-                            </p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <form onSubmit={handleSendMessage} className="pt-3 border-t border-gray-200">
-                <div className="flex items-end gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-white">
-                    <textarea
-                        value={draftMessage}
-                        onChange={(event) => setDraftMessage(event.target.value)}
-                        onInput={(event) => {
-                            const target = event.currentTarget;
-                            target.style.height = "auto";
-                            target.style.height = `${Math.min(target.scrollHeight, 140)}px`;
-                        }}
-                        placeholder="Nhập tin nhắn..."
-                        rows={1}
-                        className="w-full resize-none max-h-[140px] outline-none text-sm text-gray-900 placeholder:text-gray-400"
-                    />
-                    <button
-                        type="submit"
-                        disabled={!draftMessage.trim()}
-                        className="h-9 px-4 rounded-lg bg-blue-600 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Gửi
-                    </button>
-                </div>
-            </form>
+            <MessageChatHeader fullName={fullName} avatarUrl={avatarUrl} />
+            <MessageChatList isLoadingMessages={isLoadingMessages} messages={messages} />
+            <MessageChatComposer draftMessage={draftMessage} setDraftMessage={setDraftMessage} onSubmit={handleSendMessage} />
         </div>
     )
 }

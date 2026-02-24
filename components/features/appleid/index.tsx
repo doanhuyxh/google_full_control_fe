@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Card, Popconfirm, Table, Tooltip } from "antd";
+import { Button, Card, Input, Popconfirm, Table, Tooltip } from "antd";
 
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { formatUtcToLocal } from "@/libs/utils/timeUtils";
@@ -69,7 +69,15 @@ export default function AppleIdComponent() {
         { title: "Họ tên", dataIndex: "fullName" },
         { title: "Ngày sinh", dataIndex: "birthday" },
         { title: "Apple ID", dataIndex: "appleId" },
-        { title: "Mật khẩu", dataIndex: "password" },
+        {
+            title: "Mật khẩu", dataIndex: "password", render: (text: string) => (
+                <Input.Password
+                    value={text}
+                    readOnly
+                    visibilityToggle
+                />
+            ),
+        },
         { title: "Email", dataIndex: "email" },
         { title: "Số điện thoại", dataIndex: "phoneNumber" },
         {

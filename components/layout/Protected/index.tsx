@@ -1,7 +1,7 @@
 "use client";
 import NextTopLoader from "nextjs-toploader";
-import { ReactNode, useState } from "react";
-import { ConfigProvider, Layout, App, theme as antdTheme, ThemeConfig } from "antd";
+import { ReactNode, useEffect, useState } from "react";
+import { ConfigProvider, Layout, App, Grid, theme as antdTheme, ThemeConfig } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import vi_VN from 'antd/locale/vi_VN';
 import { AntdRegistry } from "@ant-design/nextjs-registry";
@@ -10,7 +10,18 @@ import AppHeader from "./Header";
 import { antdComponentConfig } from "@/libs/constants/colors";
 
 export default function AntdLayout({ children, initialTheme }: { children: ReactNode, initialTheme: string }) {
+    const screens = Grid.useBreakpoint();
+    const isMobile = !screens.md;
     const [isDark, setIsDark] = useState(initialTheme === "dark");
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+    useEffect(() => {
+        if (isMobile) {
+            setIsCollapsed(true);
+        }
+    }, [isMobile]);
+
     const dynamicConfig: ThemeConfig = {
         algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         components: {
@@ -24,8 +35,14 @@ export default function AntdLayout({ children, initialTheme }: { children: React
             <AntdRegistry>
                 <ConfigProvider locale={vi_VN} theme={dynamicConfig}>
                     <Layout style={{ minHeight: "100vh" }}>
-                        <SideNav />
-                        <Layout style={{ flexDirection: "column" }}>
+                        <SideNav
+                            isMobile={isMobile}
+                            mobileOpen={mobileNavOpen}
+                            onMobileClose={() => setMobileNavOpen(false)}
+                            collapsed={isCollapsed}
+                            onCollapsedChange={setIsCollapsed}
+                        />
+                        <Layout style={{ flexDirection: "column", minWidth: 0 }}>
                             <App
                                 message={{
                                     top: 80,
@@ -39,10 +56,15 @@ export default function AntdLayout({ children, initialTheme }: { children: React
                                     showProgress: true,
                                 }}
                             >
-                                <AppHeader isDark={isDark} onToggleTheme={setIsDark} />
+                                <AppHeader
+                                    isDark={isDark}
+                                    isMobile={isMobile}
+                                    onOpenMobileMenu={() => setMobileNavOpen(true)}
+                                    onToggleTheme={setIsDark}
+                                />
                                 <Layout.Content
                                     style={{
-                                        padding: 16,
+                                        padding: isMobile ? 12 : 16,
                                         flex: 1,
                                         overflow: "auto",
                                     }}

@@ -14,10 +14,12 @@ interface UseGroupListDataResult {
 	setGroupDetails: (value: ZaloGroupInfo[] | ((value: ZaloGroupInfo[]) => ZaloGroupInfo[])) => void;
 }
 
+const EMPTY_GROUPS: ZaloGroupInfo[] = [];
+
 export default function useGroupListData(id: string, reloadSignal = 0): UseGroupListDataResult {
 	const dispatch = useAppDispatch();
 	const [loading, setLoading] = useState(true);
-	const groupDetails = useAppSelector((state) => state.zaloDetail.groupsByAccount[id] || []);
+	const groupDetails = useAppSelector((state) => state.zaloDetail.groupsByAccount[id] || EMPTY_GROUPS);
 	const [cachedGroupDetails, setCachedGroupDetails] = useLocalStorage<ZaloGroupInfo[]>(`groupDetails_${id}`, []);
 	const [groupVersion, setGroupVersion] = useLocalStorage<string>(`groupDetailsVersion_${id}`, "");
 

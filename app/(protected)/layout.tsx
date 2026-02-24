@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { ReactNode, Suspense } from "react";
+import { ReactNode } from "react";
 import AntdLayout from "@/components/layout/Protected";
 import ReduxProvider from "@/libs/redux/ReduxProvider";
 
@@ -9,9 +9,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     return (
         <ReduxProvider>
             <AntdLayout initialTheme={theme}>
-                <Suspense fallback={<div>Loading...</div>}>
-                    {children}
-                </Suspense>
+                {children}
             </AntdLayout>
         </ReduxProvider>
     )
