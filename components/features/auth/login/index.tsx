@@ -67,16 +67,17 @@ export default function LoginComponent() {
   return (
     <div
       style={{
-        height: '100vh',
+        minHeight: '100dvh',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: 16,
       }}
     >
       <Card
         title="Đăng nhập"
-        style={{ width: 360, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+        style={{ width: '100%', maxWidth: 420, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
       >
         <Form
           name="login"

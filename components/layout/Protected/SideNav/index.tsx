@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useEffect, useState } from "react";
-import { Layout, Menu, Skeleton, theme } from "antd";
+import { Layout, Menu, Skeleton, theme, Drawer } from "antd";
 import {
     AppstoreOutlined,
     SettingOutlined,
@@ -76,11 +76,24 @@ const menuItems = [
     }
 ];
 
-export default function SideNav() {
+type SideNavProps = {
+    isMobile: boolean;
+    mobileOpen: boolean;
+    onMobileClose: () => void;
+    collapsed: boolean;
+    onCollapsedChange: (collapsed: boolean) => void;
+};
+
+export default function SideNav({
+    isMobile,
+    mobileOpen,
+    onMobileClose,
+    collapsed,
+    onCollapsedChange,
+}: SideNavProps) {
     const [isMounted, setIsMounted] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
-    const [collapsed, setCollapsed] = useState(false);
     const [openKeys, setOpenKeys] = useState<string[]>([]);
     const { token } = theme.useToken();
 
@@ -124,13 +137,6 @@ export default function SideNav() {
         setOpenKeys(keys);
     }, [activeMenuKey]);
 
-    useEffect(() => {
-        const handleResize = () => setCollapsed(window.innerWidth < 768);
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
     useLayoutEffect(() => {
         setIsMounted(true);
     }, []);
@@ -138,7 +144,7 @@ export default function SideNav() {
     // ⏳ Skeleton chờ mount
     if (!isMounted) {
         return (
-            <div className="w-fit h-screen">
+            <div className="w-full h-screen">
                 <div className="p-4 space-y-3">
                     <Skeleton active paragraph={{ rows: 1, width: '80%' }} title={false} />
                     <Skeleton active paragraph={{ rows: 1, width: '90%' }} title={false} />
@@ -149,32 +155,58 @@ export default function SideNav() {
         );
     }
 
+    const menuNode = (
+        <Menu
+            mode="inline"
+            selectedKeys={[activeMenuKey]}
+            openKeys={openKeys}
+            onOpenChange={setOpenKeys}
+            items={menuItems}
+            onClick={({ key }) => {
+                router.push(key);
+                if (isMobile) {
+                    onMobileClose();
+                }
+            }}
+            className="border-none mt-2"
+        />
+    );
+
+    if (isMobile) {
+        return (
+            <Drawer
+                title="Google Full Control"
+                placement="left"
+                open={mobileOpen}
+                onClose={onMobileClose}
+                width={280}
+                styles={{
+                    body: { padding: 8 },
+                }}
+            >
+                {menuNode}
+            </Drawer>
+        );
+    }
+
     return (
-        <div className="w-fit h-screen">
+        <div className="h-dvh">
             <Sider
                 collapsible
                 collapsed={collapsed}
-                onCollapse={setCollapsed}
+                onCollapse={onCollapsedChange}
                 width={260}
                 style={{
                     backgroundColor: token.colorBgContainer,
                     color: token.colorText,
                     borderColor: token.colorBorderSecondary,
                 }}
-                className="h-screen shadow-lg"
+                className="h-dvh"
             >
-                <div className="flex items-center justify-center h-12 border-b text-lg font-semibold">
+                <div className="flex items-center justify-center h-12 border-b text-lg font-semibold px-3 text-center">
                     {!collapsed ? "Google Full Control" : "GFC"}
                 </div>
-                <Menu
-                    mode="inline"
-                    selectedKeys={[activeMenuKey]}
-                    openKeys={openKeys}
-                    onOpenChange={setOpenKeys}
-                    items={menuItems}
-                    onClick={({ key }) => router.push(key)}
-                    className="border-none mt-2"
-                />
+                {menuNode}
             </Sider>
         </div>
     );

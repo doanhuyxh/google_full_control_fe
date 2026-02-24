@@ -50,3 +50,62 @@ body {
   white-space: normal !important;
   width: auto !important;
 }
+
+@media (max-width: 767px) {
+  .ant-layout-content {
+    min-width: 0;
+  }
+
+  .ant-card-body {
+    padding: 12px !important;
+  }
+
+  .ant-table-wrapper .ant-table-content {
+    overflow-x: auto !important;
+  }
+
+  .ant-table {
+    font-size: 13px;
+  }
+
+  .ant-table-thead > tr > th {
+    font-size: 13px !important;
+    padding: 10px 8px !important;
+    white-space: nowrap;
+  }
+
+  .ant-table-tbody > tr > td {
+    font-size: 13px !important;
+    padding: 10px 8px !important;
+  }
+
+  .ant-table-wrapper .ant-pagination {
+    font-size: 13px;
+  }
+
+  .ant-table-wrapper .ant-pagination .ant-pagination-item,
+  .ant-table-wrapper .ant-pagination .ant-pagination-prev,
+  .ant-table-wrapper .ant-pagination .ant-pagination-next {
+    min-width: 30px;
+    height: 30px;
+    line-height: 28px;
+  }
+
+  .ant-table-wrapper .ant-pagination .ant-pagination-item a {
+    font-size: 13px;
+  }
+
+  .ant-modal {
+    margin: 8px auto !important;
+    max-width: calc(100vw - 16px) !important;
+  }
+
+  .ant-modal .ant-modal-content {
+    padding: 16px !important;
+  }
+
+  .ant-modal .ant-modal-header,
+  .ant-modal .ant-modal-footer {
+    margin-bottom: 12px !important;
+  }
+}

@@ -1,5 +1,6 @@
 "use client";
 import { Modal } from "antd";
+import { Grid } from "antd";
 import { CustomModalProps } from "@/libs/hooks/useModal";
 
 export const CustomModal: React.FC<CustomModalProps> = ({
@@ -19,13 +20,16 @@ export const CustomModal: React.FC<CustomModalProps> = ({
   cancelButtonProps,
   ...props
 }) => {
+  const screens = Grid.useBreakpoint();
+  const modalWidth = screens.md ? width : "calc(100vw - 16px)";
+
   return (
     <Modal
       open={open}
       onCancel={onCancel}
       onOk={onOk}
       title={title}
-      width={width}
+      width={modalWidth}
       centered={centered}
       maskClosable={maskClosable}
       destroyOnHidden={destroyOnHidden}
@@ -60,12 +64,15 @@ export const InfoModal: React.FC<Omit<CustomModalProps, 'onOk' | 'okText' | 'can
   destroyOnHidden = true,
   ...props
 }) => {
+  const screens = Grid.useBreakpoint();
+  const modalWidth = screens.md ? width : "calc(100vw - 16px)";
+
   return (
     <Modal
       open={open}
       onCancel={onCancel}
       title={title}
-      width={width}
+      width={modalWidth}
       centered={centered}
       maskClosable={maskClosable}
       destroyOnHidden={destroyOnHidden}

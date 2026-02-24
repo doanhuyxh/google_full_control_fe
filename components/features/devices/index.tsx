@@ -71,14 +71,15 @@ export default function DevicesComponent() {
         fetchLoginHistory();
     }, [page, limit, search]);
 
-    return <Card className="shadow-lg rounded-4xl">
-        <div className="flex justify-center items-center">
-            <h2 className="text-2xl font-semibold mb-4">Lịch sử đăng nhập</h2>
+    return <Card className="shadow-lg rounded-2xl md:rounded-4xl">
+        <div className="flex justify-center items-center px-1">
+            <h2 className="text-lg md:text-2xl font-semibold mb-4 text-center">Lịch sử đăng nhập</h2>
         </div>
         <Table
             loading={loading}
             dataSource={loginHistory}
             rowKey={(record) => record._id}
+            size="small"
             pagination={{
                 current: page,
                 pageSize: limit,
@@ -94,6 +95,7 @@ export default function DevicesComponent() {
                 showLessItems: true,
             }}
             scroll={{
+                x: 980,
                 y:useDynamicAntdTableScrollHeight()
             }}
             columns={columns}

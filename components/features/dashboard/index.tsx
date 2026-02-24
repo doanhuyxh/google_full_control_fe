@@ -50,11 +50,11 @@ export default function DashboardPage() {
     }, [stream]);
 
     return (
-        <div className="">
-            <Title level={2}>Hệ thống Dashboard Demo</Title>
+        <div className="w-full max-w-full overflow-x-hidden">
+            <Title level={2} className="mb-2! md:mb-4!">Hệ thống Dashboard Demo</Title>
             <Divider />
 
-            <Row gutter={[24, 24]}>
+            <Row gutter={[12, 12]}>
                 <Col xs={24} lg={10}>
                     <Card title="📍 Quản lý Modal" className="shadow-sm">
                         <Text type="secondary" className="block mb-6">
@@ -82,7 +82,7 @@ export default function DashboardPage() {
                             </Space>
                         </div>
                     </Card>
-                    <Card title="QR Scanner" style={{ maxWidth: 400 }}>
+                    <Card title="QR Scanner" style={{ width: "100%" }}>
                         <div id="reader" style={{ width: "100%" }} />
                         <Button
                             type="primary"
@@ -126,11 +126,12 @@ export default function DashboardPage() {
                             )}
                         </div>
 
-                        <div className="flex justify-center gap-3 mt-6">
+                        <div className="flex flex-wrap justify-center gap-3 mt-6">
                             <Button
                                 type={stream && !stream.getVideoTracks()[0].label.includes("screen") ? "primary" : "default"}
                                 icon={<CameraOutlined />}
                                 onClick={() => startCamera()}
+                                className="max-sm:flex-1"
                             >
                                 Bật Camera
                             </Button>
@@ -138,6 +139,7 @@ export default function DashboardPage() {
                                 type={stream && stream.getVideoTracks()[0].label.includes("screen") ? "primary" : "default"}
                                 icon={<DesktopOutlined />}
                                 onClick={startScreenShare}
+                                className="max-sm:flex-1"
                             >
                                 Chia sẻ màn hình
                             </Button>
@@ -147,10 +149,11 @@ export default function DashboardPage() {
                                 icon={<StopOutlined />}
                                 onClick={stopStream}
                                 disabled={!stream}
+                                className="max-sm:flex-1"
                             >
                                 Dừng phát
                             </Button>
-                            <Button onClick={async () => {
+                            <Button className="max-sm:flex-1" onClick={async () => {
                                 const photo = await capturePhoto();
                                 if (photo) {
                                     console.log("Captured photo:", photo);

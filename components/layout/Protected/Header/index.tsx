@@ -1,17 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Layout, Switch, Dropdown, Avatar, MenuProps, Space } from "antd";
-import { MoonOutlined, SunOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { Layout, Switch, Dropdown, Avatar, MenuProps, Space, Button, theme } from "antd";
+import { MoonOutlined, SunOutlined, UserOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
 const { Header } = Layout;
 
 export default function AppHeader({
     onToggleTheme,
     isDark,
+    isMobile,
+    onOpenMobileMenu,
 }: {
     onToggleTheme?: (value: boolean) => void;
     isDark?: boolean;
+    isMobile?: boolean;
+    onOpenMobileMenu?: () => void;
 }) {
+    const { token } = theme.useToken();
     const [menuOpen, setMenuOpen] = useState(false);
     const [localDark, setLocalDark] = useState(isDark || false);
 
@@ -47,14 +52,24 @@ export default function AppHeader({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                borderBottom: "1px solid #f0f0f0",
-                backgroundColor: "#353f78",
-                height:"unset",
-                lineHeight:"unset",
+                borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                backgroundColor: token.colorBgContainer,
+                height: "unset",
+                lineHeight: "unset",
+                paddingInline: isMobile ? 12 : 16,
             }}
-            className="h-12!"
+            className="min-h-12!"
         >
-            <div/>
+            <div className="flex items-center gap-2">
+                {isMobile ? (
+                    <Button
+                        type="text"
+                        icon={<MenuOutlined />}
+                        onClick={onOpenMobileMenu}
+                        aria-label="Mở menu"
+                    />
+                ) : null}
+            </div>
             <Space align="center" size="small" style={{ height: "unset", lineHeight: "unset" }}>
                 <Switch
                     size="small"
