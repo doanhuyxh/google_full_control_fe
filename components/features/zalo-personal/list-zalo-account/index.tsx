@@ -4,7 +4,7 @@ import { useZaloPersonalAccount } from "@/libs/hooks/users/zaloPersonalAccountHo
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import ZaloPersonalData from "@/libs/intefaces/zaloPersonal";
 import { useState } from "react";
-import { Button, Card, Image, Table, Tooltip } from "antd";
+import { Button, Card, Image, Input, Table, Tooltip } from "antd";
 import ZaloPersonalAccountControls from "./ZaloAccountControls";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import FormZaloAccount from "./formZaloAccount";
@@ -110,6 +110,13 @@ export default function ZaloPersonalListAccountComponent() {
         },
         {
             title: 'Mật khẩu', dataIndex: 'password', key: 'password', width: 250,
+            render: (text: string) => (
+                <Input.Password
+                    value={text}
+                    readOnly
+                    visibilityToggle
+                />
+            ),
         },
         {
             title: 'Trạng thái', dataIndex: 'isLogin', key: 'isLogin', width: 150, render: (isLogin: boolean) => {

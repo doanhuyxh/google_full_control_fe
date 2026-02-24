@@ -3,7 +3,7 @@
 import { Table, Avatar, Button, Input, Select, Tooltip, Modal, Card } from "antd";
 import { useEffect, useState } from "react";
 import { EyeFilled, DeleteOutlined } from "@ant-design/icons";
-import { History } from "lucide-react";
+import { Copy, History } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
 import { useToolsDataBackEnd } from "@/libs/hooks/useToolsDataBackEnd";
@@ -163,7 +163,12 @@ export default function GoogleAccountComponent() {
             key: 'currentPassword',
             width: 100,
             render: (currentPassword: string) => (
-                <Button type="default" size="small" icon={<EyeFilled />} onClick={() => handleViewPassword(currentPassword)} />
+                <Button
+                    type="default"
+                    size="small"
+                    icon={<Copy size={12} color="#06477d" />}
+                    onClick={() => handleViewPassword(currentPassword)}
+                />
             ),
         },
         {

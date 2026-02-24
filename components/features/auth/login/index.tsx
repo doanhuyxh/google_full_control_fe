@@ -88,9 +88,12 @@ export default function LoginComponent() {
           <Form.Item
             name="email"
             label="Tên đăng nhập (email)"
-            rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
+            rules={[
+              { required: true, message: 'Vui lòng nhập tên đăng nhập!' },
+              { type: 'email', message: 'Email không đúng định dạng!' }
+            ]}
           >
-            <Input prefix={<UserOutlined />} placeholder="admin" />
+            <Input type='email' prefix={<UserOutlined />} placeholder="admin" />
           </Form.Item>
 
           <Form.Item
