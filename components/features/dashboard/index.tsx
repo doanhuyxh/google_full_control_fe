@@ -24,7 +24,7 @@ export default function DashboardPage() {
     const [customModalOpen, setCustomModalOpen] = useState(false);
     const [infoModalOpen, setInfoModalOpen] = useState(false);
 
-    const { start, stop, isScanning } = useQrScanner("reader", {
+    const { start, stop, isScanning, scannedText } = useQrScanner("reader", {
         showMessage: true,
         stopAfterSuccess: true,
         onSuccess: (text) => {
@@ -48,6 +48,11 @@ export default function DashboardPage() {
             videoRef.current.srcObject = stream;
         }
     }, [stream]);
+
+
+    useEffect(() => {
+        console.log("Scanned QR Code:", scannedText);
+    }, [scannedText]);
 
     return (
         <div className="w-full max-w-full overflow-x-hidden">
@@ -83,6 +88,7 @@ export default function DashboardPage() {
                         </div>
                     </Card>
                     <Card title="QR Scanner" style={{ width: "100%" }}>
+                        <p>Nội dung QR: {scannedText ?? "Chưa có dữ liệu"}</p>
                         <div id="reader" style={{ width: "100%" }} />
                         <Button
                             type="primary"
