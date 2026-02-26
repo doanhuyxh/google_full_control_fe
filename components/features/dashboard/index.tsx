@@ -14,6 +14,7 @@ import { useModal } from "@/libs/hooks/useModal";
 import { CustomModal, InfoModal } from "@/components/common/modal";
 import useMediaStream from "@/libs/hooks/useMediaStream";
 import { useQrScanner } from "@/libs/hooks/useScanQrImage";
+import { getAuthenticatorData } from "@/libs/network/authenticator.api";
 
 const { Title, Text } = Typography;
 
@@ -43,6 +44,24 @@ export default function DashboardPage() {
         });
     };
 
+    const handleShowDatF2A = async () => {
+        if (!scannedText) return;
+        if (!scannedText.startsWith("otpauth-migration://")) {
+            modal.showError({ title: 'Lỗi định dạng', content: 'QR code không hợp lệ.' });
+            return;
+        }
+        const response = await getAuthenticatorData(scannedText);
+        console.log("Authenticator Data:", response);
+        modal.showInfo({
+            title: 'Dữ liệu Authenticator',
+            content: (
+                <pre style={{ maxHeight: '600px', overflowY: 'auto',  padding: '10px', borderRadius: '4px' }}>
+                    {JSON.stringify(response, null, 2)}
+                </pre>
+            ),
+        });
+    }
+
     useEffect(() => {
         if (videoRef.current && stream) {
             videoRef.current.srcObject = stream;
@@ -51,7 +70,9 @@ export default function DashboardPage() {
 
 
     useEffect(() => {
-        console.log("Scanned QR Code:", scannedText);
+        if (scannedText) {
+            handleShowDatF2A();
+        }
     }, [scannedText]);
 
     return (
