@@ -66,9 +66,9 @@ export default function AppleIdComponent() {
                 index + 1 + (pageAppleId - 1) * limitAppleId,
             width: 60,
         },
-        { title: "Họ tên", dataIndex: "fullName" },
+        { title: "Họ tên", dataIndex: "fullName", width: 250 },
         { title: "Ngày sinh", dataIndex: "birthday" },
-        { title: "Apple ID", dataIndex: "appleId" },
+        { title: "Apple ID", dataIndex: "appleId", width: 320 },
         {
             title: "Mật khẩu", dataIndex: "password", render: (text: string) => (
                 <Input.Password
@@ -78,7 +78,7 @@ export default function AppleIdComponent() {
                 />
             ),
         },
-        { title: "Email", dataIndex: "email" },
+        { title: "Email", dataIndex: "email", width: 320 },
         { title: "Số điện thoại", dataIndex: "phoneNumber" },
         {
             title: "Quốc gia", dataIndex: "countryCode", render: (countryCode: string) => {
@@ -86,7 +86,7 @@ export default function AppleIdComponent() {
                 return country ? country.name.common : countryCode;
             }
         },
-        { title: "Địa chỉ", dataIndex: "address" },
+        { title: "Địa chỉ", dataIndex: "address", width: 220 },
         {
             title: "Câu hỏi bảo mật", dataIndex: "questionSecurity", render: (questionSecurity: QuestionSecurity[]) => (
                 <ul>{questionSecurity.map((qs, index) => (
@@ -106,6 +106,7 @@ export default function AppleIdComponent() {
                     <Tooltip title="Cập nhật">
                         <Button
                             type="primary"
+                            size="small"
                             onClick={() => handleFormModal(record)}
                             icon={<Edit3 size={16} />}
                         />
@@ -122,6 +123,7 @@ export default function AppleIdComponent() {
                             <Button
                                 type="primary"
                                 danger
+                                size="small"
                                 icon={<DeleteFilled size={16} />}
                             />
                         </Popconfirm>

@@ -14,6 +14,7 @@ import { useModal } from "@/libs/hooks/useModal";
 import { CustomModal, InfoModal } from "@/components/common/modal";
 import useMediaStream from "@/libs/hooks/useMediaStream";
 import { useQrScanner } from "@/libs/hooks/useScanQrImage";
+import { getAuthenticatorData } from "@/libs/network/authenticator.api";
 
 const { Title, Text } = Typography;
 
@@ -24,7 +25,7 @@ export default function DashboardPage() {
     const [customModalOpen, setCustomModalOpen] = useState(false);
     const [infoModalOpen, setInfoModalOpen] = useState(false);
 
-    const { start, stop, isScanning } = useQrScanner("reader", {
+    const { start, stop, isScanning, scannedText } = useQrScanner("reader", {
         showMessage: true,
         stopAfterSuccess: true,
         onSuccess: (text) => {
@@ -43,11 +44,36 @@ export default function DashboardPage() {
         });
     };
 
+    const handleShowDatF2A = async () => {
+        if (!scannedText) return;
+        if (!scannedText.startsWith("otpauth-migration://")) {
+            modal.showError({ title: 'Lỗi định dạng', content: 'QR code không hợp lệ.' });
+            return;
+        }
+        const response = await getAuthenticatorData(scannedText);
+        console.log("Authenticator Data:", response);
+        modal.showInfo({
+            title: 'Dữ liệu Authenticator',
+            content: (
+                <pre style={{ maxHeight: '600px', overflowY: 'auto',  padding: '10px', borderRadius: '4px' }}>
+                    {JSON.stringify(response, null, 2)}
+                </pre>
+            ),
+        });
+    }
+
     useEffect(() => {
         if (videoRef.current && stream) {
             videoRef.current.srcObject = stream;
         }
     }, [stream]);
+
+
+    useEffect(() => {
+        if (scannedText) {
+            handleShowDatF2A();
+        }
+    }, [scannedText]);
 
     return (
         <div className="w-full max-w-full overflow-x-hidden">
@@ -83,6 +109,7 @@ export default function DashboardPage() {
                         </div>
                     </Card>
                     <Card title="QR Scanner" style={{ width: "100%" }}>
+                        <p>Nội dung QR: {scannedText ?? "Chưa có dữ liệu"}</p>
                         <div id="reader" style={{ width: "100%" }} />
                         <Button
                             type="primary"

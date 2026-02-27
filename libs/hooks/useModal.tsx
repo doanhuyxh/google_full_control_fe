@@ -20,6 +20,7 @@ export const useModal = (): UseModalReturn => {
       modal.info({
         centered: true,
         maskClosable: true,
+        width: 1200,
         ...config,
       });
     },

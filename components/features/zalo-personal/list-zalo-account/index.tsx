@@ -4,14 +4,14 @@ import { useZaloPersonalAccount } from "@/libs/hooks/users/zaloPersonalAccountHo
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import ZaloPersonalData from "@/libs/intefaces/zaloPersonal";
 import { useState } from "react";
-import { Button, Card, Image, Input, Table, Tooltip } from "antd";
+import { Avatar, Button, Card, Input, Table, Tooltip } from "antd";
 import ZaloPersonalAccountControls from "./ZaloAccountControls";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import FormZaloAccount from "./formZaloAccount";
 import { DeleteFilled, EditOutlined } from "@ant-design/icons";
 import { deleteZaloPersonalAccount, getLoginInfoAccZalo, loginZaloPersonalViaCookie } from "@/libs/network/zalo-personal.api";
 import FormLoginQr from "./formLoginQr";
-import { Cookie } from "lucide-react";
+import { Cookie, QrCode } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ZaloLoginInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
@@ -100,7 +100,7 @@ export default function ZaloPersonalListAccountComponent() {
             title: "STT", key: "stt", render: (_: any, __: any, index: number) => (index + 1 + (pageZaloPersonal - 1) * limitZaloPersonal), width: 80
         },
         {
-            title: 'avatar', dataIndex: 'avatar', key: 'avatar', render: (avatar: string) => (<Image src={avatar || 'https://adminlte.io/themes/v3/dist/img/user2-100x100.jpg'} sizes="12" alt="avatar" className="w-5 h-5 rounded-full" />), width: 80
+            title: 'avatar', dataIndex: 'avatar', key: 'avatar', render: (avatar: string) => (<Avatar src={avatar || 'https://adminlte.io/themes/v3/dist/img/user2-100x100.jpg'} size={35} alt="avatar" className="w-5 h-5 rounded-full" />), width: 80
         },
         {
             title: 'Họ tên', dataIndex: 'display_name', key: 'display_name', width: 250
@@ -128,6 +128,7 @@ export default function ZaloPersonalListAccountComponent() {
                 <div className="flex gap-2 justify-end flex-wrap">
                     <Tooltip title="Lấy thông tin tài khoản">
                         <Button
+                            size="small"
                             disabled={record.isLogin === false}
                             type="primary"
                             onClick={() => handleDetailAccount(record._id)}
@@ -137,29 +138,33 @@ export default function ZaloPersonalListAccountComponent() {
                     </Tooltip>
                     <Tooltip title="Đăng nhập qua Cookie">
                         <Button
+                            size="small"
                             disabled={record.imei === "" || record.imei === null}
                             onClick={handleLoginViaCookie.bind(null, record._id)}
                             type="primary"
                         >
-                            <Cookie />
+                            <Cookie size={12} />
                         </Button>
                     </Tooltip>
                     <Tooltip title="Đăng nhập qua QR Code">
                         <Button
+                            size="small"
                             onClick={() => {
                                 setSelectedZaloId(record._id);
                                 setIsModalOpenLoginQr(true);
                             }}
                             type="primary"
                         >
-                            QR
+                            <QrCode size={12} />
                         </Button>
                     </Tooltip>
                     <Button
+                        size="small"
                         icon={<EditOutlined />}
                         className="bg-yellow-500!"
                         onClick={() => handleFormModal(record)} />
                     <Button
+                        size="small"
                         danger
                         onClick={() => handleDeleteAccount(record._id)}
                         icon={<DeleteFilled />} />

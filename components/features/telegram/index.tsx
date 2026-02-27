@@ -7,7 +7,7 @@ import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScr
 import TelegramFormModal from "./TelegramFormModal";
 import BotFormModal from "./BotFormModal"
 import { TelegramAccountData } from "@/libs/intefaces/telegramData";
-import { EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteFilled, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { deleteTelegramAccount } from "@/libs/network/telegram.api";
 import { PersonStanding } from "lucide-react";
@@ -78,27 +78,27 @@ export default function TelegramComponent() {
             key: 'actions',
             render: (_: any, record: TelegramAccountData) => (
                 <div className="flex gap-2 flex-wrap">
-
                     <Tooltip title='Thêm bot'>
                         <Button
+                            size="small"
                             onClick={() => setFormModalAddBot({
                                 isShowModal: true,
                                 telegramId: record._id
                             })}
                             icon={<PlusOutlined />} />
                     </Tooltip>
-
                     <Tooltip title='Danh sách bot'>
                         <Button
+                            size="small"
                             onClick={() => setFormModalListBot({
                                 isShowModal: true,
                                 telegramId: record._id
                             })}
                             icon={<PersonStanding />} />
                     </Tooltip>
-
                     <Tooltip title="Cập nhật tài khoản">
                         <Button
+                            size="small"
                             onClick={() => setFormDataTelegram({ isShowModal: true, teleId: record._id })}
                             type="primary"
                             icon={<EditOutlined />}
@@ -106,10 +106,11 @@ export default function TelegramComponent() {
                     </Tooltip>
                     <Tooltip title="Xóa tài khoản">
                         <Button
+                            size="small"
                             onClick={() => handleDeleteTelegramAccount(record._id)}
                             danger
                         >
-                            Xóa
+                            <DeleteFilled />
                         </Button>
                     </Tooltip>
                 </div>
