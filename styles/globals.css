@@ -8,35 +8,6 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
-/* Đảm bảo Antd components hoạt động đúng */
-.ant-layout {
-  min-height: 100vh;
-}
-
-/* Z-index hierarchy cho Antd components */
-.ant-modal-mask {
-  z-index: 1000 !important;
-}
-
-.ant-modal-wrap {
-  z-index: 1000 !important;
-}
-
-.ant-drawer-mask {
-  z-index: 999 !important;
-}
-
-.ant-drawer {
-  z-index: 999 !important;
-}
-
-.ant-message {
-  z-index: 1010 !important;
-}
-
-.ant-notification {
-  z-index: 1010 !important;
-}
 
 .full-option .ant-select-selector {
   white-space: nowrap !important;
@@ -51,18 +22,18 @@ body {
   width: auto !important;
 }
 
+.ant-table-wrapper .ant-pagination::-webkit-scrollbar {
+  display: none;
+}
+
+
+
 @media (max-width: 767px) {
-  .ant-layout-content {
-    min-width: 0;
-  }
 
   .ant-card-body {
     padding: 12px !important;
   }
 
-  .ant-table-wrapper .ant-table-content {
-    overflow-x: auto !important;
-  }
 
   .ant-table {
     font-size: 13px;

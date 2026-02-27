@@ -34,28 +34,30 @@ export default function AntdLayout({ children, initialTheme }: { children: React
             <NextTopLoader color="red" height={5} crawl showSpinner />
             <AntdRegistry>
                 <ConfigProvider locale={vi_VN} theme={dynamicConfig}>
-                    <Layout style={{ minHeight: "100vh" }}>
-                        <SideNav
-                            isMobile={isMobile}
-                            mobileOpen={mobileNavOpen}
-                            onMobileClose={() => setMobileNavOpen(false)}
-                            collapsed={isCollapsed}
-                            onCollapsedChange={setIsCollapsed}
-                        />
-                        <App
-                            message={{
-                                top: 80,
-                                duration: 3,
-                                maxCount: 10,
-                            }}
-                            notification={{
-                                placement: "bottomRight",
-                                duration: 3,
-                                maxCount: 10,
-                                showProgress: true,
-                            }}
-                        >
-                            <Layout style={{ flexDirection: "column", minWidth: 0, maxHeight: "100vh" }}>
+                    <App
+                        message={{
+                            top: 80,
+                            duration: 3,
+                            maxCount: 10,
+                        }}
+                        notification={{
+                            placement: "bottomRight",
+                            duration: 3,
+                            maxCount: 10,
+                            showProgress: true,
+                        }}
+                    >
+                        <Layout style={{ minHeight: "100vh" }}>
+                            <SideNav
+                                isMobile={isMobile}
+                                mobileOpen={mobileNavOpen}
+                                onMobileClose={() => setMobileNavOpen(false)}
+                                collapsed={isCollapsed}
+                                onCollapsedChange={setIsCollapsed}
+                            />
+                            <Layout style={{ flexDirection: "column", maxHeight: "100vh" }}>
+
+
                                 <AppHeader
                                     isDark={isDark}
                                     isMobile={isMobile}
@@ -72,8 +74,8 @@ export default function AntdLayout({ children, initialTheme }: { children: React
                                     {children}
                                 </Layout.Content>
                             </Layout>
-                        </App>
-                    </Layout>
+                        </Layout>
+                    </App>
                 </ConfigProvider >
             </AntdRegistry >
         </>
