@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Layout, Switch, Dropdown, Avatar, MenuProps, Space, Button, theme } from "antd";
 import { MoonOutlined, SunOutlined, UserOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
+import RealTimeClock from "./RealTimeClock";
 const { Header } = Layout;
 
 export default function AppHeader({
@@ -19,12 +20,6 @@ export default function AppHeader({
     const { token } = theme.useToken();
     const [menuOpen, setMenuOpen] = useState(false);
     const [localDark, setLocalDark] = useState(isDark || false);
-    const [now, setNow] = useState(new Date());
-
-    useEffect(() => {
-        const timer = setInterval(() => setNow(new Date()), 1000);
-        return () => clearInterval(timer);
-    }, []);
 
     const itemsProfile: MenuProps["items"] = [
         {
@@ -63,6 +58,9 @@ export default function AppHeader({
                 height: "unset",
                 lineHeight: "unset",
                 paddingInline: isMobile ? 12 : 16,
+                position: "sticky",
+                top: 0,
+                zIndex: 100,
             }}
             className="min-h-12!"
         >
@@ -77,11 +75,7 @@ export default function AppHeader({
                 ) : null}
             </div>
             <Space align="center" size="small" style={{ height: "unset", lineHeight: "unset" }}>
-                {!isMobile && (
-                    <span className="text-xs font-mono opacity-70 select-none mr-1">
-                        {now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-                    </span>
-                )}
+                <RealTimeClock />
                 <Switch
                     size="small"
                     checkedChildren={<SunOutlined />}
