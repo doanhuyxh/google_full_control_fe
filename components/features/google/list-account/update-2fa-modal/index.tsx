@@ -215,9 +215,9 @@ export default function Update2FAModal({
                                         <Typography.Text
                                             type="secondary"
                                             className="text-xs font-mono break-all"
-                                            copyable={{ text: item.secret }}
+                                            copyable={{ text: item.secret_code }}
                                         >
-                                            {item.secret}
+                                            {item.secret_code}
                                         </Typography.Text>
                                     </div>
 
@@ -225,7 +225,7 @@ export default function Update2FAModal({
                                     <Button
                                         type="primary"
                                         icon={<CheckCircle size={14} />}
-                                        loading={applyingSecret === item.secret}
+                                        loading={applyingSecret === item.secret_code}
                                         onClick={() => handleApply(item)}
                                         block
                                         size={isMobile ? "large" : "middle"}
