@@ -42,20 +42,20 @@ export default function AntdLayout({ children, initialTheme }: { children: React
                             collapsed={isCollapsed}
                             onCollapsedChange={setIsCollapsed}
                         />
-                        <Layout style={{ flexDirection: "column", minWidth: 0 }}>
-                            <App
-                                message={{
-                                    top: 80,
-                                    duration: 3,
-                                    maxCount: 10,
-                                }}
-                                notification={{
-                                    placement: "bottomRight",
-                                    duration: 3,
-                                    maxCount: 10,
-                                    showProgress: true,
-                                }}
-                            >
+                        <App
+                            message={{
+                                top: 80,
+                                duration: 3,
+                                maxCount: 10,
+                            }}
+                            notification={{
+                                placement: "bottomRight",
+                                duration: 3,
+                                maxCount: 10,
+                                showProgress: true,
+                            }}
+                        >
+                            <Layout style={{ flexDirection: "column", minWidth: 0, maxHeight: "100vh" }}>
                                 <AppHeader
                                     isDark={isDark}
                                     isMobile={isMobile}
@@ -71,11 +71,11 @@ export default function AntdLayout({ children, initialTheme }: { children: React
                                 >
                                     {children}
                                 </Layout.Content>
-                            </App>
-                        </Layout>
+                            </Layout>
+                        </App>
                     </Layout>
-                </ConfigProvider>
-            </AntdRegistry>
+                </ConfigProvider >
+            </AntdRegistry >
         </>
     );
 }
