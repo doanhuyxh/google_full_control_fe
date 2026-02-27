@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Modal, Button, List, Tag, Spin, Alert, Typography } from "antd";
-import { QrCode, CheckCircle, RotateCcw, VideoOff } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Modal, Button, List, Tag, Typography, Alert } from "antd";
+import { QrCode, CheckCircle, RotateCcw, VideoOff, Camera, ScanLine, KeyRound, BadgeCheck } from "lucide-react";
 import { useQrScanner } from "@/libs/hooks/useScanQrImage";
 import { getAuthenticatorData } from "@/libs/network/authenticator.api";
 import { AuthenticatorData } from "@/libs/intefaces/authenticatorData";
-import { useAntdApp } from "@/libs/hooks/useAntdApp";
 
 const SCANNER_ID = "google-2fa-qr-scanner";
 
@@ -39,14 +38,23 @@ export default function Update2FAModal({
     const [loadingParse, setLoadingParse] = useState(false);
     const [parseError, setParseError] = useState<string | null>(null);
     const [applyingSecret, setApplyingSecret] = useState<string | null>(null);
+    const [cameraOpening, setCameraOpening] = useState(false);
     const isMobile = useIsMobile();
-    // Suppress unused warning – kept for future notification use
-    const { notification: _notification } = useAntdApp();
 
-    const { start, stop, isScanning, scannedText, clearScannedText } = useQrScanner(
+    const { start: _start, stop, isScanning, scannedText, clearScannedText } = useQrScanner(
         SCANNER_ID,
-        { stopAfterSuccess: true, showMessage: true }
+        { stopAfterSuccess: true, showMessage: false }
     );
+
+    const start = useCallback(() => {
+        setCameraOpening(true);
+        _start();
+    }, [_start]);
+
+    /* Khi camera đã sẵn sàng → tắt trạng thái "đang mở camera" */
+    useEffect(() => {
+        if (isScanning) setCameraOpening(false);
+    }, [isScanning]);
 
     /* Khi quét xong → gọi API parse */
     useEffect(() => {
@@ -73,6 +81,7 @@ export default function Update2FAModal({
         clearScannedText();
         setAuthList([]);
         setParseError(null);
+        setCameraOpening(false);
         onClose();
     };
 
@@ -103,22 +112,46 @@ export default function Update2FAModal({
             return () => clearTimeout(timer);
         } else {
             stop();
+            setCameraOpening(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isShowModal]);
+
+    /* --- Step logic ---
+     * -1: chưa bắt đầu
+     *  0: đang mở camera
+     *  1: đang quét QR
+     *  2: đang giải mã
+     *  3: hoàn tất
+     */
+    const currentStep = (() => {
+        if (authList.length > 0) return 3;
+        if (loadingParse) return 2;
+        if (isScanning || scannedText) return 1;
+        if (cameraOpening) return 0;
+        return -1;
+    })();
+
+    const TOTAL_STEPS = 4;
+
+    const stepMeta: { icon: React.ReactNode; label: string; color: string }[] = [
+        { icon: <Camera size={14} />, label: "Đang mở camera…", color: "text-blue-500" },
+        { icon: <ScanLine size={14} />, label: "Đang quét QR…", color: "text-amber-500" },
+        { icon: <KeyRound size={14} />, label: "Đang giải mã…", color: "text-violet-500" },
+        { icon: <BadgeCheck size={14} />, label: "Hoàn tất!", color: "text-green-500" },
+    ];
+
+    const activeStep = currentStep >= 0 && currentStep < TOTAL_STEPS ? stepMeta[currentStep] : null;
 
     return (
         <Modal
             open={isShowModal}
             onCancel={handleClose}
             footer={null}
-            /* Mobile: full-width sát cạnh màn hình; Desktop: 440px */
             width={isMobile ? "100%" : 440}
             style={isMobile ? { top: 0, margin: 0, maxWidth: "100vw", padding: 0 } : undefined}
             styles={isMobile ? { body: { padding: "12px", maxHeight: "90dvh", overflowY: "auto" } } : { body: { padding: "16px" } }}
-            classNames={{
-                content: isMobile ? "!rounded-none sm:!rounded-lg" : "",
-            }}
+            classNames={{ content: isMobile ? "!rounded-none sm:!rounded-lg" : "" }}
             title={
                 <div className="flex items-center gap-2">
                     <QrCode size={18} />
@@ -127,54 +160,121 @@ export default function Update2FAModal({
             }
         >
             <div className="flex flex-col gap-4">
-                {/* Camera scanner */}
-                {!scannedText && (
-                    <>
-                        {/* Khung camera – vuông theo chiều rộng */}
-                        <div
-                            id={SCANNER_ID}
-                            className="w-full rounded-lg overflow-hidden bg-black"
-                            style={{ aspectRatio: "1 / 1", maxHeight: isMobile ? "55dvh" : 320 }}
-                        />
-
-                        {/* Nút bật/tắt camera */}
-                        <div className="flex gap-2">
-                            {!isScanning ? (
-                                <Button
-                                    type="primary"
-                                    icon={<QrCode size={15} />}
-                                    onClick={start}
-                                    block
-                                    size={isMobile ? "large" : "middle"}
-                                >
-                                    Bật camera
-                                </Button>
-                            ) : (
-                                <Button
-                                    danger
-                                    icon={<VideoOff size={15} />}
-                                    onClick={stop}
-                                    block
-                                    size={isMobile ? "large" : "middle"}
-                                >
-                                    Dừng quét
-                                </Button>
-                            )}
+                {/* ── Timeline ngang + text trạng thái ── */}
+                {currentStep >= 0 && (
+                    <div className="flex flex-col items-center gap-2">
+                        {/* Dots */}
+                        <div className="flex items-center w-full max-w-[260px]">
+                            {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
+                                const done = i < currentStep;
+                                const active = i === currentStep;
+                                const isLast = i === TOTAL_STEPS - 1;
+                                return (
+                                    <div key={i} className="flex items-center flex-1 last:flex-none">
+                                        <div
+                                            className={[
+                                                "w-3 h-3 rounded-full border-2 transition-all duration-300 shrink-0",
+                                                done
+                                                    ? "bg-green-500 border-green-500 scale-100"
+                                                    : active
+                                                        ? "border-blue-500 bg-blue-500 scale-125 animate-pulse"
+                                                        : "border-gray-300 bg-white scale-100",
+                                            ].join(" ")}
+                                        />
+                                        {!isLast && (
+                                            <div className="flex-1 h-0.5 mx-1">
+                                                <div
+                                                    className={[
+                                                        "h-full rounded transition-all duration-500",
+                                                        done ? "bg-green-400" : "bg-gray-200",
+                                                    ].join(" ")}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
-                    </>
+
+                        {/* Label trạng thái */}
+                        {activeStep && (
+                            <span className={`flex items-center gap-1.5 text-sm font-medium ${activeStep.color}`}>
+                                {activeStep.icon}
+                                {activeStep.label}
+                            </span>
+                        )}
+                    </div>
                 )}
 
-                {/* Đang parse */}
+                {/* ── Camera scanner — luôn giữ trong DOM, ẩn bằng CSS ── */}
+                <div className={scannedText ? "hidden" : ""}>
+                    {/* Wrapper relative để overlay phủ lên scanner */}
+                    <div className="relative w-full rounded-lg overflow-hidden"
+                        style={{ aspectRatio: "1 / 1", maxHeight: isMobile ? "55dvh" : 320 }}
+                    >
+                        {/* Container cho html5-qrcode — KHÔNG đặt children React bên trong */}
+                        <div
+                            id={SCANNER_ID}
+                            className="absolute inset-0 bg-black"
+                        />
+
+                        {/* Overlay "đang mở camera" — sibling, không phải child của scanner container */}
+                        {cameraOpening && !isScanning && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/70 z-10">
+                                <Camera size={32} className="text-white animate-pulse" />
+                                <span className="text-white text-sm">Đang mở camera…</span>
+                            </div>
+                        )}
+                        {/* Overlay khung ngắm khi đang quét */}
+                        {isScanning && (
+                            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                                <div className="border-2 border-white/70 rounded-xl"
+                                    style={{ width: "65%", height: "65%", boxShadow: "0 0 0 9999px rgba(0,0,0,0.45)" }}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex gap-2 mt-4">
+                        {!isScanning && !cameraOpening ? (
+                            <Button
+                                type="primary"
+                                icon={<QrCode size={15} />}
+                                onClick={start}
+                                block
+                                size={isMobile ? "large" : "middle"}
+                            >
+                                Bật camera
+                            </Button>
+                        ) : isScanning ? (
+                            <Button
+                                danger
+                                icon={<VideoOff size={15} />}
+                                onClick={stop}
+                                block
+                                size={isMobile ? "large" : "middle"}
+                            >
+                                Dừng quét
+                            </Button>
+                        ) : (
+                            <Button block disabled size={isMobile ? "large" : "middle"} loading>
+                                Đang mở camera…
+                            </Button>
+                        )}
+                    </div>
+                </div>
+
+                {/* ── Đang giải mã ── */}
                 {loadingParse && (
-                    <div className="flex flex-col items-center justify-center gap-3 py-8">
-                        <Spin size="large" />
+                    <div className="flex flex-col items-center justify-center gap-3 py-6">
+                        <KeyRound size={32} className="text-blue-500 animate-bounce" />
                         <Typography.Text type="secondary" className="text-sm">
-                            Đang đọc dữ liệu 2FA…
+                            Đang giải mã dữ liệu 2FA…
                         </Typography.Text>
                     </div>
                 )}
 
-                {/* Lỗi parse */}
+                {/* ── Lỗi parse ── */}
                 {parseError && (
                     <div className="flex flex-col gap-3">
                         <Alert type="error" message={parseError} showIcon />
@@ -189,7 +289,7 @@ export default function Update2FAModal({
                     </div>
                 )}
 
-                {/* Danh sách 2FA accounts */}
+                {/* ── Danh sách 2FA ── */}
                 {!loadingParse && authList.length > 0 && (
                     <div className="flex flex-col gap-3">
                         <Typography.Text type="secondary" className="text-xs">
@@ -201,16 +301,13 @@ export default function Update2FAModal({
                             size="small"
                             dataSource={authList}
                             renderItem={(item) => (
-                                <List.Item className="flex flex-col gap-2 sm:flex-row sm:items-center justify-between">
-                                    {/* Info */}
+                                <List.Item className="flex flex-col items-stretch gap-2 px-3 py-3">
                                     <div className="flex flex-col gap-1 w-full">
                                         <Typography.Text strong className="text-sm leading-tight">
                                             {item.name || item.issuer || "(Không tên)"}
                                         </Typography.Text>
                                         {item.issuer && item.issuer !== item.name && (
-                                            <Tag color="blue" className="w-fit text-xs">
-                                                {item.issuer}
-                                            </Tag>
+                                            <Tag color="blue" className="w-fit text-xs">{item.issuer}</Tag>
                                         )}
                                         <Typography.Text
                                             type="secondary"
@@ -220,8 +317,6 @@ export default function Update2FAModal({
                                             {item.secret_code}
                                         </Typography.Text>
                                     </div>
-
-                                    {/* Nút áp dụng – full-width trên mobile */}
                                     <Button
                                         type="primary"
                                         icon={<CheckCircle size={14} />}
