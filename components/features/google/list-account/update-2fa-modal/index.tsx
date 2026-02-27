@@ -72,7 +72,7 @@ export default function Update2FAModal({
         if (!accountId) return;
         setApplyingSecret(item.secret);
         try {
-            await onUpdate(accountId, "f2a", item.secret);
+            await onUpdate(accountId, "f2a", item.secret_code);
             handleClose();
         } finally {
             setApplyingSecret(null);
