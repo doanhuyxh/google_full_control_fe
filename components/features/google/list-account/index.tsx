@@ -2,8 +2,8 @@
 
 import { Table, Avatar, Button, Input, Select, Tooltip, Modal, Card } from "antd";
 import { useEffect, useState } from "react";
-import { EyeFilled, DeleteOutlined } from "@ant-design/icons";
-import { Copy, History } from "lucide-react";
+import { DeleteOutlined } from "@ant-design/icons";
+import { Copy, History, Lock, QrCode } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
 import { useToolsDataBackEnd } from "@/libs/hooks/useToolsDataBackEnd";
@@ -18,6 +18,7 @@ import GoogleFormSendEmail from "./form-send-email";
 import ViewHistoryEmailSent from "./view-history-email-sent";
 import DebouncedInputCell from "@/components/common/AntCustom/DebouncedInputCell";
 import DebouncedInputTextAreaCell from "@/components/common/AntCustom/DebounceInputTextAreaCel";
+import Update2FAModal from "./update-2fa-modal";
 
 export default function GoogleAccountComponent() {
     const {
@@ -45,6 +46,11 @@ export default function GoogleAccountComponent() {
     const { notification, modal } = useAntdApp();
 
     const [formDataModal, setFormDataModal] = useState<{
+        isShowModal: boolean;
+        _id?: string;
+    }>({ isShowModal: false, _id: undefined });
+
+    const [formModalUpdate2FA, setFormModalUpdate2FA] = useState<{
         isShowModal: boolean;
         _id?: string;
     }>({ isShowModal: false, _id: undefined });
@@ -118,7 +124,7 @@ export default function GoogleAccountComponent() {
             dataIndex: 'avatar',
             key: 'avatar',
             width: 100,
-            render: (avatar: string) => <Avatar src={avatar || 'https://via.placeholder.com/150'} alt="Ảnh đại diện" size={50} />,
+            render: (avatar: string) => <Avatar src={avatar || 'https://via.placeholder.com/150'} alt="Ảnh đại diện" size={30} />,
         },
         {
             title: 'Họ và tên',
@@ -217,15 +223,22 @@ export default function GoogleAccountComponent() {
             title: 'F2A',
             dataIndex: 'f2a',
             key: 'f2a',
-            width: 200,
+            width: 250,
             render: (f2a: string, record: GoogleAccount) => {
-                return <DebouncedInputCell
-                    recordId={record._id}
-                    initialValue={f2a}
-                    dataIndex="f2a"
-                    onUpdate={handleUpdateData}
-                    type="password"
-                />
+                return <div className="flex gap-2">
+                    <DebouncedInputCell
+                        recordId={record._id}
+                        initialValue={f2a}
+                        dataIndex="f2a"
+                        onUpdate={handleUpdateData}
+                        type="password"
+                    />
+                    <Button
+                        icon={<Copy size={12} color="#06477d" />}
+                        size="small"
+                        onClick={()=> copiedToClipboard(f2a)}
+                    />
+                </div>
             },
         },
         {
@@ -286,11 +299,17 @@ export default function GoogleAccountComponent() {
             width: 120,
             render: (_, record: GoogleAccount) => (
                 <div className="flex gap-2 justify-end">
+                    <Tooltip title="Quét mã 2FA">
+                        <Button
+                            size="small"
+                            icon={<QrCode size={16} />}
+                            onClick={() => setFormModalUpdate2FA({ isShowModal: true, _id: record._id })}
+                        />
+                    </Tooltip>
                     <Tooltip title="Cập nhật mật khẩu">
                         <Button
-                            type="primary"
                             size="small"
-                            icon={<EyeFilled />}
+                            icon={<Lock size={16} />}
                             onClick={() => {
                                 setShowModalPassword({ isShow: true, password: '', id: record._id });
                             }}
@@ -300,7 +319,7 @@ export default function GoogleAccountComponent() {
                         <Button
                             type="dashed"
                             size="small"
-                            icon={<History />}
+                            icon={<History size={16} />}
                             onClick={() => handleShowEmailHistoryModal(record._id, record.email)}
                         />
                     </Tooltip>
@@ -309,7 +328,7 @@ export default function GoogleAccountComponent() {
                             danger
                             type="primary"
                             size="small"
-                            icon={<DeleteOutlined />}
+                            icon={<DeleteOutlined size={16} />}
                             onClick={() => {
                                 modal.confirm({
                                     title: 'Xác nhận xóa',
@@ -384,7 +403,6 @@ export default function GoogleAccountComponent() {
                 googleAccountId={emailShowHistory.googleAccountId || ''}
                 emailName={emailShowHistory.emailName || ''}
             />
-
             <Modal
                 open={showModalPassword.isShow}
                 onCancel={() => setShowModalPassword({ isShow: false, password: '' })}
@@ -402,6 +420,12 @@ export default function GoogleAccountComponent() {
                     />
                 </div>
             </Modal>
+            <Update2FAModal
+                isShowModal={formModalUpdate2FA.isShowModal}
+                accountId={formModalUpdate2FA._id}
+                onClose={() => setFormModalUpdate2FA({ isShowModal: false })}
+                onUpdate={handleUpdateData}
+            />
         </Card>
     )
 }

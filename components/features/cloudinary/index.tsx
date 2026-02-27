@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Card, Popconfirm, Table, Tooltip } from "antd";
+import { Button, Card, Input, Popconfirm, Table, Tooltip } from "antd";
 import { useCloudinaryAccount } from "@/libs/hooks/users/cloudinaryAccountHook";
 import { CloudinaryData } from "@/libs/intefaces/cloudinaryData";
 
@@ -85,8 +85,8 @@ export default function CloudinaryComponent() {
         },
         { title: "Email", dataIndex: "accountMail" },
         { title: "Cloud Name", dataIndex: "cloudName" },
-        { title: "API Key", dataIndex: "apiKey" },
-        { title: "API Secret", dataIndex: "apiSecret" },
+        { title: "API Key", dataIndex: "apiKey", render: (apiKey: string) => <Input.Password value={apiKey} readOnly /> },
+        { title: "API Secret", dataIndex: "apiSecret", render: (apiSecret: string) => <Input.Password value={apiSecret} readOnly /> },
         { title: "Ghi chú", dataIndex: "note" },
         { title: "Thời gian", dataIndex: "createdAt", render: (date: string) => formatUtcToLocal(date) },
         {
@@ -96,6 +96,7 @@ export default function CloudinaryComponent() {
                 <div className="flex gap-2">
                     <Tooltip title="Cập nhật">
                         <Button
+                            size="small"
                             type="primary"
                             onClick={() => handleFormModal(record)}
                             icon={<Edit3 size={16} />}
@@ -103,6 +104,7 @@ export default function CloudinaryComponent() {
                     </Tooltip>
                     <Tooltip title="Sử dụng">
                         <Button
+                            size="small"
                             type="dashed"
                             onClick={() => handleShowUsageModal(record._id)}
                             icon={<BarChartOutlined />}
@@ -119,6 +121,7 @@ export default function CloudinaryComponent() {
                             onConfirm={() => handleDeleteAccount(record._id)}
                         >
                             <Button
+                                size="small"
                                 type="primary"
                                 danger
                                 icon={<DeleteFilled size={16} />}
