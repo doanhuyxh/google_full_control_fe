@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Layout, Switch, Dropdown, Avatar, MenuProps, Space, Button, theme } from "antd";
 import { MoonOutlined, SunOutlined, UserOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
+import RealTimeClock from "@/components/common/RealTimeClock";
 const { Header } = Layout;
 
 export default function AppHeader({
@@ -71,6 +72,7 @@ export default function AppHeader({
                 ) : null}
             </div>
             <Space align="center" size="small" style={{ height: "unset", lineHeight: "unset" }}>
+                <RealTimeClock />
                 <Switch
                     size="small"
                     checkedChildren={<SunOutlined />}
