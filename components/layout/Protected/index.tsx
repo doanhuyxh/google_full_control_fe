@@ -16,11 +16,6 @@ export default function AntdLayout({ children, initialTheme }: { children: React
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-    useEffect(() => {
-        if (isMobile) {
-            setIsCollapsed(true);
-        }
-    }, [isMobile]);
 
     const dynamicConfig: ThemeConfig = {
         algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
@@ -56,8 +51,6 @@ export default function AntdLayout({ children, initialTheme }: { children: React
                                 onCollapsedChange={setIsCollapsed}
                             />
                             <Layout style={{ flexDirection: "column", maxHeight: "100vh" }}>
-
-
                                 <AppHeader
                                     isDark={isDark}
                                     isMobile={isMobile}
