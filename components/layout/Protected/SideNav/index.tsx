@@ -7,7 +7,8 @@ import {
     SettingOutlined,
     DashboardOutlined,
     DatabaseOutlined,
-    FolderAddFilled
+    FolderAddFilled,
+    TikTokOutlined
 } from "@ant-design/icons";
 import { usePathname, useRouter } from "next/navigation";
 import { AppleIcon, BookTemplateIcon, Mail, MessageCircle } from "lucide-react";
@@ -61,6 +62,11 @@ const menuItems = [
                 key: "/accounts/appleid",
                 label: "Apple ID",
                 icon: <AppleIcon size={16} />,
+            },
+            {
+                key: "/accounts/tiktok",
+                label: "TikTok",
+                icon: <TikTokOutlined size={16} />,
             }
         ],
     },

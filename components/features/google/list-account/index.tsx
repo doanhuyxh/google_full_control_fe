@@ -188,6 +188,7 @@ export default function GoogleAccountComponent() {
                     initialValue={appPassword}
                     dataIndex="appPassword"
                     onUpdate={handleUpdateData}
+                    type="password"
                 />
             ),
         },

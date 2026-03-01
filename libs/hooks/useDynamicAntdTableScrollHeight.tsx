@@ -5,11 +5,7 @@ import { useEffect, useState } from "react";
 export function useDynamicAntdTableScrollHeight(selector: string = ".ant-table-wrapper") {
     const [scrollY, setScrollY] = useState(400);
     useEffect(() => {
-        const isMobile = window.innerWidth < 768;
-        if (isMobile) {
-            setScrollY(400);
-            return;
-        }
+        
         const calculateHeight = () => {
             const tableWrapper = document.querySelector(selector) as HTMLElement;
             if (!tableWrapper) return;
