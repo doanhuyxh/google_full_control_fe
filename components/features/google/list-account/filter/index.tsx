@@ -37,7 +37,7 @@ export default function GoogleAccountFilter({ onSearch, value, status, setStatus
             </Tooltip>
             <Tooltip title="Gửi Email đến các tài khoản Google">
                 <Button className="flex! items-center justify-center" size="small" onClick={handleSendEmailModal}>
-                    <MailPlusIcon color="white" size={18} />
+                    <MailPlusIcon size={18} />
                 </Button>
             </Tooltip>
             <Tooltip title="Cài đặt bảng">

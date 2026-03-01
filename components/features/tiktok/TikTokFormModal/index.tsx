@@ -96,7 +96,7 @@ export default function TikTokFormModal({ isShowModal, onCloseModal, onSuccess, 
                 <Form.Item
                     label="Mật khẩu"
                     name="password"
-                    rules={[{ required: true, message: "Vui lòng nhập mật khẩu" }]}
+                    rules={[{ required: false, message: "Vui lòng nhập mật khẩu" }]}
                 >
                     <Input.Password placeholder="Nhập mật khẩu" />
                 </Form.Item>
