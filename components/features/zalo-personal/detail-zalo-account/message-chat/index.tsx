@@ -1,14 +1,15 @@
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
 import useSearchParamsClient from "@/libs/hooks/useSearchParamsClient";
+import { useSocketManager } from "@/libs/hooks/useSocketManager";
 import { ChangedProfiles, ZaloGroupInfo, ZaloThreadType } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { ZaloMsgTypeEnum } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { getZaloPersonalMessageHistory, sendMessageToZaloGroup, sendMessageToZaloUser } from "@/libs/network/zalo-personal.api";
 import { useAppSelector } from "@/libs/redux/hooks";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MessageChatComposer from "./MessageChatComposer";
 import MessageChatHeader from "./MessageChatHeader";
 import MessageChatList from "./MessageChatList";
-import { ChatMessage } from "./types";
+import { ZaloWebhookMessagePayload, ChatMessage } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 
 interface MessageChatZaloAccountProps {
     accountId: string;
@@ -19,6 +20,7 @@ const MESSAGE_LIMIT = 100;
 const EMPTY_FRIENDS: ChangedProfiles[] = [];
 const EMPTY_GROUPS: ZaloGroupInfo[] = [];
 
+
 const formatTime = (value: string) => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return value;
@@ -27,7 +29,23 @@ const formatTime = (value: string) => {
     return `${hours}:${minutes}`;
 };
 
+const mapHistoryItemsToChatMessages = (
+    items: any[],
+    currentThreadType: ZaloThreadType,
+    currentThreadId: string,
+): ChatMessage[] => {
+    return items.map((item) => ({
+        id: item._id || item.msgId,
+        senderName: item.dName || "Không rõ",
+        content: item.content || "",
+        msgType: item.msgType || ZaloMsgTypeEnum.UNKNOWN,
+        createdAt: formatTime(item.createdAt),
+        isMe: currentThreadType === ZaloThreadType.USER ? item.uidFrom !== currentThreadId : false,
+    }));
+};
+
 export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAccountProps) {
+    const { connectSocket, disconnectSocket, getSocket } = useSocketManager();
     const [threadTypeRaw] = useSearchParamsClient<string>("threadType", "");
     const [threadId] = useSearchParamsClient<string>("threadId", "");
     const [fullName, setFullName] = useState<string>("Vui lòng chọn cuộc trò chuyện");
@@ -40,9 +58,34 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [draftMessage, setDraftMessage] = useState<string>("");
     const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false);
+    const activeThreadIdRef = useRef<string>(threadId);
+    const activeThreadTypeRef = useRef<number>(Number(threadTypeRaw));
     const threadType = useMemo(() => Number(threadTypeRaw), [threadTypeRaw]);
     const friendsData = useMemo(() => (reduxFriends.length > 0 ? reduxFriends : cachedFriends), [reduxFriends, cachedFriends]);
     const groupsData = useMemo(() => (reduxGroups.length > 0 ? reduxGroups : groupDetails), [reduxGroups, groupDetails]);
+
+    const loadMessageHistory = useCallback(async () => {
+        const response = await getZaloPersonalMessageHistory(
+            accountId,
+            threadId,
+            threadType as ZaloThreadType,
+            MESSAGE_PAGE,
+            MESSAGE_LIMIT,
+        );
+
+        const mappedMessages = mapHistoryItemsToChatMessages(
+            response.data?.items || [],
+            threadType as ZaloThreadType,
+            threadId,
+        );
+
+        return mappedMessages.reverse();
+    }, [accountId, threadId, threadType]);
+
+    useEffect(() => {
+        activeThreadIdRef.current = threadId;
+        activeThreadTypeRef.current = threadType;
+    }, [threadId, threadType]);
 
     const handleSendMessage = async (event: FormEvent) => {
         event.preventDefault();
@@ -79,6 +122,39 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
         setDraftMessage("");
     };
 
+    const handleZaloWebhookMessage = (eventData: { data?: ZaloWebhookMessagePayload } | ZaloWebhookMessagePayload) => {
+        const payload = (("data" in eventData ? eventData.data : eventData) || null) as ZaloWebhookMessagePayload | null;
+        if (!payload) return;
+
+        if (payload.type && payload.type !== "new_message") return;
+
+        const conversation = payload.conversation || payload;
+        const message = payload.message || payload;
+        const payloadAccountId = conversation.zaloPersonalAccountId || conversation.accountId;
+        if (payloadAccountId && payloadAccountId !== accountId) return;
+
+        const payloadThreadId = conversation.threadId;
+        const payloadThreadType = Number(conversation.threadType);
+        if (!payloadThreadId || ![ZaloThreadType.USER, ZaloThreadType.GROUP].includes(payloadThreadType)) return;
+        if (payloadThreadId !== activeThreadIdRef.current || payloadThreadType !== activeThreadTypeRef.current) return;
+
+        if (!message.content && !message.msgType) return;
+
+        const incomingMessage: ChatMessage = {
+            id: message._id || message.id || message.msgId || conversation.id || `${payloadThreadId}:${conversation.lastMessageAt || Date.now()}`,
+            senderName: message.dName || "Không rõ",
+            content: message.content || "",
+            msgType: message.msgType || ZaloMsgTypeEnum.UNKNOWN,
+            createdAt: formatTime(message.createdAt || message.sentAt || conversation.lastMessageAt || new Date().toISOString()),
+            isMe: payloadThreadType === ZaloThreadType.USER ? message.uidFrom !== payloadThreadId : false,
+        };
+
+        setMessages((prevMessages) => {
+            if (prevMessages.some((message) => message.id === incomingMessage.id)) return prevMessages;
+            return [...prevMessages, incomingMessage];
+        });
+    };
+
     useEffect(() => {
         if (!accountId || !threadId || ![ZaloThreadType.USER, ZaloThreadType.GROUP].includes(threadType as ZaloThreadType)) {
             setMessages([]);
@@ -87,29 +163,13 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
 
         let isMounted = true;
 
-        const loadMessageHistory = async () => {
+        const runLoadMessageHistory = async () => {
             setIsLoadingMessages(true);
             try {
-                const response = await getZaloPersonalMessageHistory(
-                    accountId,
-                    threadId,
-                    threadType as ZaloThreadType,
-                    MESSAGE_PAGE,
-                    MESSAGE_LIMIT,
-                );
-
+                const mappedMessages = await loadMessageHistory();
                 if (!isMounted) return;
 
-                const mappedMessages: ChatMessage[] = (response.data?.items || []).map((item) => ({
-                    id: item._id || item.msgId,
-                    senderName: item.dName || "Không rõ",
-                    content: item.content || "",
-                    msgType: item.msgType || ZaloMsgTypeEnum.UNKNOWN,
-                    createdAt: formatTime(item.createdAt),
-                    isMe: threadType === ZaloThreadType.USER ? item.uidFrom !== threadId : false,
-                }));
-
-                setMessages(mappedMessages.reverse());
+                setMessages(mappedMessages);
             } catch (error) {
                 console.error("Failed to load zalo message history", error);
                 if (isMounted) {
@@ -122,11 +182,26 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
             }
         };
 
-        loadMessageHistory();
+        runLoadMessageHistory();
         return () => {
             isMounted = false;
         };
-    }, [accountId, threadId, threadType]);
+    }, [accountId, threadId, threadType, loadMessageHistory]);
+
+    useEffect(() => {
+        if (!accountId) return;
+
+        connectSocket("zalo");
+        const zaloSocket = getSocket();
+        if (!zaloSocket) return;
+
+        zaloSocket.on("zaloWebhookMessage", handleZaloWebhookMessage);
+
+        return () => {
+            zaloSocket.off("zaloWebhookMessage", handleZaloWebhookMessage);
+            disconnectSocket();
+        };
+    }, [accountId]);
 
     useEffect(() => {
         if (threadType === ZaloThreadType.USER) {

@@ -1,3 +1,4 @@
+import { ContentPhoto, ContentVoice } from "."
 
 export interface InfoLogin {
     name: string
@@ -158,3 +159,51 @@ export enum ZaloMsgTypeEnum {
     GIF = 'chat.gif',
     UNKNOWN = 'unknown',
 }
+
+export type ChatMessage = {
+    id: string;
+    senderName: string;
+    content: ContentPhoto | ContentVoice | string;
+    msgType: string;
+    createdAt: string;
+    isMe: boolean;
+};
+
+
+export type ZaloWebhookMessagePayload = {
+    type?: string;
+    id?: string;
+    _id?: string;
+    msgId?: string;
+    zaloPersonalAccountId?: string;
+    accountId?: string;
+    threadId?: string;
+    threadType?: number | string;
+    lastMessageAt?: string;
+    dName?: string;
+    uidFrom?: string;
+    content?: ChatMessage["content"];
+    msgType?: string;
+    sentAt?: string;
+    createdAt?: string;
+    conversation?: {
+        id?: string;
+        zaloPersonalAccountId?: string;
+        accountId?: string;
+        threadId?: string;
+        threadType?: number | string;
+        lastMessageAt?: string;
+    };
+    message?: {
+        id?: string;
+        _id?: string;
+        msgId?: string;
+        msgType?: string;
+        uidFrom?: string;
+        dName?: string;
+        content?: ChatMessage["content"];
+        sentAt?: string;
+        createdAt?: string;
+    };
+};
+    
