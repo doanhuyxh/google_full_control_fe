@@ -1,7 +1,8 @@
 import useIndexedDBStorage from "@/libs/hooks/useIndexedDBStorage";
+import useLocalStorage from "@/libs/hooks/useLocalStorage";
 import useSearchParamsClient from "@/libs/hooks/useSearchParamsClient";
 import { useSocketManager } from "@/libs/hooks/useSocketManager";
-import { ChangedProfiles, ZaloGroupInfo, ZaloThreadType } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ChangedProfiles, ZaloGroupInfo, ZaloLoginInfo, ZaloThreadType } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { ZaloMsgTypeEnum } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { getZaloPersonalMessageHistory, sendMessageToZaloGroup, sendMessageToZaloUser } from "@/libs/network/zalo-personal.api";
 import { useAppSelector } from "@/libs/redux/hooks";
@@ -42,6 +43,7 @@ const mapHistoryItemsToChatMessages = (
     items: any[],
     currentThreadType: ZaloThreadType,
     currentThreadId: string,
+    currentZaloId: string,
 ): ChatMessage[] => {
     return items.map((item) => ({
         id: getMessageIdentity(item),
@@ -49,7 +51,9 @@ const mapHistoryItemsToChatMessages = (
         content: item.content || "",
         msgType: item.msgType || ZaloMsgTypeEnum.UNKNOWN,
         createdAt: formatTime(item.createdAt),
-        isMe: currentThreadType === ZaloThreadType.USER ? item.uidFrom !== currentThreadId : false,
+        isMe: currentThreadType === ZaloThreadType.USER
+            ? item.uidFrom !== currentThreadId
+            : item.uidFrom === currentZaloId,
     }));
 };
 
@@ -63,6 +67,7 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
     const reduxGroups = useAppSelector((state) => state.zaloDetail.groupsByAccount[accountId] || EMPTY_GROUPS);
     const [cachedFriends] = useIndexedDBStorage<ChangedProfiles[]>(`zalo-personal-friends:${accountId}`, []);
     const [groupDetails] = useIndexedDBStorage<ZaloGroupInfo[]>(`groupDetails_${accountId}`, []);
+    const [zaloInfo] = useLocalStorage<ZaloLoginInfo | null>("zaloInfoDetail", null);
 
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [draftMessage, setDraftMessage] = useState<string>("");
@@ -70,6 +75,7 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
     const activeThreadIdRef = useRef<string>(threadId);
     const activeThreadTypeRef = useRef<number>(Number(threadTypeRaw));
     const threadType = useMemo(() => Number(threadTypeRaw), [threadTypeRaw]);
+    const currentZaloId = useMemo(() => zaloInfo?.info?.current_zalo_id || "", [zaloInfo]);
     const friendsData = useMemo(() => (reduxFriends.length > 0 ? reduxFriends : cachedFriends), [reduxFriends, cachedFriends]);
     const groupsData = useMemo(() => (reduxGroups.length > 0 ? reduxGroups : groupDetails), [reduxGroups, groupDetails]);
 
@@ -86,10 +92,11 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
             response.data?.items || [],
             threadType as ZaloThreadType,
             threadId,
+            currentZaloId,
         );
 
         return mappedMessages.reverse();
-    }, [accountId, threadId, threadType]);
+    }, [accountId, threadId, threadType, currentZaloId]);
 
     useEffect(() => {
         activeThreadIdRef.current = threadId;
@@ -159,7 +166,9 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
             content: message.content || "",
             msgType: message.msgType || ZaloMsgTypeEnum.UNKNOWN,
             createdAt: formatTime(message.createdAt || message.sentAt || conversation.lastMessageAt || new Date().toISOString()),
-            isMe: payloadThreadType === ZaloThreadType.USER ? message.uidFrom !== payloadThreadId : false,
+            isMe: payloadThreadType === ZaloThreadType.USER
+                ? message.uidFrom !== payloadThreadId
+                : message.uidFrom === currentZaloId,
         };
 
         setMessages((prevMessages) => {

@@ -1,10 +1,11 @@
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { ProfilesMemberGroup, ZaloGroupInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import useLocalStorage from "@/libs/hooks/useLocalStorage";
+import { ProfilesMemberGroup, ZaloGroupInfo, ZaloLoginInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { getMemberInZaloGroup } from "@/libs/network/zalo-personal.api";
 import { getAllValueFromObject, merchObjectToObject } from "@/libs/utils/JsUtils";
 import { formatTimestampToLocal } from "@/libs/utils/timeUtils";
 import { Avatar, Button, Modal, Tag, Typography } from "antd";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import MemberItemGroup from "./member-item-group";
 import { useCommon } from "@/libs/hooks/useCommon";
 
@@ -21,6 +22,8 @@ export default function GroupItem({ item, accountId }: GroupItemProps) {
     const [isShowMembers, setIsShowMembers] = useState(false);
     const [members, setMembers] = useState<ProfilesMemberGroup[]>([]);
     const { copiedToClipboard } = useCommon();
+    const [zaloInfo] = useLocalStorage<ZaloLoginInfo | null>("zaloInfoDetail", null);
+    const currentZaloId = useMemo(() => zaloInfo?.info?.current_zalo_id || "", [zaloInfo]);
 
     const privacyLabel = item.visibility === 1 ? "Riêng tư" : "Công khai";
 
@@ -66,7 +69,10 @@ export default function GroupItem({ item, accountId }: GroupItemProps) {
                 }
             }
 
-            const nextMembers = getAllValueFromObject(profilesMap) || [];
+            const nextMembers = (getAllValueFromObject(profilesMap) || []).filter((member) => {
+                if (!currentZaloId) return true;
+                return member.id !== currentZaloId;
+            });
             if (nextMembers.length === 0) {
                 notification.warning({
                     message: "Không có thành viên",

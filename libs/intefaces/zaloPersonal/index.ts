@@ -47,6 +47,12 @@ export interface ContentVoice {
     type: string
 }
 
+export interface ContentSticker {
+    id: number;
+    catId: number;
+    type: number;
+}
+
 export interface ZaloPersonalMessageHistoryData {
     _id: string
     zaloPersonalAccountId: string
@@ -56,7 +62,7 @@ export interface ZaloPersonalMessageHistoryData {
     msgType: string
     uidFrom: string
     dName: string
-    content: ContentPhoto | ContentVoice | string
+    content: ContentPhoto | ContentVoice | ContentSticker | string
     createdAt: string
     updatedAt: string
     __v: number

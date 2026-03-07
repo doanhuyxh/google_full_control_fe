@@ -3,6 +3,7 @@ import { ContentPhoto, ContentVoice } from "."
 export interface InfoLogin {
     name: string
     avatar: string
+    current_zalo_id: string
 }
 
 export interface ZaloLoginInfo {
@@ -168,7 +169,6 @@ export type ChatMessage = {
     createdAt: string;
     isMe: boolean;
 };
-
 
 export type ZaloWebhookMessagePayload = {
     type?: string;
