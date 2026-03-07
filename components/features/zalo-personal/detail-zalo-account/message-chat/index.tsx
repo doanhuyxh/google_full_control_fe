@@ -1,4 +1,4 @@
-import useLocalStorage from "@/libs/hooks/useLocalStorage";
+import useIndexedDBStorage from "@/libs/hooks/useIndexedDBStorage";
 import useSearchParamsClient from "@/libs/hooks/useSearchParamsClient";
 import { useSocketManager } from "@/libs/hooks/useSocketManager";
 import { ChangedProfiles, ZaloGroupInfo, ZaloThreadType } from "@/libs/intefaces/zaloPersonal/zaloAccData";
@@ -52,8 +52,8 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
     const [avatarUrl, setAvatarUrl] = useState<string>("https://static-zmp3.zadn.vn/default_avatar.png");
     const reduxFriends = useAppSelector((state) => state.zaloDetail.friendsByAccount[accountId] || EMPTY_FRIENDS);
     const reduxGroups = useAppSelector((state) => state.zaloDetail.groupsByAccount[accountId] || EMPTY_GROUPS);
-    const [cachedFriends] = useLocalStorage<ChangedProfiles[]>(`zalo-personal-friends:${accountId}`, []);
-    const [groupDetails] = useLocalStorage<ZaloGroupInfo[]>(`groupDetails_${accountId}`, []);
+    const [cachedFriends] = useIndexedDBStorage<ChangedProfiles[]>(`zalo-personal-friends:${accountId}`, []);
+    const [groupDetails] = useIndexedDBStorage<ZaloGroupInfo[]>(`groupDetails_${accountId}`, []);
 
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [draftMessage, setDraftMessage] = useState<string>("");

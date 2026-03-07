@@ -4,7 +4,7 @@ import { ZaloGroupInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { leaveZaloGroup } from "@/libs/network/zalo-personal.api";
 import { LogoutOutlined, MessageOutlined } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
-import { Button, Checkbox, Collapse, Input, Skeleton, Space, Tooltip, type CollapseProps } from "antd";
+import { Avatar, Button, Checkbox, Collapse, Input, Skeleton, Space, Tooltip, type CollapseProps } from "antd";
 import GroupItem from "./group-item";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useModal } from "@/libs/hooks/useModal";
@@ -17,6 +17,14 @@ interface GroupListZaloAccountProps {
 	reloadSignal?: number;
 	onCountChange?: (count: number) => void;
 }
+
+const DEFAULT_AVATAR_SRC = "https://static-zmp3.zadn.vn/default_avatar.png";
+
+const getSafeAvatarSrc = (src?: string) => {
+	if (!src) return DEFAULT_AVATAR_SRC;
+	const normalized = src.trim();
+	return normalized.length > 0 ? normalized : DEFAULT_AVATAR_SRC;
+};
 
 export default function GroupListZaloAccount({ id, reloadSignal = 0, onCountChange }: GroupListZaloAccountProps) {
 	const { notification } = useAntdApp();
@@ -99,7 +107,12 @@ export default function GroupListZaloAccount({ id, reloadSignal = 0, onCountChan
 
 	const renderGroupLabel = (group: ZaloGroupInfo) => (
 		<div className="flex w-full items-center justify-between gap-2 pr-2">
-			<p className="line-clamp-2">{group.name}</p>
+			<div className="flex min-w-0 items-center gap-2">
+				<Avatar src={getSafeAvatarSrc(group.avt || group.fullAvt)} size={30}>
+					{(group.name || "N").charAt(0).toUpperCase()}
+				</Avatar>
+				<p className="line-clamp-2">{group.name}</p>
+			</div>
 			<Space size={4} onClick={(event) => event.stopPropagation()}>
 				<Tooltip title="Gửi tin nhắn mặc định vào nhóm">
 					<Button
