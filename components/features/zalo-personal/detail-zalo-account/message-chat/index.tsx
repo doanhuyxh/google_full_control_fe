@@ -20,6 +20,15 @@ const MESSAGE_LIMIT = 100;
 const EMPTY_FRIENDS: ChangedProfiles[] = [];
 const EMPTY_GROUPS: ZaloGroupInfo[] = [];
 
+const getMessageIdentity = (messageLike: {
+    msgId?: string | number;
+    _id?: string | number;
+    id?: string | number;
+}): string => {
+    const rawId = messageLike.msgId || messageLike._id || messageLike.id;
+    return rawId ? String(rawId) : "";
+};
+
 
 const formatTime = (value: string) => {
     const date = new Date(value);
@@ -35,7 +44,7 @@ const mapHistoryItemsToChatMessages = (
     currentThreadId: string,
 ): ChatMessage[] => {
     return items.map((item) => ({
-        id: item._id || item.msgId,
+        id: getMessageIdentity(item),
         senderName: item.dName || "Không rõ",
         content: item.content || "",
         msgType: item.msgType || ZaloMsgTypeEnum.UNKNOWN,
@@ -96,12 +105,14 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
         const now = new Date();
         const createdAt = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
+        let sentMsgId = "";
+
         switch (threadType) {
             case ZaloThreadType.USER:
-                await sendMessageToZaloUser(accountId, threadId, trimmedContent);
+                sentMsgId = String((await sendMessageToZaloUser(accountId, threadId, trimmedContent)).data?.data?.msgId || "");
                 break;
             case ZaloThreadType.GROUP:
-                await sendMessageToZaloGroup(accountId, threadId, trimmedContent);
+                sentMsgId = String((await sendMessageToZaloGroup(accountId, threadId, trimmedContent)).data?.data?.msgId || "");
                 break;
             default:
                 console.warn("Unknown thread type:", threadType);
@@ -111,7 +122,7 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
         setMessages((prevMessages) => [
             ...prevMessages,
             {
-                id: `${Date.now()}`,
+                id: sentMsgId || `${Date.now()}`,
                 senderName: "Bạn",
                 content: trimmedContent,
                 msgType: ZaloMsgTypeEnum.WEBCHAT,
@@ -140,8 +151,10 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
 
         if (!message.content && !message.msgType) return;
 
+        const incomingMessageId = getMessageIdentity(message) || getMessageIdentity(conversation) || `${payloadThreadId}:${conversation.lastMessageAt || Date.now()}`;
+
         const incomingMessage: ChatMessage = {
-            id: message._id || message.id || message.msgId || conversation.id || `${payloadThreadId}:${conversation.lastMessageAt || Date.now()}`,
+            id: incomingMessageId,
             senderName: message.dName || "Không rõ",
             content: message.content || "",
             msgType: message.msgType || ZaloMsgTypeEnum.UNKNOWN,
@@ -150,7 +163,7 @@ export default function MessageChatZaloAccount({ accountId }: MessageChatZaloAcc
         };
 
         setMessages((prevMessages) => {
-            if (prevMessages.some((message) => message.id === incomingMessage.id)) return prevMessages;
+            if (prevMessages.some((message) => String(message.id) === incomingMessage.id)) return prevMessages;
             return [...prevMessages, incomingMessage];
         });
     };
