@@ -53,7 +53,7 @@ const renderMessageContent = (msgType: string, content: ContentPhoto | ContentVo
         case ZaloMsgTypeEnum.LINK:
             return hasHref ? <a href={content.href} target="_blank" rel="noreferrer" className="underline">🔗 {displayText}</a> : `🔗 ${displayText}`;
         case ZaloMsgTypeEnum.STICKER:
-            return `😊 ${displayText}`;
+            return `😊 sticker`;
         default:
             return hasHref ? <a href={content.href} target="_blank" rel="noreferrer" className="underline">{displayText}</a> : displayText;
     }

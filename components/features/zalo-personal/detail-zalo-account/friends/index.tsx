@@ -2,7 +2,7 @@
 
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useDebounce } from "@/libs/hooks/useDebounce";
-import useLocalStorage from "@/libs/hooks/useLocalStorage";
+import useIndexedDBStorage from "@/libs/hooks/useIndexedDBStorage";
 import useSearchParamsClient from "@/libs/hooks/useSearchParamsClient";
 import { ChangedProfiles } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 import { getAllFrendInZalo } from "@/libs/network/zalo-personal.api";
@@ -19,13 +19,20 @@ interface FriendListZaloAccountProps {
 }
 
 const EMPTY_FRIENDS: ChangedProfiles[] = [];
+const DEFAULT_AVATAR_SRC = "https://static-zmp3.zadn.vn/default_avatar.png";
+
+const getSafeAvatarSrc = (src?: string) => {
+	if (!src) return DEFAULT_AVATAR_SRC;
+	const normalized = src.trim();
+	return normalized.length > 0 ? normalized : DEFAULT_AVATAR_SRC;
+};
 
 export default function FriendListZaloAccount({ id, reloadSignal = 0, onCountChange }: FriendListZaloAccountProps) {
 	const { notification } = useAntdApp();
 	const dispatch = useAppDispatch();
 	const [mounted, setMounted] = useState(false);
 	const friends = useAppSelector((state) => state.zaloDetail.friendsByAccount[id] || EMPTY_FRIENDS);
-	const [cachedFriends, setCachedFriends] = useLocalStorage<ChangedProfiles[]>(`zalo-personal-friends:${id}`, []);
+	const [cachedFriends, setCachedFriends, isCachedFriendsReady] = useIndexedDBStorage<ChangedProfiles[]>(`zalo-personal-friends:${id}`, []);
 	const [loading, setLoading] = useState(false);
 	const [searchText, setSearchText] = useState("");
 	const debouncedSearchText = useDebounce(searchText, 300);
@@ -66,18 +73,30 @@ export default function FriendListZaloAccount({ id, reloadSignal = 0, onCountCha
 
 	useEffect(() => {
 		if (!id) return;
+		if (!isCachedFriendsReady) return;
 		if (friends.length > 0) return;
 		if ((cachedFriends || []).length === 0) return;
 
 		dispatch(setFriendsByAccount({ accountId: id, friends: cachedFriends }));
-	}, [id, cachedFriends, friends.length, dispatch]);
+	}, [id, cachedFriends, friends.length, dispatch, isCachedFriendsReady]);
 
 	useEffect(() => {
 		setActiveKeys([]);
 		setSelectedFriendIds([]);
 		setSearchText("");
-		fetchFriends();
 	}, [id]);
+
+	useEffect(() => {
+		if (!id || !isCachedFriendsReady) return;
+		if (friends.length > 0) return;
+
+		if ((cachedFriends || []).length > 0) {
+			dispatch(setFriendsByAccount({ accountId: id, friends: cachedFriends }));
+			return;
+		}
+
+		fetchFriends();
+	}, [id, isCachedFriendsReady, friends.length, cachedFriends, dispatch]);
 
 	useEffect(() => {
 		if (firstReloadRenderRef.current) {
@@ -127,7 +146,7 @@ export default function FriendListZaloAccount({ id, reloadSignal = 0, onCountCha
 			}`}
 		>
 			<div className="flex min-w-0 items-center gap-2">
-				<Avatar src={friend.avatar} alt={friend.displayName} size={30} />
+				<Avatar src={getSafeAvatarSrc(friend.avatar)} alt={friend.displayName} size={30} />
 				<p className={`line-clamp-2 ${isCurrentThread ? "text-blue-600 font-medium" : ""}`}>
 					{friend.displayName || friend.userId}
 				</p>

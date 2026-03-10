@@ -1,5 +1,5 @@
 import MessageChatContent from "../MessageChatContent";
-import { ChatMessage } from "../types";
+import { ChatMessage } from "@/libs/intefaces/zaloPersonal/zaloAccData";
 
 interface MessageChatItemProps {
     message: ChatMessage;
