@@ -123,6 +123,13 @@ export default function GoogleFormModal({ isShowModal, onCloseModal, onSuccess, 
                 >
                     <Input.TextArea placeholder="Nhập private code" rows={4} />
                 </Form.Item>
+
+                <Form.Item
+                    label="Cookies"
+                    name="cookies"
+                >
+                    <Input.TextArea placeholder="Nhập cookies" rows={4} />
+                </Form.Item>
             </Form>
 
         </div>

@@ -8,6 +8,7 @@ export interface GoogleAccount {
     currentPassword: string;
     appPassword: string;
     privateCode: string;
+    cookies: string;
     recoveryEmail: string;
     f2a: string;
     status: string;
@@ -31,6 +32,7 @@ export interface GoogleAccountCreateData {
     currentPassword: string;
     appPassword: string;
     privateCode: string;
+    cookies?: string;
     recoveryEmail: string;
     f2a: string;
 }
