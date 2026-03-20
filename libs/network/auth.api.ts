@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
 import ApiResponse from "../intefaces/apiResponseData";
-import { AuthResponse, LoginHistoryResponse } from "../intefaces/authData";
+import { AuthResponse, LoginHistoryResponse, UserProfile } from "../intefaces/authData";
 
 export async function loginApi(email: string, password: string, ipAddress: string, userAgent: string, coordinates: { latitude: number; longitude: number }): Promise<ApiResponse<AuthResponse>> {
     return await fetcherBackEnd<ApiResponse<AuthResponse>>("/api/auth/login", {
@@ -37,9 +37,21 @@ export async function registerApi(
     });
 }
 
-export async function getProfileApi() {
+export async function getMeApi() {
     return await fetcherBackEnd("/auth/me", {
         method: "GET",
+    });
+}
+
+export async function getProfileApi(): Promise<ApiResponse<UserProfile>> {
+    return await fetcherBackEnd<ApiResponse<UserProfile>>("/api/user/profile",{
+        method:"GET"
+    })
+}
+
+export async function updateApiKeyApi(): Promise<ApiResponse<{ apiKey: string }>> {
+    return await fetcherBackEnd<ApiResponse<{ apiKey: string }>>("/api/user/update-api-key", {
+        method: "POST",
     });
 }
 

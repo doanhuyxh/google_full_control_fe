@@ -26,6 +26,9 @@ export default function AppHeader({
             key: "profile",
             label: "Hồ sơ cá nhân",
             icon: <UserOutlined />,
+            onClick: () => {
+                window.location.href = "/profile";
+            }
         },
         {
             type: "divider",

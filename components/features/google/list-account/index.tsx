@@ -3,7 +3,7 @@
 import { Table, Avatar, Button, Input, Select, Tooltip, Modal, Card } from "antd";
 import { useEffect, useState } from "react";
 import { DeleteOutlined } from "@ant-design/icons";
-import { Copy, History, Lock, QrCode } from "lucide-react";
+import { Copy, Download, History, Lock, QrCode, Upload } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
 import { useToolsDataBackEnd } from "@/libs/hooks/useToolsDataBackEnd";
@@ -19,6 +19,7 @@ import ViewHistoryEmailSent from "./view-history-email-sent";
 import DebouncedInputCell from "@/components/common/AntCustom/DebouncedInputCell";
 import DebouncedInputTextAreaCell from "@/components/common/AntCustom/DebounceInputTextAreaCel";
 import Update2FAModal from "./update-2fa-modal";
+import ModalImportCookieStringForm from "./form-import-cookie-string";
 
 export default function GoogleAccountComponent() {
     const {
@@ -56,6 +57,65 @@ export default function GoogleAccountComponent() {
     }>({ isShowModal: false, _id: undefined });
 
     const [isShowModelSendEmail, setIsShowModelSendEmail] = useState<boolean>(false);
+    const [cookieModal, setCookieModal] = useState<{ isShow: boolean; id?: string; cookies: string }>({
+        isShow: false,
+        id: undefined,
+        cookies: "",
+    });
+
+    const handleDownloadCookies = (record: GoogleAccount) => {
+        if (!record.cookies) {
+            notification.warning({
+                message: "Không có cookies",
+                description: "Tài khoản này chưa có dữ liệu cookies để tải.",
+                placement: "topRight",
+            });
+            return;
+        }
+
+        const safeName = `${record.email || record._id}-cookies.txt`.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const blob = new Blob([record.cookies], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = safeName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleSaveCookies = async () => {
+        const id = cookieModal.id || "";
+        const cookieValue = cookieModal.cookies.trim();
+
+        if (!id || !cookieValue) {
+            notification.warning({
+                message: "Thiếu dữ liệu",
+                description: "Vui lòng nhập cookies trước khi lưu.",
+                placement: "topRight",
+            });
+            return;
+        }
+
+        const response = await updateGoogleAccount(id, "cookies", cookieValue);
+        if (response.status) {
+            notification.success({
+                message: "Cập nhật thành công",
+                description: "Cookies đã được cập nhật.",
+                placement: "topRight",
+            });
+            handleUpdateDataLocal(id, "cookies", cookieValue);
+            setCookieModal({ isShow: false, id: undefined, cookies: "" });
+            return;
+        }
+
+        notification.error({
+            message: "Cập nhật thất bại",
+            description: response.message || "Đã có lỗi xảy ra khi cập nhật cookies.",
+            placement: "topRight",
+        });
+    };
 
     const handleViewPassword = async (encodedPassword: string) => {
         const decoded = await decodeData(encodedPassword);
@@ -71,7 +131,7 @@ export default function GoogleAccountComponent() {
                 description: 'Dữ liệu đã được cập nhật thành công.',
                 placement: 'topRight',
             });
-            if (field === 'currentPassword') {
+            if (field === 'currentPassword' || field === 'cookies') {
                 handleUpdateDataLocal(id, field as keyof GoogleAccount, value);
             }
         } else {
@@ -237,7 +297,7 @@ export default function GoogleAccountComponent() {
                     <Button
                         icon={<Copy size={12} color="#06477d" />}
                         size="small"
-                        onClick={()=> copiedToClipboard(f2a)}
+                        onClick={() => copiedToClipboard(f2a)}
                     />
                 </div>
             },
@@ -302,6 +362,7 @@ export default function GoogleAccountComponent() {
                 <div className="flex gap-2 justify-end">
                     <Tooltip title="Quét mã 2FA">
                         <Button
+                            type="primary"
                             size="small"
                             icon={<QrCode size={16} />}
                             onClick={() => setFormModalUpdate2FA({ isShowModal: true, _id: record._id })}
@@ -309,6 +370,7 @@ export default function GoogleAccountComponent() {
                     </Tooltip>
                     <Tooltip title="Cập nhật mật khẩu">
                         <Button
+                            danger
                             size="small"
                             icon={<Lock size={16} />}
                             onClick={() => {
@@ -316,11 +378,32 @@ export default function GoogleAccountComponent() {
                             }}
                         />
                     </Tooltip>
+                    <Tooltip title="Tải cookies">
+                        <Button
+                            size="small"
+                            type="dashed"
+                            icon={<Download color="blue" size={16} />}
+                            onClick={() => handleDownloadCookies(record)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Nhập cookies">
+                        <Button
+                            size="small"
+                            icon={<Upload size={16} />}
+                            onClick={() =>
+                                setCookieModal({
+                                    isShow: true,
+                                    id: record._id,
+                                    cookies: record.cookies || "",
+                                })
+                            }
+                        />
+                    </Tooltip>
                     <Tooltip title="Lịch sử gửi email từ hệ thống">
                         <Button
                             type="dashed"
                             size="small"
-                            icon={<History size={16} />}
+                            icon={<History color="blue" size={16} />}
                             onClick={() => handleShowEmailHistoryModal(record._id, record.email)}
                         />
                     </Tooltip>
@@ -329,7 +412,7 @@ export default function GoogleAccountComponent() {
                             danger
                             type="primary"
                             size="small"
-                            icon={<DeleteOutlined size={16} />}
+                            icon={<DeleteOutlined color="red" size={16} />}
                             onClick={() => {
                                 modal.confirm({
                                     title: 'Xác nhận xóa',
@@ -421,6 +504,13 @@ export default function GoogleAccountComponent() {
                     />
                 </div>
             </Modal>
+            <ModalImportCookieStringForm
+                isShowModal={cookieModal.isShow}
+                onCloseModal={() => setCookieModal({ isShow: false, id: undefined, cookies: "" })}
+                onSuccess={handleSaveCookies}
+                cookies={cookieModal.cookies}
+                onChangeCookies={(cookies) => setCookieModal({ ...cookieModal, cookies })}
+            />
             <Update2FAModal
                 isShowModal={formModalUpdate2FA.isShowModal}
                 accountId={formModalUpdate2FA._id}
