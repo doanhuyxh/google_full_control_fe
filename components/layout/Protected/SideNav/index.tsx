@@ -4,14 +4,14 @@ import { useLayoutEffect, useEffect, useState } from "react";
 import { Layout, Menu, Skeleton, theme, Drawer } from "antd";
 import {
     AppstoreOutlined,
-    SettingOutlined,
     DashboardOutlined,
     DatabaseOutlined,
     FolderAddFilled,
-    TikTokOutlined
+    TikTokOutlined,
+    UserOutlined
 } from "@ant-design/icons";
 import { usePathname, useRouter } from "next/navigation";
-import { AppleIcon, BookTemplateIcon, Mail, MessageCircle } from "lucide-react";
+import { AppleIcon, BookTemplateIcon, Mail, MessageCircle, User } from "lucide-react";
 
 const { Sider } = Layout;
 
@@ -71,15 +71,16 @@ const menuItems = [
         ],
     },
     {
+        key: "/profile",
+        icon: <UserOutlined />,
+        label: "Tài khoản của tôi",
+    },
+    {
         key: "/devices",
         icon: <DatabaseOutlined />,
         label: "Thiết bị đăng nhập",
-    },
-    {
-        key: "/settings",
-        icon: <SettingOutlined />,
-        label: "Cài đặt",
     }
+
 ];
 
 type SideNavProps = {
