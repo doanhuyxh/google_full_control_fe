@@ -40,3 +40,13 @@ export interface LoginHistoryResponse {
         totalPages: number;
     };
 }
+
+export interface UserProfile {
+    _id: string;
+    fullName: string;
+    email: string;
+    role: string;
+    createdAt: Date;
+    updatedAt: Date;
+    apiKey: string;
+}
