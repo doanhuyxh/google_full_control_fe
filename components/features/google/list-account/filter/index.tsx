@@ -24,7 +24,7 @@ export default function GoogleAccountFilter({ onSearch, value, status, setStatus
     return <div className="flex flex-wrap justify-between items-start md:items-center gap-2 mb-5!">
         <Input
             placeholder="Tìm kiếm theo tên, email..."
-            className="w-full md:max-w-[300px]"
+            className="max-w-sm"
             onChange={(e) => setSearchTerm(e.target.value)}
             value={searchTerm}
             size="middle"
@@ -46,7 +46,7 @@ export default function GoogleAccountFilter({ onSearch, value, status, setStatus
                 </Button>
             </Tooltip>
             <Select placeholder="Lọc theo trạng thái"
-                className="full-option min-w-[140px] flex-1 md:flex-none md:min-w-[180px]"
+                className="full-option flex-1 md:flex-none"
                 allowClear
                 value={status}
                 onChange={setStatus}

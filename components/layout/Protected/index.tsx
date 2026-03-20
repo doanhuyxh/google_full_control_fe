@@ -1,5 +1,4 @@
 "use client";
-import NextTopLoader from "nextjs-toploader";
 import { ReactNode, useState } from "react";
 import { ConfigProvider, Layout, App, Grid, theme as antdTheme, ThemeConfig } from "antd";
 import "@ant-design/v5-patch-for-react-19";
@@ -25,7 +24,6 @@ export default function AntdLayout({ children, initialTheme }: { children: React
 
     return (
         <>
-            <NextTopLoader color="red" height={5} crawl showSpinner />
             <ConfigProvider locale={vi_VN} theme={dynamicConfig}>
                 <App
                     message={{
