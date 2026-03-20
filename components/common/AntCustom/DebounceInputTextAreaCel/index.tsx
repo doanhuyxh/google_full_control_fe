@@ -3,7 +3,7 @@ import { Input, Modal, Button, Tooltip, Space, message } from 'antd';
 import { CopyOutlined, FullscreenOutlined } from '@ant-design/icons';
 
 // Giả định hook useDebounce hoạt động tốt như trong code gốc
-import { useDebounce } from '@/libs/hooks/useDebounce'; 
+import { useDebounce } from '@/libs/hooks/useDebounce';
 
 interface DebouncedInputTextAreaCellProps {
     initialValue: string;
@@ -29,7 +29,7 @@ const DebouncedInputTextAreaCell: React.FC<DebouncedInputTextAreaCellProps> = ({
     const debouncedValue = useDebounce(inputValue, 1000);
     // Trạng thái hiển thị Modal phóng to
     const [isShowModal, setIsShowModal] = useState(false);
-    
+
     // --- Đồng bộ giá trị khi initialValue thay đổi từ bên ngoài ---
     useEffect(() => {
         setInputValue(initialValue);
@@ -41,8 +41,8 @@ const DebouncedInputTextAreaCell: React.FC<DebouncedInputTextAreaCellProps> = ({
         if (debouncedValue !== initialValue) {
             onUpdate(recordId, dataIndex, debouncedValue);
         }
-    // Cần có initialValue trong dependency array để đảm bảo so sánh đúng
-    }, [debouncedValue, recordId, dataIndex, initialValue, onUpdate]); 
+        // Cần có initialValue trong dependency array để đảm bảo so sánh đúng
+    }, [debouncedValue, recordId, dataIndex, initialValue, onUpdate]);
 
     // --- Xử lý Copy ---
     const handleCopy = useCallback(async () => {
@@ -59,34 +59,33 @@ const DebouncedInputTextAreaCell: React.FC<DebouncedInputTextAreaCellProps> = ({
 
     // Component Input thường ở dạng nhỏ (Mặc định)
     const renderSmallInput = (
-        <Input
-            size="small"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            style={{ width: '100%' }}
-            // Thêm icon để mở Modal và Copy
-            addonAfter={
-                <Space size={0}>
-                    {/* Nút Phóng to */}
-                    <Tooltip title="Phóng to để chỉnh sửa">
-                        <FullscreenOutlined 
-                            onClick={() => setIsShowModal(true)} 
-                            style={{ cursor: 'pointer' }}
-                        />
-                    </Tooltip>
-                    
-                    {/* Nút Copy */}
-                    {isCopy && (
-                        <Tooltip title="Sao chép">
-                            <CopyOutlined 
-                                onClick={handleCopy} 
-                                style={{ cursor: 'pointer', marginLeft: 4 }}
-                            />
-                        </Tooltip>
-                    )}
-                </Space>
-            }
-        />
+        <Space.Compact style={{ width: '100%' }}>
+            <Input
+                size="small"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+            />
+
+            {/* Nút Phóng to */}
+            <Tooltip title="Phóng to để chỉnh sửa">
+                <Button
+                    size="small"
+                    icon={<FullscreenOutlined />}
+                    onClick={() => setIsShowModal(true)}
+                />
+            </Tooltip>
+
+            {/* Nút Copy */}
+            {isCopy && (
+                <Tooltip title="Sao chép">
+                    <Button
+                        size="small"
+                        icon={<CopyOutlined />}
+                        onClick={handleCopy}
+                    />
+                </Tooltip>
+            )}
+        </Space.Compact>
     );
 
     // Component Modal phóng to với Input.TextArea
