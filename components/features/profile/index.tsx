@@ -7,6 +7,7 @@ import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { getProfileApi, updateApiKeyApi } from "@/libs/network/auth.api";
 import { UserProfile } from "@/libs/intefaces/authData";
 import { formatUtcToLocal } from "@/libs/utils/timeUtils";
+import { ReloadOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -112,11 +113,6 @@ export default function ProfileComponent() {
     return (
         <div className="p-3 md:p-6">
             <Space direction="vertical" size={16} className="w-full">
-                <div>
-                    <Title level={3} className="mb-1!">Thông tin cá nhân</Title>
-                    <Text type="secondary">Quản lý thông tin tài khoản và API key của bạn.</Text>
-                </div>
-
                 <Card>
                     <Descriptions column={1} bordered size="middle" styles={{ label: { width: 180 } }}>
                         <Descriptions.Item label="ID người dùng">{profile._id}</Descriptions.Item>
@@ -131,14 +127,14 @@ export default function ProfileComponent() {
                             <Text code copyable={{ text: profile.apiKey || "" }}>
                                 {profile.apiKey || "-"}
                             </Text>
+                            <Button
+                                type="primary"
+                                size="small"
+                                icon={<ReloadOutlined />}
+                                onClick={handleUpdateApiKey}
+                                loading={isUpdatingApiKey} />
                         </Descriptions.Item>
                     </Descriptions>
-
-                    <div className="mt-4">
-                        <Button type="primary" onClick={handleUpdateApiKey} loading={isUpdatingApiKey}>
-                            Cập nhật API key
-                        </Button>
-                    </div>
                 </Card>
             </Space>
         </div>
