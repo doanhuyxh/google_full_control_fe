@@ -13,7 +13,7 @@
     "@ant-design/icons": "^6.1.0",
     "@ant-design/nextjs-registry": "^1.2.0",
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
-    "@mediapipe/tasks-vision": "^0.10.22-rc.20250304",
+    "@mediapipe/tasks-vision": "^0.10.34",
     "@reduxjs/toolkit": "^2.9.2",
     "@tiptap/extension-text": "^3.11.0",
     "@tiptap/extension-text-style": "^3.11.0",
