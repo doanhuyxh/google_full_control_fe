@@ -3,7 +3,7 @@
 import { Table, Button, Tooltip, Card } from "antd";
 import { useState } from "react";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Copy, QrCode } from "lucide-react";
+import { Cookie, Copy, QrCode } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useTikTokAccount } from "@/libs/hooks/users/tiktokAccountHook";
 import { useCommon } from "@/libs/hooks/useCommon";
@@ -58,6 +58,7 @@ export default function TikTokPageComponent() {
             phoneNumber: currentAccount.phoneNumber,
             f2a: currentAccount.f2a,
             countryCode: currentAccount.countryCode,
+            cookies: currentAccount.cookies,
             [field]: value,
         };
         const response = await updateTikTokAccount(id, formData);
@@ -219,9 +220,17 @@ export default function TikTokPageComponent() {
                             }
                         />
                     </Tooltip>
+                    <Tooltip title="Sao chép cookies">
+                        <Button
+                            size="small"
+                            icon={<Cookie size={12} color="#06477d" />}
+                            onClick={() => copiedToClipboard(record.cookies)}
+                        />
+                    </Tooltip>
                     <Tooltip title="Chỉnh sửa">
                         <Button
                             size="small"
+                            type="primary"
                             icon={<EditOutlined />}
                             onClick={() =>
                                 setFormModal({ isShowModal: true, editData: record })

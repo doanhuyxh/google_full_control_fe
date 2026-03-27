@@ -34,6 +34,14 @@ export default function AppHeader({
             type: "divider",
         },
         {
+            key: "devices",
+            label: "Lịch sử đăng nhập",
+            icon: <UserOutlined />,
+            onClick: () => {
+                window.location.href = "/devices";
+            }
+        },
+        {
             key: "logout",
             label: "Đăng xuất",
             className: "text-red-600!",

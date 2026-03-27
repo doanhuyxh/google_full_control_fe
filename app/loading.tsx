@@ -55,7 +55,9 @@ export default function Loading() {
                         </linearGradient>
                     </defs>
                 </svg>
-                <div className="loading-text">StoryVerse</div>
+                <div className="loading-text">
+                    <span className="loading-dot">L</span>
+                </div>
             </div>
         </div>
     );
