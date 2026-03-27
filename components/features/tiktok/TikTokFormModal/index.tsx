@@ -136,6 +136,13 @@ export default function TikTokFormModal({ isShowModal, onCloseModal, onSuccess, 
                         }))}
                     />
                 </Form.Item>
+
+                <Form.Item
+                    label="Cookies"
+                    name="cookies"
+                >
+                    <Input.TextArea placeholder="Nhập cookies của tài khoản TikTok" rows={4} />
+                </Form.Item>
             </Modal>
         </Form>
     );

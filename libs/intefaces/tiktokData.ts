@@ -7,6 +7,7 @@ export default interface TikTokAccountData {
     phoneNumber: string;
     f2a: string;
     countryCode: string;
+    cookies: string;
 }
 
 export interface FormTikTokAccountData {
@@ -16,4 +17,5 @@ export interface FormTikTokAccountData {
     phoneNumber: string;
     f2a: string;
     countryCode: string;
+    cookies: string;
 }

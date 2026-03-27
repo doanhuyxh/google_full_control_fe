@@ -22,65 +22,47 @@ const menuItems = [
         label: "Tổng quan",
     },
     {
-        key: "/accounts",
-        icon: <AppstoreOutlined />,
-        label: "Tài khoản",
+        key: "/accounts/google",
+        label: "Google",
+        icon: <DatabaseOutlined />,
         children: [
             {
-                key: "/accounts/google",
-                label: "Google",
-                icon: <DatabaseOutlined />,
-                children: [
-                    {
-                        key: "/accounts/google/list",
-                        label: "Danh sách tài khoản",
-                        icon: <Mail />,
-                    },
-                    {
-                        key: "/accounts/google/template-mail",
-                        label: "Mẫu mail",
-                        icon: <BookTemplateIcon />,
-                    },
-                ]
+                key: "/accounts/google/list",
+                label: "Danh sách tài khoản",
+                icon: <Mail />,
             },
             {
-                key: "/accounts/zalo-personal",
-                label: "Zalo Cá nhân",
-                icon: <MessageCircle size={16} />,
+                key: "/accounts/google/template-mail",
+                label: "Mẫu mail",
+                icon: <BookTemplateIcon />,
             },
-            {
-                key: "/accounts/cloudinary",
-                label: "Cloudinary",
-                icon: <FolderAddFilled />,
-            },
-            {
-                key: "/accounts/telegram",
-                label: "Telegram",
-                icon: <MessageCircle size={16} />,
-            },
-            {
-                key: "/accounts/appleid",
-                label: "Apple ID",
-                icon: <AppleIcon size={16} />,
-            },
-            {
-                key: "/accounts/tiktok",
-                label: "TikTok",
-                icon: <TikTokOutlined size={16} />,
-            }
-        ],
+        ]
     },
     {
-        key: "/profile",
-        icon: <UserOutlined />,
-        label: "Tài khoản của tôi",
+        key: "/accounts/zalo-personal",
+        label: "Zalo Cá nhân",
+        icon: <MessageCircle size={16} />,
     },
     {
-        key: "/devices",
-        icon: <DatabaseOutlined />,
-        label: "Thiết bị đăng nhập",
+        key: "/accounts/cloudinary",
+        label: "Cloudinary",
+        icon: <FolderAddFilled />,
+    },
+    {
+        key: "/accounts/telegram",
+        label: "Telegram",
+        icon: <MessageCircle size={16} />,
+    },
+    {
+        key: "/accounts/appleid",
+        label: "Apple ID",
+        icon: <AppleIcon size={16} />,
+    },
+    {
+        key: "/accounts/tiktok",
+        label: "TikTok",
+        icon: <TikTokOutlined size={16} />,
     }
-
 ];
 
 type SideNavProps = {
