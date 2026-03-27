@@ -7,7 +7,6 @@ import Text from '@tiptap/extension-text'
 import Youtube from '@tiptap/extension-youtube'
 import Link from '@tiptap/extension-link'
 import { MenuBar } from './MenuBar'
-import { memo } from 'react'
 
 
 interface TiptapComponentProp {
@@ -45,4 +44,4 @@ const TiptapComponent = ({ value, onChange }: TiptapComponentProp) => {
     </div>
 }
 
-export default memo(TiptapComponent)
+export default TiptapComponent

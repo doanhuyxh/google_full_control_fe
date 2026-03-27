@@ -16,9 +16,9 @@ import {
     Quote,
     Slash,
     Link as LinkIcon,
-    Youtube as YoutubeIcon,
 } from 'lucide-react'
 import type { Editor } from '@tiptap/react'
+import { YoutubeFilled } from '@ant-design/icons'
 
 interface MenuBarProps {
     editor: Editor | null
@@ -179,7 +179,7 @@ export function MenuBar({ editor }: MenuBarProps) {
 
                 <Tooltip title="Insert YouTube Video">
                     <Button
-                        icon={<YoutubeIcon size={16} />}
+                        icon={<YoutubeFilled color='red' size={16} />}
                         onClick={() => setYoutubeModalOpen(true)}
                     />
                 </Tooltip>
