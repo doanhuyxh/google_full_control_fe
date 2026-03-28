@@ -76,7 +76,7 @@ export default function GoogleFormModal({ isShowModal, onCloseModal, onSuccess, 
                 <Form.Item
                     label="Số điện thoại"
                     name="phoneNumber"
-                    rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
+                    // rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
                 >
                     <Input placeholder="Nhập số điện thoại" />
                 </Form.Item>
