@@ -258,7 +258,7 @@ export default function ChristmasScene() {
 
             <video
                 ref={videoRef}
-                className={`absolute bottom-20 left-5 w-[120px] h-[90px] object-cover scale-x-[-1] pointer-events-none z-50 border border-[#d4af37] transition-opacity duration-500 ${isCameraActive ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute bottom-20 left-5 w-30 h-22.5 object-cover scale-x-[-1] pointer-events-none z-50 border border-[#d4af37] transition-opacity duration-500 ${isCameraActive ? 'opacity-100' : 'opacity-0'}`}
                 autoPlay playsInline muted
             />
 
