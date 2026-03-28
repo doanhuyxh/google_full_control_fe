@@ -84,7 +84,7 @@ export default function useGroupListData(id: string, reloadSignal = 0): UseGroup
 				merchObjectToObject(dataMap, gridInfoMap);
 			}
 
-			setGroupDetails(Object.values(dataMap || {}) as ZaloGroupInfo[]);
+			setGroupDetails(Object.values(dataMap || {}) as unknown as ZaloGroupInfo[]);
 			setGroupVersion(currentVersion);
 		} catch (error) {
 			console.error("Failed to fetch zalo group details", error);
