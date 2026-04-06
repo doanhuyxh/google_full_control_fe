@@ -3,6 +3,7 @@
 import { useLayoutEffect, useEffect, useState } from "react";
 import { Layout, Menu, Skeleton, theme, Drawer } from "antd";
 import {
+    ApiTwoTone,
     AppstoreOutlined,
     DashboardOutlined,
     DatabaseOutlined,
@@ -62,6 +63,11 @@ const menuItems = [
         key: "/accounts/tiktok",
         label: "TikTok",
         icon: <TikTokOutlined size={16} />,
+    },
+    {
+        key: "/accounts/revidapi",
+        label: "RevID API",
+        icon: <ApiTwoTone />,
     }
 ];
 
