@@ -1,15 +1,16 @@
 import { Form, Modal, Input } from "antd";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { createGoogleAccount } from "@/libs/network/google.api";
+import { GoogleAccount } from "@/libs/intefaces/googleData";
 
 interface GoogleFormProps {
     isShowModal?: boolean;
     onCloseModal?: () => void;
-    onSuccess?: () => void;
     accountId?: string;
+    newAccount?: (data:GoogleAccount) => void;
 }
 
-export default function GoogleFormModal({ isShowModal, onCloseModal, onSuccess, accountId }: GoogleFormProps) {
+export default function GoogleFormModal({ isShowModal, onCloseModal, accountId, newAccount }: GoogleFormProps) {
     const [formData] = Form.useForm();
     const {notification} = useAntdApp();
     const handleSave = async () => {
@@ -21,8 +22,9 @@ export default function GoogleFormModal({ isShowModal, onCloseModal, onSuccess, 
                     message: "Thành công",
                     description: "Lưu tài khoản Google thành công.",
                 });
-                onSuccess?.();
                 onCloseModal?.();
+                formData.resetFields();
+                newAccount?.(response.data);
             } else {
                 notification.error({
                     message: "Lỗi",
@@ -39,7 +41,7 @@ export default function GoogleFormModal({ isShowModal, onCloseModal, onSuccess, 
             });
         }
     }
-
+    
     return <Modal
         title={<p className="text-center">{accountId ? "Edit Google Account" : "Add New Google Account"}</p>}
         open={isShowModal}

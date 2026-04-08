@@ -23,21 +23,9 @@ const menuItems = [
         label: "Tổng quan",
     },
     {
-        key: "/accounts/google",
-        label: "Google",
-        icon: <DatabaseOutlined />,
-        children: [
-            {
-                key: "/accounts/google/list",
-                label: "Danh sách tài khoản",
-                icon: <Mail />,
-            },
-            {
-                key: "/accounts/google/template-mail",
-                label: "Mẫu mail",
-                icon: <BookTemplateIcon />,
-            },
-        ]
+        key: "/accounts/google/list",
+        label: "Danh sách tài khoản",
+        icon: <Mail />,
     },
     {
         key: "/accounts/zalo-personal",
