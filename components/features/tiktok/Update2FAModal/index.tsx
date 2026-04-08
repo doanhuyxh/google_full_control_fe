@@ -149,7 +149,7 @@ export default function TikTokUpdate2FAModal({
             <div className="flex flex-col gap-4">
                 {currentStep >= 0 && (
                     <div className="flex flex-col items-center gap-2">
-                        <div className="flex items-center w-full max-w-[260px]">
+                        <div className="flex items-center w-full max-w-65">
                             {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
                                 const done = i < currentStep;
                                 const active = i === currentStep;

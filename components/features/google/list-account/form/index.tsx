@@ -23,6 +23,7 @@ export default function GoogleFormModal({ isShowModal, onCloseModal, onSuccess, 
                 });
                 onSuccess?.();
                 onCloseModal?.();
+                formData.resetFields();
             } else {
                 notification.error({
                     message: "Lỗi",
@@ -39,7 +40,7 @@ export default function GoogleFormModal({ isShowModal, onCloseModal, onSuccess, 
             });
         }
     }
-
+    
     return <Modal
         title={<p className="text-center">{accountId ? "Edit Google Account" : "Add New Google Account"}</p>}
         open={isShowModal}
