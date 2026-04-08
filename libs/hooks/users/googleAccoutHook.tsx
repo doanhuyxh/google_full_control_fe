@@ -38,6 +38,10 @@ export function useGoogleAccount() {
         });
     }
 
+    const handleAddNewAccount = (newAccount: GoogleAccount) => {
+        setAccountData((prevAccounts) => [newAccount, ...prevAccounts]);
+    }
+
     return {
         accountData,
         setAccountData,
@@ -55,5 +59,6 @@ export function useGoogleAccount() {
         totalItemsGoogle,
         handleUpdateDataLocal,
         removeGoogleAccountById,
+        handleAddNewAccount,
     };
 }

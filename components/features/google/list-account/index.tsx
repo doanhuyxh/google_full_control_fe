@@ -36,7 +36,8 @@ export default function GoogleAccountComponent() {
         totalItemsGoogle,
         fetchGoogleAccounts,
         removeGoogleAccountById,
-        handleUpdateDataLocal
+        handleUpdateDataLocal,
+        handleAddNewAccount
     } = useGoogleAccount();
 
     const [isShowModalHistoryEmail, setIsShowModalHistoryEmail] = useState<boolean>(false);
@@ -475,7 +476,7 @@ export default function GoogleAccountComponent() {
                 isShowModal={formDataModal.isShowModal}
                 onCloseModal={() => setFormDataModal({ isShowModal: false })}
                 accountId={formDataModal._id}
-                onSuccess={fetchGoogleAccounts}
+                newAccount={handleAddNewAccount}
             />
             <GoogleFormSendEmail
                 isShowModal={isShowModelSendEmail}
