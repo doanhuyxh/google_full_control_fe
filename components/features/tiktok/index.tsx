@@ -106,15 +106,10 @@ export default function TikTokPageComponent() {
                 (pageTikTok - 1) * limitTikTok + index + 1,
         },
         {
-            title: "TikTok Acc ID",
-            dataIndex: "uid",
-            key: "uid",
-            width: 150,
-            render: (uid: string) => (
-                <Tooltip title={uid}>
-                    <span>{uid}</span>
-                </Tooltip>
-            ),
+            title: "Nickname",
+            dataIndex: "nickName",
+            key: "nickName",
+            width: 120,
         },
         {
             title: "Username",
