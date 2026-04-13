@@ -52,13 +52,17 @@ export default function TikTokPageComponent() {
         if (!currentAccount) return;
 
         const formData: FormTikTokAccountData = {
-            username: currentAccount.username,
+            uniqueId: currentAccount.uniqueId,
             password: currentAccount.password,
             email: currentAccount.email,
             phoneNumber: currentAccount.phoneNumber,
             f2a: currentAccount.f2a,
             countryCode: currentAccount.countryCode,
             cookies: currentAccount.cookies,
+            uid: currentAccount.uid,
+            secUid: currentAccount.secUid,
+            nickName: currentAccount.nickName,
+            signature: currentAccount.signature,
             [field]: value,
         };
         const response = await updateTikTokAccount(id, formData);
@@ -66,14 +70,12 @@ export default function TikTokPageComponent() {
             notification.success({
                 message: "Cập nhật thành công",
                 description: "Dữ liệu đã được cập nhật thành công.",
-                placement: "topRight",
             });
             handleUpdateFieldLocal(id, field as keyof TikTokAccountData, value);
         } else {
             notification.error({
                 message: "Cập nhật thất bại",
                 description: response.message || "Đã có lỗi xảy ra khi cập nhật dữ liệu.",
-                placement: "topRight",
             });
         }
     };
@@ -84,14 +86,12 @@ export default function TikTokPageComponent() {
             notification.success({
                 message: "Xóa thành công",
                 description: "Tài khoản đã được xóa thành công.",
-                placement: "topRight",
             });
             removeTikTokAccountById(id);
         } else {
             notification.error({
                 message: "Xóa thất bại",
                 description: response.message || "Đã có lỗi xảy ra khi xóa tài khoản.",
-                placement: "topRight",
             });
         }
     };
@@ -106,15 +106,21 @@ export default function TikTokPageComponent() {
                 (pageTikTok - 1) * limitTikTok + index + 1,
         },
         {
+            title: "Nickname",
+            dataIndex: "nickName",
+            key: "nickName",
+            width: 120,
+        },
+        {
             title: "Username",
-            dataIndex: "username",
-            key: "username",
-            width: 220,
-            render: (username: string, record: TikTokAccountData) => (
+            dataIndex: "uniqueId",
+            key: "uniqueId",
+            width: 120,
+            render: (uniqueId: string, record: TikTokAccountData) => (
                 <DebouncedInputCell
                     recordId={record._id}
-                    initialValue={username}
-                    dataIndex="username"
+                    initialValue={uniqueId}
+                    dataIndex="uniqueId"
                     onUpdate={handleUpdateData}
                 />
             ),
@@ -246,7 +252,7 @@ export default function TikTokPageComponent() {
                             onClick={() => {
                                 modal.confirm({
                                     title: "Xác nhận xóa",
-                                    content: `Bạn có chắc chắn muốn xóa tài khoản ${record.username}?`,
+                                    content: `Bạn có chắc chắn muốn xóa tài khoản ${record.uniqueId}?`,
                                     okText: "Xóa",
                                     okType: "danger",
                                     cancelText: "Hủy",

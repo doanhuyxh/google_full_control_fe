@@ -1,7 +1,11 @@
 
 export default interface TikTokAccountData {
     _id: string;
-    username: string;
+    uid: string;
+    secUid: string;
+    uniqueId: string;
+    nickName: string;
+    signature: string;
     password: string;
     email: string;
     phoneNumber: string;
@@ -11,7 +15,11 @@ export default interface TikTokAccountData {
 }
 
 export interface FormTikTokAccountData {
-    username: string;
+    uniqueId: string;
+    uid: string;
+    secUid: string;
+    nickName: string;
+    signature: string;
     password: string;
     email: string;
     phoneNumber: string;
