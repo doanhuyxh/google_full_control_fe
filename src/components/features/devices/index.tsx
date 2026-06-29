@@ -1,36 +1,17 @@
 "use client";
 
-import { getLoginHistoryApi } from "@/libs/network/auth.api";
-import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
-import { LoginHistory } from "@/libs/interfaces/authData";
 import { Card, Table } from "antd";
-import { useEffect, useState } from "react";
+import { useHistoryLoginHook } from "@/libs/hooks/users/useHistoryLoginHook";
+import { useState } from "react";
 
 export default function DevicesComponent() {
-    const { notification } = useAntdApp();
-    const [loading, setLoading] = useState(true);
-    const [loginHistory, setLoginHistory] = useState<LoginHistory[]>([]);
-    const [page, setPage] = useState<number>(1);
-    const [limit, setLimit] = useState<number>(20);
-    const [totalItems, setTotalItems] = useState<number>(0);
-    const [search, setSearch] = useState<string>("");
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(20);
+    const [search, setSearch] = useState("");
+    const { data, isLoading } = useHistoryLoginHook(page, limit, search);
 
-
-    const fetchLoginHistory = async () => {
-        setLoading(true);
-        const response = await getLoginHistoryApi(page, limit, search);
-        if (response.status) {
-            setLoginHistory(response.data.items || []);
-            setTotalItems(response.data.pagination.total);
-        } else {
-            notification.error({
-                message: "Error fetching login history",
-                description: response.message || "An unexpected error occurred",
-            });
-        }
-        setLoading(false);
-    }
+   
 
     const columns = [
         {
@@ -49,8 +30,8 @@ export default function DevicesComponent() {
             title: "Tọa độ",
             dataIndex: "coordinates",
             key: "coordinates",
-            render: (coordinates: { latitude: number; longitude: number }) =>
-                `(${coordinates.latitude.toFixed(4)}, ${coordinates.longitude.toFixed(4)})`,
+            render: (coordinates: { latitude: string; longitude: string }) =>
+                `(${coordinates?.latitude}, ${coordinates?.longitude})`,
             width: 200,
         },
         {
@@ -67,23 +48,20 @@ export default function DevicesComponent() {
         }
     ]
 
-    useEffect(() => {
-        fetchLoginHistory();
-    }, [page, limit, search]);
 
     return <Card className="shadow-lg rounded-2xl md:rounded-4xl">
         <div className="flex justify-center items-center px-1">
             <h2 className="text-lg md:text-2xl font-semibold mb-4 text-center">Lịch sử đăng nhập</h2>
         </div>
         <Table
-            loading={loading}
-            dataSource={loginHistory}
+            loading={isLoading}
+            dataSource={data?.data?.items || []}
             rowKey={(record) => record._id}
             size="small"
             pagination={{
                 current: page,
                 pageSize: limit,
-                total: totalItems,
+                total: data?.data?.pagination?.total || 0,
                 showSizeChanger: true,
                 onChange: (page, pageSize) => {
                     setPage(page);
