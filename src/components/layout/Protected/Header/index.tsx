@@ -7,8 +7,6 @@ import RealTimeClock from "@/components/common/RealTimeClock";
 const { Header } = Layout;
 
 export default function AppHeader({
-    onToggleTheme,
-    isDark,
     isMobile,
     onOpenMobileMenu,
 }: {
@@ -19,7 +17,7 @@ export default function AppHeader({
 }) {
     const { token } = theme.useToken();
     const [menuOpen, setMenuOpen] = useState(false);
-    const [localDark, setLocalDark] = useState(isDark || false);
+
 
     const itemsProfile: MenuProps["items"] = [
         {
@@ -53,9 +51,8 @@ export default function AppHeader({
     ];
 
     const handleTongleDarkMode = () => {
-        onToggleTheme?.(!localDark);
-        setLocalDark(!localDark);
-        document.cookie = `theme=${!localDark ? "dark" : "light"}; path=/; max-age=31536000`;
+        const theme = document.cookie.get("theme")?.value || "light";
+        document.cookie = `theme=${theme === "dark" ? "light" : "dark"}; path=/; max-age=31536000`;
     }
 
     return (
@@ -88,7 +85,7 @@ export default function AppHeader({
                     size="small"
                     checkedChildren={<SunOutlined />}
                     unCheckedChildren={<MoonOutlined />}
-                    checked={!localDark}
+                    checked={!false}
                     onChange={handleTongleDarkMode}
                 />
                 <Dropdown
