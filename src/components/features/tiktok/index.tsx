@@ -9,7 +9,7 @@ import { useTikTokAccount } from "@/libs/hooks/users/tiktokAccountHook";
 import { useCommon } from "@/libs/hooks/useCommon";
 import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import TikTokAccountData, { FormTikTokAccountData } from "@/libs/intefaces/tiktokData";
+import TikTokAccountData, { FormTikTokAccountData } from "@/libs/interfaces/tiktokData";
 import { deleteTikTokAccount, updateTikTokAccount } from "@/libs/network/tiktok.api";
 import TikTokFilter from "./TikTokFilter";
 import TikTokFormModal from "./TikTokFormModal";

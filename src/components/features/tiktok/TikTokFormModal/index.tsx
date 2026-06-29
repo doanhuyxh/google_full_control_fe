@@ -1,10 +1,10 @@
 import { Form, Modal, Input, Select, Row, Col, Divider } from "antd";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { addTikTokAccount, updateTikTokAccount } from "@/libs/network/tiktok.api";
-import { FormTikTokAccountData } from "@/libs/intefaces/tiktokData";
+import { FormTikTokAccountData } from "@/libs/interfaces/tiktokData";
 import useCountries from "@/libs/hooks/useCountries";
 import { useEffect } from "react";
-import TikTokAccountData from "@/libs/intefaces/tiktokData";
+import TikTokAccountData from "@/libs/interfaces/tiktokData";
 
 interface TikTokFormModalProps {
     isShowModal: boolean;

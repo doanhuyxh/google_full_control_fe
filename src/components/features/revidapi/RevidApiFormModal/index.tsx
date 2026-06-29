@@ -2,7 +2,7 @@ import { Form, Input, Modal } from "antd";
 import { useEffect } from "react";
 
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import RevapiData, { FormRevapiData } from "@/libs/intefaces/revapiData";
+import RevapiData, { FormRevapiData } from "@/libs/interfaces/revapiData";
 import { createRevapiData, updateRevapiData } from "@/libs/network/revapi.api";
 
 interface RevidApiFormModalProps {

@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
-import RevapiData, { FormRevapiData } from "../intefaces/revapiData";
-import ApiResponse, { PaginatedResponse } from "../intefaces/apiResponseData";
+import RevapiData, { FormRevapiData } from "../interfaces/revapiData";
+import ApiResponse, { PaginatedResponse } from "../interfaces/apiResponseData";
 
 
 export async function getRevapiData(page: number, limit: number, search: string): Promise<ApiResponse<PaginatedResponse<RevapiData>>> {

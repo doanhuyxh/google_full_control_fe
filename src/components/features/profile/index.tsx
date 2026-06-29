@@ -5,7 +5,7 @@ import { Button, Card, Descriptions, Space, Spin, Tag, Typography } from "antd";
 
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { getProfileApi, updateApiKeyApi } from "@/libs/network/auth.api";
-import { UserProfile } from "@/libs/intefaces/authData";
+import { UserProfile } from "@/libs/interfaces/authData";
 import { formatUtcToLocal } from "@/libs/utils/timeUtils";
 import { ReloadOutlined } from "@ant-design/icons";
 

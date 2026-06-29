@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { useDebounce } from "@/libs/hooks/useDebounce";
-import AppleIdData from "@/libs/intefaces/appleIdData";
+import AppleIdData from "@/libs/interfaces/appleIdData";
 import { getAppleIDAccounts } from "@/libs/network/appleId.api";
 
 

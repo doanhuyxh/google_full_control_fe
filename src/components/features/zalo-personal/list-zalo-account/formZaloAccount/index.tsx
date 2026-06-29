@@ -1,6 +1,6 @@
 import { createZaloPersonalAccount, updateZaloPersonalAccount } from "@/libs/network/zalo-personal.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData } from "@/libs/intefaces/zaloPersonal";
+import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData } from "@/libs/interfaces/zaloPersonal";
 import { Form, Input, Modal } from "antd";
 import { useEffect } from "react";
 

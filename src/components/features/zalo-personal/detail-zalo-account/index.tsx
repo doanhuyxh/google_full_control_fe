@@ -8,7 +8,7 @@ import { Tabs, type TabsProps, Row, Col, Card, Badge, Button, Space } from "antd
 import MessageChatZaloAccount from "./message-chat";
 import BreadcrumbComponent from "@/components/common/breadcrumb";
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
-import { ZaloLoginInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ZaloLoginInfo } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 import { ReloadOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "@/libs/redux/hooks";
 import {

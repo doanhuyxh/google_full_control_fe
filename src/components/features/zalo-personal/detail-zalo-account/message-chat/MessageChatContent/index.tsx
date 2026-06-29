@@ -1,5 +1,5 @@
-import { ContentPhoto, ContentVoice } from "@/libs/intefaces/zaloPersonal";
-import { ZaloMsgTypeEnum } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ContentPhoto, ContentVoice } from "@/libs/interfaces/zaloPersonal";
+import { ZaloMsgTypeEnum } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 import { Image } from "antd";
 import { ReactNode } from "react";
 

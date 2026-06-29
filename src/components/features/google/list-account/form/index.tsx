@@ -1,7 +1,7 @@
 import { Form, Modal, Input } from "antd";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { createGoogleAccount } from "@/libs/network/google.api";
-import { GoogleAccount } from "@/libs/intefaces/googleData";
+import { GoogleAccount } from "@/libs/interfaces/googleData";
 
 interface GoogleFormProps {
     isShowModal?: boolean;

@@ -8,7 +8,7 @@ import { formatUtcToLocal } from "@/libs/utils/timeUtils";
 import { Edit3 } from "lucide-react";
 import { DeleteFilled } from "@ant-design/icons";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import AppleIdData, { QuestionSecurity } from "@/libs/intefaces/appleIdData";
+import AppleIdData, { QuestionSecurity } from "@/libs/interfaces/appleIdData";
 import { deleteAppleIDAccount } from "@/libs/network/appleId.api";
 import { useAppleIdHook } from "@/libs/hooks/users/appleIdHook";
 import AppleIdControls from "./AppleIdControls";

@@ -1,4 +1,4 @@
-import { AuthenticatorData } from "@/libs/intefaces/authenticatorData";
+import { AuthenticatorData } from "@/libs/interfaces/authenticatorData";
 
 export async function getAuthenticatorData(code: string): Promise<AuthenticatorData[]> {
     const res = await fetch("https://otpauth-migrate.onrender.com/parse-authentication-google", {

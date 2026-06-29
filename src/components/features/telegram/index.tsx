@@ -6,7 +6,7 @@ import { Button, Card, Table, Tooltip } from "antd";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import TelegramFormModal from "./TelegramFormModal";
 import BotFormModal from "./BotFormModal"
-import { TelegramAccountData } from "@/libs/intefaces/telegramData";
+import { TelegramAccountData } from "@/libs/interfaces/telegramData";
 import { DeleteFilled, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { deleteTelegramAccount } from "@/libs/network/telegram.api";

@@ -1,4 +1,4 @@
-import { CloudinaryData } from '@/libs/intefaces/cloudinaryData';
+import { CloudinaryData } from '@/libs/interfaces/cloudinaryData';
 import { Modal, Descriptions, Progress, Tag, Space, Typography } from 'antd';
 const { Text, Title } = Typography;
 

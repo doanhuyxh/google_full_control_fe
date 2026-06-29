@@ -1,22 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Layout, Switch, Dropdown, Avatar, MenuProps, Space, Button, theme } from "antd";
 import { MoonOutlined, SunOutlined, UserOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
 import RealTimeClock from "@/components/common/RealTimeClock";
+
 const { Header } = Layout;
+
+const THEME_COOKIE_MAX_AGE = 31536000;
+
+function getThemeFromCookie(): "light" | "dark" {
+    const match = document.cookie.match(/(?:^|;\s*)theme=(light|dark)(?:;|$)/);
+    return match?.[1] === "dark" ? "dark" : "light";
+}
+
+function applyTheme(nextTheme: "light" | "dark") {
+    document.documentElement.classList.toggle("dark", nextTheme === "dark");
+    document.cookie = `theme=${nextTheme}; path=/; max-age=${THEME_COOKIE_MAX_AGE}`;
+}
 
 export default function AppHeader({
     isMobile,
     onOpenMobileMenu,
 }: {
-    onToggleTheme?: (value: boolean) => void;
-    isDark?: boolean;
     isMobile?: boolean;
     onOpenMobileMenu?: () => void;
 }) {
     const { token } = theme.useToken();
     const [menuOpen, setMenuOpen] = useState(false);
+    const [isDark, setIsDark] = useState(
+        () => typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
+    );
+
+    useEffect(() => {
+        const savedTheme = getThemeFromCookie();
+        applyTheme(savedTheme);
+        setIsDark(savedTheme === "dark");
+    }, []);
 
 
     const itemsProfile: MenuProps["items"] = [
@@ -50,10 +70,11 @@ export default function AppHeader({
         },
     ];
 
-    const handleTongleDarkMode = () => {
-        const theme = document.cookie.get("theme")?.value || "light";
-        document.cookie = `theme=${theme === "dark" ? "light" : "dark"}; path=/; max-age=31536000`;
-    }
+    const handleToggleDarkMode = (checked: boolean) => {
+        const nextTheme = checked ? "light" : "dark";
+        applyTheme(nextTheme);
+        setIsDark(nextTheme === "dark");
+    };
 
     return (
         <Header
@@ -85,8 +106,8 @@ export default function AppHeader({
                     size="small"
                     checkedChildren={<SunOutlined />}
                     unCheckedChildren={<MoonOutlined />}
-                    checked={!false}
-                    onChange={handleTongleDarkMode}
+                    checked={!isDark}
+                    onChange={handleToggleDarkMode}
                 />
                 <Dropdown
                     menu={{ items: itemsProfile }}

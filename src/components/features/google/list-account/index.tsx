@@ -10,7 +10,7 @@ import { useToolsDataBackEnd } from "@/libs/hooks/useToolsDataBackEnd";
 import { useCommon } from "@/libs/hooks/useCommon";
 import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { GoogleAccount, GoogleAccountStatusOptions } from "@/libs/intefaces/googleData";
+import { GoogleAccount, GoogleAccountStatusOptions } from "@/libs/interfaces/googleData";
 import { updateGoogleAccount, deleteGoogleAccount } from "@/libs/network/google.api";
 import GoogleAccountFilter from "./filter";
 import GoogleFormModal from "./form";

@@ -5,7 +5,7 @@ import { Modal, Button, List, Tag, Typography, Alert } from "antd";
 import { QrCode, CheckCircle, RotateCcw, VideoOff, Camera, ScanLine, KeyRound, BadgeCheck } from "lucide-react";
 import { useQrScanner } from "@/libs/hooks/useScanQrImage";
 import { getAuthenticatorData } from "@/libs/network/authenticator.api";
-import { AuthenticatorData } from "@/libs/intefaces/authenticatorData";
+import { AuthenticatorData } from "@/libs/interfaces/authenticatorData";
 
 const SCANNER_ID = "google-2fa-qr-scanner";
 

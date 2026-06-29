@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import AppleIdData, { FormAppleIdData } from "@/libs/intefaces/appleIdData";
+import AppleIdData, { FormAppleIdData } from "@/libs/interfaces/appleIdData";
 import { createAppleIDAccount, updateAppleIDAccount } from "@/libs/network/appleId.api";
 import useCountries from "@/libs/hooks/useCountries";
 

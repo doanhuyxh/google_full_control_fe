@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
-import AppleIdData from "@/libs/intefaces/appleIdData";
-import ApiResponse, { PaginatedResponse } from "../intefaces/apiResponseData";
+import AppleIdData from "@/libs/interfaces/appleIdData";
+import ApiResponse, { PaginatedResponse } from "../interfaces/apiResponseData";
 
 export async function getAppleIDAccounts(page: number, limit: number, search: string): Promise<ApiResponse<PaginatedResponse<AppleIdData>>> {
     const queryParams = new URLSearchParams({

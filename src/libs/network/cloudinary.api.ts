@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
-import ApiResponse, { PaginatedResponse } from "@/libs/intefaces/apiResponseData";
-import { CloudinaryData, CloudinaryDataFormData } from "@/libs/intefaces/cloudinaryData";
+import ApiResponse, { PaginatedResponse } from "@/libs/interfaces/apiResponseData";
+import { CloudinaryData, CloudinaryDataFormData } from "@/libs/interfaces/cloudinaryData";
 
 export async function getAccountCloudinary(page: number, limit: number, search: string): Promise<ApiResponse<PaginatedResponse<CloudinaryData>>> {
     const queryParams = new URLSearchParams();

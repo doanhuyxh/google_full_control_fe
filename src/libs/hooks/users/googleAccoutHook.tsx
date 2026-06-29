@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GoogleAccount } from "@/libs/intefaces/googleData";
+import { GoogleAccount } from "@/libs/interfaces/googleData";
 import { getGoogleAccount } from "@/libs/network/google.api";
 
 export function useGoogleAccount() {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import TikTokAccountData from "@/libs/intefaces/tiktokData";
+import TikTokAccountData from "@/libs/interfaces/tiktokData";
 import { getTikTokAccount } from "@/libs/network/tiktok.api";
 import { useDebounce } from "../useDebounce";
 import { useAntdApp } from "../useAntdApp";

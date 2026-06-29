@@ -3,7 +3,7 @@
 import { getLoginHistoryApi } from "@/libs/network/auth.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
-import { LoginHistory } from "@/libs/intefaces/authData";
+import { LoginHistory } from "@/libs/interfaces/authData";
 import { Card, Table } from "antd";
 import { useEffect, useState } from "react";
 

@@ -2,7 +2,7 @@
 
 import { useZaloPersonalAccount } from "@/libs/hooks/users/zaloPersonalAccountHook";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import ZaloPersonalData from "@/libs/intefaces/zaloPersonal";
+import ZaloPersonalData from "@/libs/interfaces/zaloPersonal";
 import { useState } from "react";
 import { Avatar, Button, Card, Input, Table, Tooltip } from "antd";
 import ZaloPersonalAccountControls from "./ZaloAccountControls";
@@ -13,7 +13,7 @@ import { deleteZaloPersonalAccount, getLoginInfoAccZalo, loginZaloPersonalViaCoo
 import FormLoginQr from "./formLoginQr";
 import { Cookie, QrCode } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ZaloLoginInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ZaloLoginInfo } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
 
 

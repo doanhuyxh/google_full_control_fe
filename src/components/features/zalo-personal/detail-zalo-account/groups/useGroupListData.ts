@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import useIndexedDBStorage from "@/libs/hooks/useIndexedDBStorage";
-import { ZaloGroup, ZaloGroupInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ZaloGroup, ZaloGroupInfo } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 import { getZaloPersonalGroups, getZaloPersonalGroupsDetails } from "@/libs/network/zalo-personal.api";
 import { useAppDispatch, useAppSelector } from "@/libs/redux/hooks";
 import { setGroupsByAccount } from "@/libs/redux/slices/zaloDetail.slice";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import RevapiData from "@/libs/intefaces/revapiData";
+import RevapiData from "@/libs/interfaces/revapiData";
 import { getRevapiData } from "@/libs/network/revapi.api";
 import { useDebounce } from "../useDebounce";
 import { useAntdApp } from "../useAntdApp";

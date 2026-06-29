@@ -12,7 +12,7 @@ import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useCommon } from "@/libs/hooks/useCommon";
 import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { useRevidApiAccount } from "@/libs/hooks/users/revidapiAccountHook";
-import RevapiData, { FormRevapiData } from "@/libs/intefaces/revapiData";
+import RevapiData, { FormRevapiData } from "@/libs/interfaces/revapiData";
 import {
     deleteRevapiData,
     getApiKeyInfo,

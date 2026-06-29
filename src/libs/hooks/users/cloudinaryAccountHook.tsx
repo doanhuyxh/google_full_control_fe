@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useDebounce } from "@/libs/hooks/useDebounce";
 import { getAccountCloudinary } from "@/libs/network/cloudinary.api";
-import { CloudinaryData } from "@/libs/intefaces/cloudinaryData";
+import { CloudinaryData } from "@/libs/interfaces/cloudinaryData";
 
 export function useCloudinaryAccount() {
     const [accountData, setAccountData] = useState<CloudinaryData[]>([]);

@@ -5,6 +5,7 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider, App, theme as antdTheme } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import vi_VN from 'antd/locale/vi_VN';
+import { antdComponentConfig } from "@/libs/constants/colors";
 
 export default function AntdProvider({ children, initialTheme }: { children: React.ReactNode; initialTheme: "light" | "dark" }) {
     const [theme, setTheme] = useState<"light" | "dark">(initialTheme);
@@ -50,8 +51,10 @@ export default function AntdProvider({ children, initialTheme }: { children: Rea
                 theme={{
                     algorithm: theme === "dark" ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
                     token: {
-                        fontFamily: "inherit"
+                        fontFamily: "inherit",
+                        ...antdComponentConfig
                     },
+                    
                 }}
                 tooltip={{
                     className: "bg-red-500 rounded-lg text-white px-2 py-1 text-xs",

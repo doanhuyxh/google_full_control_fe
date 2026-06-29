@@ -4,7 +4,7 @@ import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useDebounce } from "@/libs/hooks/useDebounce";
 import useIndexedDBStorage from "@/libs/hooks/useIndexedDBStorage";
 import useSearchParamsClient from "@/libs/hooks/useSearchParamsClient";
-import { ChangedProfiles } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ChangedProfiles } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 import { getAllFrendInZalo } from "@/libs/network/zalo-personal.api";
 import { useAppDispatch, useAppSelector } from "@/libs/redux/hooks";
 import { setFriendsByAccount } from "@/libs/redux/slices/zaloDetail.slice";

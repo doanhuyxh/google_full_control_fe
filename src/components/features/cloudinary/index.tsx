@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button, Card, Input, Popconfirm, Table, Tooltip } from "antd";
 import { useCloudinaryAccount } from "@/libs/hooks/users/cloudinaryAccountHook";
-import { CloudinaryData } from "@/libs/intefaces/cloudinaryData";
+import { CloudinaryData } from "@/libs/interfaces/cloudinaryData";
 
 import CloudinaryControls from "./CloudinaryControls";
 import CloudinaryFormModal from "./CloudinaryFormModal";
