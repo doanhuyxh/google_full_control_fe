@@ -1,72 +1,131 @@
-import { useEffect, useState } from "react";
-import {TelegramAccountData} from "@/libs/interfaces/telegramData";
-import { getTelegramAccounts } from "@/libs/network/telegram.api";
-import { useDebounce } from "../useDebounce";
-import { useAntdApp } from "../useAntdApp";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
+import { useDebounce } from "@/libs/hooks/useDebounce";
+import { NO_CACHE_QUERY_OPTIONS } from "@/libs/hooks/queryOptions";
+import { useAntdApp } from "@/libs/hooks/useAntdApp";
+import {
+    createTelegramAccount,
+    deleteTelegramAccount,
+    getTelegramAccountDetail,
+    getTelegramAccounts,
+    updateTelegramAccount,
+} from "@/libs/network/telegram.api";
+
+const QUERY_KEY = "telegram-accounts";
 
 export function useTelegramAccount() {
-    const [listTelegramAccount, setListTelegramAccount] = useState<TelegramAccountData[]>([]);
-    const [loadingTele, setLoadingTele] = useState<boolean>(false);
+    const queryClient = useQueryClient();
+    const { notification } = useAntdApp();
     const [pageTele, setPageTele] = useState<number>(1);
     const [limitTele, setLimitTele] = useState<number>(30);
     const [searchTele, setSearchTele] = useState<string>("");
-    const [totalPagesTele, setTotalPagesTele] = useState<number>(0);
-    const [totalItemsTele, setTotalItemsTele] = useState<number>(0);
     const debouncedSearch = useDebounce<string>(searchTele, 600);
-    const {notification} = useAntdApp();
 
-    const fetchTelegramAccounts = async () => {
-        setLoadingTele(true);
-        const response = await getTelegramAccounts(pageTele, limitTele, debouncedSearch);
-        if (response.status) {
-            setListTelegramAccount(response.data.items);
-            setTotalPagesTele(response.data.pagination.totalPages);
-            setTotalItemsTele(response.data.pagination.total);
-        }else{
-            notification.error({
-                message: 'Lấy danh sách tài khoản Telegram thất bại',
-                description: response.message || 'Không thể kết nối đến máy chủ',
-            });
-        }
-        setLoadingTele(false);
-    }
+    const queryKey = [QUERY_KEY, pageTele, limitTele, debouncedSearch] as const;
 
-    const removeTelegramAccountById = (id: string) => {
-        setListTelegramAccount((prevAccounts) => prevAccounts.filter((account) => account._id !== id));
-    }
+    const invalidateList = () => queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
 
-    const addTelegramAccount = (newAccount: TelegramAccountData) => {
-        setListTelegramAccount((prevAccounts) => [newAccount, ...prevAccounts]);
-    }
+    const { data: response, isFetching, refetch } = useQuery({
+        queryKey,
+        queryFn: async () => {
+            const result = await getTelegramAccounts(pageTele, limitTele, debouncedSearch);
+            if (!result.status) {
+                notification.error({
+                    message: "Lấy danh sách tài khoản Telegram thất bại",
+                    description: result.message || "Không thể kết nối đến máy chủ",
+                });
+                throw new Error(result.message);
+            }
+            return result;
+        },
+        ...NO_CACHE_QUERY_OPTIONS,
+    });
 
-    const updateTelegramAccount = (updatedAccount: TelegramAccountData) => {
-        setListTelegramAccount((prevAccounts) =>
-            prevAccounts.map((account) =>
-                account._id === updatedAccount._id ? updatedAccount : account
-            )
-        );
-    }
+    const createMutation = useMutation({
+        mutationFn: (formData: FormData) => createTelegramAccount(formData),
+        onSuccess: (result) => {
+            if (!result.status) {
+                notification.error({
+                    message: "Tạo tài khoản Telegram thất bại",
+                    description: result.message || "Không thể kết nối đến máy chủ",
+                });
+                return;
+            }
+            notification.success({ message: "Tạo tài khoản Telegram thành công" });
+            invalidateList();
+        },
+    });
 
-    useEffect(() => {
-        fetchTelegramAccounts();
-    }, [debouncedSearch, pageTele, limitTele]);
+    const updateMutation = useMutation({
+        mutationFn: ({ teleId, formData }: { teleId: string; formData: FormData }) =>
+            updateTelegramAccount(teleId, formData),
+        onSuccess: (result) => {
+            if (!result.status) {
+                notification.error({
+                    message: "Cập nhật tài khoản Telegram thất bại",
+                    description: result.message || "Không thể kết nối đến máy chủ",
+                });
+                return;
+            }
+            notification.success({ message: "Cập nhật tài khoản Telegram thành công" });
+            invalidateList();
+        },
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) => deleteTelegramAccount(id),
+        onSuccess: (result) => {
+            if (!result.status) {
+                notification.error({
+                    message: "Xóa tài khoản Telegram thất bại",
+                    description: result.message || "Không thể kết nối đến máy chủ",
+                });
+                return;
+            }
+            notification.success({ message: "Xóa tài khoản Telegram thành công" });
+            invalidateList();
+        },
+    });
 
     return {
-        listTelegramAccount,
-        setListTelegramAccount,
-        loadingTele,
-        fetchTelegramAccounts,
+        listTelegramAccount: response?.data?.items ?? [],
+        loadingTele: isFetching,
+        fetchTelegramAccounts: refetch,
         pageTele,
         setPageTele,
         limitTele,
         setLimitTele,
         searchTele,
         setSearchTele,
-        totalPagesTele,
-        totalItemsTele,
-        removeTelegramAccountById,
-        addTelegramAccount,
-        updateTelegramAccount,
+        totalPagesTele: response?.data?.pagination?.totalPages ?? 0,
+        totalItemsTele: response?.data?.pagination?.total ?? 0,
+        createTelegramAccount: createMutation.mutateAsync,
+        updateTelegramAccount: updateMutation.mutateAsync,
+        deleteTelegramAccount: deleteMutation.mutateAsync,
+        isCreatingTelegram: createMutation.isPending,
+        isUpdatingTelegram: updateMutation.isPending,
+        isDeletingTelegram: deleteMutation.isPending,
     };
+}
+
+export function useTelegramAccountDetail(teleId: string, enabled: boolean) {
+    const { notification } = useAntdApp();
+
+    return useQuery({
+        queryKey: ["telegram-account-detail", teleId],
+        queryFn: async () => {
+            const result = await getTelegramAccountDetail(teleId);
+            if (!result.status) {
+                notification.error({
+                    message: "Lấy chi tiết tài khoản Telegram thất bại",
+                    description: result.message || "Không thể kết nối đến máy chủ",
+                });
+                throw new Error(result.message);
+            }
+            return result.data;
+        },
+        enabled: enabled && !!teleId,
+        ...NO_CACHE_QUERY_OPTIONS,
+    });
 }

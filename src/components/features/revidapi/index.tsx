@@ -12,15 +12,7 @@ import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useCommon } from "@/libs/hooks/useCommon";
 import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { useRevidApiAccount } from "@/libs/hooks/users/revidapiAccountHook";
-import RevapiData, { FormRevapiData } from "@/libs/interfaces/revapiData";
-import {
-    deleteRevapiData,
-    getApiKeyInfo,
-    getUpdateCredit,
-    loginRevapiData,
-    updateRevapiData,
-} from "@/libs/network/revapi.api";
-
+import RevapiData from "@/libs/interfaces/revapiData";
 import RevidApiFilter from "./RevidApiFilter";
 import RevidApiFormModal from "./RevidApiFormModal";
 import RevidApiImportModal from "./RevidApiImportModal";
@@ -36,9 +28,13 @@ export default function RevidApiComponent() {
         searchRevidApi,
         setSearchRevidApi,
         totalItemsRevidApi,
-        fetchRevidApiAccounts,
-        removeRevidApiAccountById,
-        handleUpdateFieldLocal,
+        deleteRevidApiAccount,
+        updateRevidApiField,
+        bulkLoginRevidApi,
+        bulkApiKeyRevidApi,
+        bulkCreditRevidApi,
+        syncAllRevidApi,
+        isBulkLoading,
     } = useRevidApiAccount();
 
     const { copiedToClipboard } = useCommon();
@@ -50,50 +46,13 @@ export default function RevidApiComponent() {
     }>({ isShowModal: false, editData: null });
     const [isShowImportModal, setIsShowImportModal] = useState<boolean>(false);
     const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
-    const [bulkLoading, setBulkLoading] = useState<boolean>(false);
 
     const handleUpdateData = async (id: string, field: string, value: string) => {
-        if (value === undefined || value === null || value === "") return;
-        const currentAccount = listRevidApiAccount.find((acc) => acc._id === id);
-        if (!currentAccount) return;
-
-        const formData: FormRevapiData = {
-            email: currentAccount.email,
-            password: currentAccount.password,
-            access_token: currentAccount.access_token,
-            api_key: currentAccount.api_key,
-            [field]: value,
-        };
-
-        const response = await updateRevapiData(id, formData);
-        if (response.status) {
-            notification.success({
-                message: "Cập nhật thành công",
-                description: "Dữ liệu đã được cập nhật thành công.",
-            });
-            handleUpdateFieldLocal(id, field as keyof RevapiData, value);
-        } else {
-            notification.error({
-                message: "Cập nhật thất bại",
-                description: response.message || "Đã có lỗi xảy ra khi cập nhật dữ liệu.",
-            });
-        }
+        await updateRevidApiField(id, field, value);
     };
 
     const handleDeleteAccount = async (id: string) => {
-        const response = await deleteRevapiData(id);
-        if (response.status) {
-            notification.success({
-                message: "Xóa thành công",
-                description: "Tài khoản đã được xóa thành công.",
-            });
-            removeRevidApiAccountById(id);
-        } else {
-            notification.error({
-                message: "Xóa thất bại",
-                description: response.message || "Đã có lỗi xảy ra khi xóa tài khoản.",
-            });
-        }
+        await deleteRevidApiAccount(id);
     };
 
     const ensureSelectedIds = () => {
@@ -110,88 +69,25 @@ export default function RevidApiComponent() {
     const handleBulkLogin = async () => {
         const ids = ensureSelectedIds();
         if (!ids) return;
-        setBulkLoading(true);
-        const results = await Promise.all(ids.map((id) => loginRevapiData(id)));
-        setBulkLoading(false);
-
-        const successCount = results.filter((result) => result.status).length;
-        if (successCount > 0) await fetchRevidApiAccounts();
-        notification.info({
-            message: "Kết quả Login active",
-            description: `Thành công ${successCount}/${ids.length}`,
-        });
+        await bulkLoginRevidApi(ids);
     };
 
     const handleBulkApiKey = async () => {
         const ids = ensureSelectedIds();
         if (!ids) return;
-        setBulkLoading(true);
-        const results = await Promise.all(ids.map((id) => getApiKeyInfo(id)));
-        setBulkLoading(false);
-
-        const successCount = results.filter((result) => result.status).length;
-        if (successCount > 0) await fetchRevidApiAccounts();
-        notification.info({
-            message: "Kết quả API Key active",
-            description: `Thành công ${successCount}/${ids.length}`,
-        });
+        await bulkApiKeyRevidApi(ids);
     };
 
     const handleBulkCredit = async () => {
         const ids = ensureSelectedIds();
         if (!ids) return;
-        setBulkLoading(true);
-        const results = await Promise.all(ids.map((id) => getUpdateCredit(id)));
-        setBulkLoading(false);
-
-        const successCount = results.filter((result) => result.status).length;
-        if (successCount > 0) await fetchRevidApiAccounts();
-        notification.info({
-            message: "Kết quả Lấy Credit",
-            description: `Thành công ${successCount}/${ids.length}`,
-        });
+        await bulkCreditRevidApi(ids);
     };
 
     const handleSyncAllActive = async () => {
         const ids = ensureSelectedIds();
         if (!ids) return;
-        setBulkLoading(true);
-        const results = await Promise.all(
-            ids.map(async (id) => {
-                const loginRes = await loginRevapiData(id);
-                if (!loginRes.status) {
-                    return { success: false, reason: "login_failed" };
-                }
-
-                const accessToken = loginRes.data?.access_token;
-                if (!accessToken || !String(accessToken).trim()) {
-                    return { success: false, reason: "missing_access_token" };
-                }
-
-                const [apiKeyRes, creditRes] = await Promise.all([
-                    getApiKeyInfo(id),
-                    getUpdateCredit(id),
-                ]);
-                const success = apiKeyRes.status && creditRes.status;
-                return {
-                    success,
-                    reason: success ? "ok" : "get_api_failed",
-                };
-            })
-        );
-        setBulkLoading(false);
-
-        const successCount = results.filter((result) => result.success).length;
-        const failedCount = results.length - successCount;
-        const missingTokenCount = results.filter((result) => result.reason === "missing_access_token").length;
-
-        if (successCount > 0) {
-            await fetchRevidApiAccounts();
-        }
-        notification.info({
-            message: "Kết quả Đồng bộ tất cả",
-            description: `Thành công ${successCount}/${ids.length}. Thất bại ${failedCount}/${ids.length}. Thiếu access_token: ${missingTokenCount}.`,
-        });
+        await syncAllRevidApi(ids);
     };
 
     const columns: ColumnsType<RevapiData> = [
@@ -378,7 +274,7 @@ export default function RevidApiComponent() {
                 handleCreditActive={handleBulkCredit}
                 handleSyncAllActive={handleSyncAllActive}
                 selectedCount={selectedRowKeys.length}
-                bulkLoading={bulkLoading}
+                bulkLoading={isBulkLoading}
             />
 
             <Table
@@ -412,13 +308,11 @@ export default function RevidApiComponent() {
                     setFormModal({ isShowModal: false, editData: null })
                 }
                 editData={formModal.editData}
-                onSuccess={fetchRevidApiAccounts}
             />
 
             <RevidApiImportModal
                 isShowModal={isShowImportModal}
                 onCloseModal={() => setIsShowImportModal(false)}
-                onSuccess={fetchRevidApiAccounts}
             />
         </Card>
     );

@@ -9,14 +9,13 @@ import BotFormModal from "./BotFormModal"
 import { TelegramAccountData } from "@/libs/interfaces/telegramData";
 import { DeleteFilled, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { deleteTelegramAccount } from "@/libs/network/telegram.api";
 import { PersonStanding } from "lucide-react";
 import ListBotModal from "./ListBotModal";
 
 
 export default function TelegramComponent() {
-    const { notification, modal } = useAntdApp()
-    const { listTelegramAccount, loadingTele, pageTele, setPageTele, limitTele, setLimitTele, searchTele, setSearchTele, totalItemsTele, removeTelegramAccountById, addTelegramAccount, updateTelegramAccount } = useTelegramAccount();
+    const { modal } = useAntdApp()
+    const { listTelegramAccount, loadingTele, pageTele, setPageTele, limitTele, setLimitTele, searchTele, setSearchTele, totalItemsTele, deleteTelegramAccount } = useTelegramAccount();
     const [formDataTelegram, setFormDataTelegram] = useState<{ isShowModal: boolean, teleId: string }>({
         isShowModal: false, teleId: ''
     })
@@ -133,20 +132,7 @@ export default function TelegramComponent() {
             okText: 'Xóa',
             okType: 'danger',
             cancelText: 'Hủy',
-            onOk: async () => {
-                const response = await deleteTelegramAccount(id);
-                if (response.status) {
-                    removeTelegramAccountById(id);
-                    notification.success({
-                        message: 'Xóa tài khoản Telegram thành công',
-                    });
-                } else {
-                    notification.error({
-                        message: 'Xóa tài khoản Telegram thất bại',
-                        description: response.message || 'Không thể kết nối đến máy chủ',
-                    });
-                }
-            },
+            onOk: () => deleteTelegramAccount(id),
         });
     }
 
@@ -187,8 +173,6 @@ export default function TelegramComponent() {
                 isVisible={formDataTelegram.isShowModal}
                 teleId={formDataTelegram.teleId}
                 onClose={handleFormClose}
-                onAddData={addTelegramAccount}
-                onUpdateData={updateTelegramAccount}
             />
 
             <BotFormModal

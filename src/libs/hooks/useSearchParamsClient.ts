@@ -10,7 +10,7 @@ function useSearchParamsClient<T>(key: string, defaultValue: T): [T, (value: any
 
     const setValue = useCallback(
         (value: string | number | ((currentValue: T) => string | number)) => {
-            const resolvedValue = typeof value === 'function' ? (value as Function)(currentValue) : value
+            const resolvedValue = typeof value === 'function' ? (value as (currentValue: T) => string | number)(currentValue) : value
             const newValue = String(resolvedValue)
             const baseQuery = typeof window !== 'undefined' ? window.location.search : searchParams.toString()
             const params = new URLSearchParams(baseQuery)

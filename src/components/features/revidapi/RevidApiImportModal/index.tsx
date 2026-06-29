@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Alert, Input, Modal, Typography } from "antd";
 
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { createRevapiData } from "@/libs/network/revapi.api";
+import { useRevidApiAccount } from "@/libs/hooks/users/revidapiAccountHook";
 
 interface RevidApiImportModalProps {
     isShowModal: boolean;
     onCloseModal: () => void;
-    onSuccess?: () => void;
 }
 
 interface ParsedRow {
@@ -19,11 +18,10 @@ interface ParsedRow {
 export default function RevidApiImportModal({
     isShowModal,
     onCloseModal,
-    onSuccess,
 }: RevidApiImportModalProps) {
     const [rawText, setRawText] = useState<string>("");
-    const [loadingImport, setLoadingImport] = useState<boolean>(false);
     const { notification } = useAntdApp();
+    const { importRevidApiAccounts, isImportingRevidApi } = useRevidApiAccount();
 
     const parseRows = (text: string) => {
         const lines = text
@@ -57,11 +55,9 @@ export default function RevidApiImportModal({
             return;
         }
 
-        setLoadingImport(true);
-        const results = await Promise.all(
-            validRows.map((row) => createRevapiData({ email: row.email, password: row.password }))
+        const results = await importRevidApiAccounts(
+            validRows.map((row) => ({ email: row.email, password: row.password }))
         );
-        setLoadingImport(false);
 
         const successCount = results.filter((result) => result.status).length;
         const failedRows = validRows
@@ -73,7 +69,6 @@ export default function RevidApiImportModal({
                 message: "Import thành công",
                 description: `Đã import ${successCount}/${validRows.length} dòng hợp lệ.`,
             });
-            onSuccess?.();
         }
 
         if (failedRows.length > 0 || invalidRows.length > 0) {
@@ -107,7 +102,7 @@ export default function RevidApiImportModal({
             onOk={handleImport}
             okText="Import"
             cancelText="Hủy"
-            confirmLoading={loadingImport}
+            confirmLoading={isImportingRevidApi}
             width={780}
         >
             <div className="flex flex-col gap-3">

@@ -9,8 +9,7 @@ import { useTikTokAccount } from "@/libs/hooks/users/tiktokAccountHook";
 import { useCommon } from "@/libs/hooks/useCommon";
 import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import TikTokAccountData, { FormTikTokAccountData } from "@/libs/interfaces/tiktokData";
-import { deleteTikTokAccount, updateTikTokAccount } from "@/libs/network/tiktok.api";
+import TikTokAccountData from "@/libs/interfaces/tiktokData";
 import TikTokFilter from "./TikTokFilter";
 import TikTokFormModal from "./TikTokFormModal";
 import TikTokUpdate2FAModal from "./Update2FAModal";
@@ -27,13 +26,12 @@ export default function TikTokPageComponent() {
         searchTikTok,
         setSearchTikTok,
         totalItemsTikTok,
-        fetchTikTokAccounts,
-        removeTikTokAccountById,
-        handleUpdateFieldLocal,
+        deleteTikTokAccount,
+        updateTikTokField,
     } = useTikTokAccount();
 
     const { copiedToClipboard } = useCommon();
-    const { notification, modal } = useAntdApp();
+    const { modal } = useAntdApp();
 
     const [formModal, setFormModal] = useState<{
         isShowModal: boolean;
@@ -46,54 +44,12 @@ export default function TikTokPageComponent() {
     }>({ isShowModal: false, _id: undefined });
 
 
-    const handleUpdateData = async (id: string, field: string, value: any) => {
-        if (value === undefined || value === null || value === "") return;
-        const currentAccount = listTikTokAccount.find((acc) => acc._id === id);
-        if (!currentAccount) return;
-
-        const formData: FormTikTokAccountData = {
-            uniqueId: currentAccount.uniqueId,
-            password: currentAccount.password,
-            email: currentAccount.email,
-            phoneNumber: currentAccount.phoneNumber,
-            f2a: currentAccount.f2a,
-            countryCode: currentAccount.countryCode,
-            cookies: currentAccount.cookies,
-            uid: currentAccount.uid,
-            secUid: currentAccount.secUid,
-            nickName: currentAccount.nickName,
-            signature: currentAccount.signature,
-            [field]: value,
-        };
-        const response = await updateTikTokAccount(id, formData);
-        if (response.status) {
-            notification.success({
-                message: "Cập nhật thành công",
-                description: "Dữ liệu đã được cập nhật thành công.",
-            });
-            handleUpdateFieldLocal(id, field as keyof TikTokAccountData, value);
-        } else {
-            notification.error({
-                message: "Cập nhật thất bại",
-                description: response.message || "Đã có lỗi xảy ra khi cập nhật dữ liệu.",
-            });
-        }
+    const handleUpdateData = async (id: string, field: string, value: unknown) => {
+        await updateTikTokField(id, field, value);
     };
 
     const handleDeleteAccount = async (id: string) => {
-        const response = await deleteTikTokAccount(id);
-        if (response.status) {
-            notification.success({
-                message: "Xóa thành công",
-                description: "Tài khoản đã được xóa thành công.",
-            });
-            removeTikTokAccountById(id);
-        } else {
-            notification.error({
-                message: "Xóa thất bại",
-                description: response.message || "Đã có lỗi xảy ra khi xóa tài khoản.",
-            });
-        }
+        await deleteTikTokAccount(id);
     };
 
     const columns: ColumnsType<TikTokAccountData> = [
@@ -307,7 +263,6 @@ export default function TikTokPageComponent() {
                     setFormModal({ isShowModal: false, editData: null })
                 }
                 editData={formModal.editData}
-                onSuccess={fetchTikTokAccounts}
             />
             <TikTokUpdate2FAModal
                 isShowModal={formModal2FA.isShowModal}

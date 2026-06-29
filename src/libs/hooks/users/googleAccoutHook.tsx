@@ -1,52 +1,116 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { GoogleAccount } from "@/libs/interfaces/googleData";
-import { getGoogleAccount } from "@/libs/network/google.api";
+
+import { NO_CACHE_QUERY_OPTIONS } from "@/libs/hooks/queryOptions";
+import { useAntdApp } from "@/libs/hooks/useAntdApp";
+import { GoogleAccountCreateData } from "@/libs/interfaces/googleData";
+import {
+    createGoogleAccount,
+    deleteGoogleAccount,
+    getGoogleAccount,
+    sendMailToOtherEmail,
+    updateGoogleAccount,
+} from "@/libs/network/google.api";
+
+const QUERY_KEY = "google-accounts";
 
 export function useGoogleAccount() {
-    const [accountData, setAccountData] = useState<GoogleAccount[]>([]);
-    const [loadingGoogle, setLoadingGoogle] = useState<boolean>(false);
+    const queryClient = useQueryClient();
+    const { notification } = useAntdApp();
     const [pageGoogle, setPageGoogle] = useState<number>(1);
     const [limitGoogle, setLimitGoogle] = useState<number>(30);
     const [statusGoogle, setStatusGoogle] = useState<string>("");
     const [searchGoogle, setSearchGoogle] = useState<string>("");
-    const [totalPagesGoogle, setTotalPagesGoogle] = useState<number>(0);
-    const [totalItemsGoogle, setTotalItemsGoogle] = useState<number>(0);
 
-    const fetchGoogleAccounts = async () => {
-        setLoadingGoogle(true);
-        const response = await getGoogleAccount(pageGoogle, limitGoogle, statusGoogle, searchGoogle);
-        if (response.status) {
-            setAccountData(response.data.items);
-            setTotalPagesGoogle(response.data.pagination.totalPages);
-            setTotalItemsGoogle(response.data.pagination.total);
-        }
-        setLoadingGoogle(false);
-    }
+    const queryKey = [QUERY_KEY, pageGoogle, limitGoogle, statusGoogle, searchGoogle] as const;
 
-    const removeGoogleAccountById = (id: string) => {
-        setAccountData((prevAccounts) => prevAccounts.filter((account) => account._id !== id));
-    }
+    const invalidateList = () => queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
 
-    const handleUpdateDataLocal = async (id: string, key: keyof GoogleAccount, value: any) => {
-        setAccountData((prevAccounts) => {
-            return prevAccounts.map((account) => {
-                if (account._id === id) {
-                    return { ...account, [key]: value };
-                }
-                return account;
+    const { data: response, isFetching, refetch } = useQuery({
+        queryKey,
+        queryFn: async () => {
+            const result = await getGoogleAccount(pageGoogle, limitGoogle, statusGoogle, searchGoogle);
+            if (!result.status) throw new Error(result.message);
+            return result;
+        },
+        ...NO_CACHE_QUERY_OPTIONS,
+    });
+
+    const createMutation = useMutation({
+        mutationFn: (payload: GoogleAccountCreateData) => createGoogleAccount(payload),
+        onSuccess: (result) => {
+            if (!result.status) {
+                notification.error({
+                    message: "Lỗi",
+                    description: result.message || "Không thể lưu tài khoản Google. Vui lòng thử lại sau.",
+                });
+                return;
+            }
+            notification.success({ message: "Thành công", description: "Lưu tài khoản Google thành công." });
+            invalidateList();
+        },
+    });
+
+    const updateMutation = useMutation({
+        mutationFn: ({ id, field, value }: { id: string; field: string; value: unknown }) =>
+            updateGoogleAccount(id, field, value),
+        onSuccess: (result) => {
+            if (!result.status) {
+                notification.error({
+                    message: "Cập nhật thất bại",
+                    description: result.message || "Đã có lỗi xảy ra khi cập nhật dữ liệu.",
+                });
+                return;
+            }
+            notification.success({
+                message: "Cập nhật thành công",
+                description: "Dữ liệu đã được cập nhật thành công.",
             });
-        });
-    }
+            invalidateList();
+        },
+    });
 
-    const handleAddNewAccount = (newAccount: GoogleAccount) => {
-        setAccountData((prevAccounts) => [newAccount, ...prevAccounts]);
-    }
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) => deleteGoogleAccount(id),
+        onSuccess: (result) => {
+            if (!result.status) {
+                notification.error({
+                    message: "Xóa thất bại",
+                    description: result.message || "Đã có lỗi xảy ra khi xóa tài khoản.",
+                });
+                return;
+            }
+            notification.success({
+                message: "Xóa thành công",
+                description: "Tài khoản đã được xóa thành công.",
+            });
+            invalidateList();
+        },
+    });
+
+    const sendEmailMutation = useMutation({
+        mutationFn: ({
+            fromAccountId,
+            to,
+            subject,
+            message,
+        }: {
+            fromAccountId: string;
+            to: string;
+            subject: string;
+            message: string;
+        }) => sendMailToOtherEmail(fromAccountId, to, subject, message),
+    });
+
+    const updateGoogleField = async (id: string, field: string, value: unknown) => {
+        if (value === undefined || value === null || value === "") return;
+        return updateMutation.mutateAsync({ id, field, value });
+    };
 
     return {
-        accountData,
-        setAccountData,
-        loadingGoogle,
-        fetchGoogleAccounts,
+        accountData: response?.data?.items ?? [],
+        loadingGoogle: isFetching,
+        fetchGoogleAccounts: refetch,
         pageGoogle,
         setPageGoogle,
         limitGoogle,
@@ -55,10 +119,15 @@ export function useGoogleAccount() {
         setStatusGoogle,
         searchGoogle,
         setSearchGoogle,
-        totalPagesGoogle,
-        totalItemsGoogle,
-        handleUpdateDataLocal,
-        removeGoogleAccountById,
-        handleAddNewAccount,
+        totalPagesGoogle: response?.data?.pagination?.totalPages ?? 0,
+        totalItemsGoogle: response?.data?.pagination?.total ?? 0,
+        createGoogleAccount: createMutation.mutateAsync,
+        updateGoogleField,
+        deleteGoogleAccount: deleteMutation.mutateAsync,
+        sendMailToOtherEmail: sendEmailMutation.mutateAsync,
+        isCreatingGoogle: createMutation.isPending,
+        isUpdatingGoogle: updateMutation.isPending,
+        isDeletingGoogle: deleteMutation.isPending,
+        isSendingEmail: sendEmailMutation.isPending,
     };
 }

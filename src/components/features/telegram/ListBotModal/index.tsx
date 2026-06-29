@@ -1,11 +1,9 @@
 import { Button, Input, Modal, Table } from "antd";
-import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { getBotsByTelegramAccount, deleteBot, updateBot, testBotConnection } from "@/libs/network/telegram.api";
-import { useDebounce } from "@/libs/hooks/useDebounce";
+import { useMemo, useCallback } from "react";
 import { useCommon } from "@/libs/hooks/useCommon";
 import debounce from "lodash/debounce";
 import { CopyFilled, DeleteFilled, SendOutlined } from "@ant-design/icons";
+import { useTelegramBot } from "@/libs/hooks/users/telegramBotHook";
 
 interface ListBotModalProp {
     telegramId: string;
@@ -14,112 +12,50 @@ interface ListBotModalProp {
 }
 
 export default function ListBotModal({ isShowModal, onClose, telegramId }: ListBotModalProp) {
-    const { notification } = useAntdApp();
-    const [loading, setLoading] = useState(false);
-    const [botList, setBotList] = useState<Array<any>>([]);
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(10);
-    const [search] = useState("");
-    const [totalItems, setTotalItems] = useState(0);
-    const debouncedSearch = useDebounce(search, 500);
-    const [loadingTest, setLoadingTest] = useState<boolean>(false);
     const { copiedToClipboard } = useCommon();
+    const {
+        botList,
+        loading,
+        page,
+        setPage,
+        limit,
+        setLimit,
+        totalItems,
+        updateBot,
+        deleteBot,
+        testBotConnection,
+        isTestingBot,
+        isDeletingBot,
+    } = useTelegramBot(telegramId, isShowModal);
 
-    const fetchBotList = async () => {
-        setLoading(true);
-        try {
-            const response = await getBotsByTelegramAccount(telegramId, page, limit, debouncedSearch);
-            setLoading(false);
-            if (!response.status) {
-                notification.error({
-                    message: "Lỗi khi tải danh sách bot",
-                    description: response.message || "Đã xảy ra lỗi không xác định.",
-                });
-                return;
-            }
-            setBotList(response.data.items);
-            setTotalItems(response.data.pagination.total);
-        } catch {
-            setLoading(false);
-            notification.error({
-                message: "Lỗi khi tải danh sách bot",
-                description: "Đã xảy ra lỗi không xác định.",
-            });
-        }
-    };
-
-    const apiUpdateBot = useCallback(async (botId: string, updatedData: any) => {
-        const response = await updateBot(
-            telegramId,
+    const apiUpdateBot = useCallback(async (botId: string, updatedData: { botToken: string; botUsername: string; note: string }) => {
+        await updateBot({
             botId,
-            updatedData.botToken,
-            updatedData.botUsername,
-            updatedData.note
-        );
-        if (!response.status) {
-            notification.error({
-                message: "Lỗi khi cập nhật bot",
-                description: response.message || "Đã xảy ra lỗi không xác định.",
-            });
-        } else {
-            notification.success({
-                message: "Cập nhật bot thành công",
-            });
-        }
-    }, [telegramId, notification]);
+            botToken: updatedData.botToken,
+            botUsername: updatedData.botUsername,
+            note: updatedData.note,
+        });
+    }, [updateBot]);
+
     const debouncedApiUpdate = useMemo(() => debounce(apiUpdateBot, 800), [apiUpdateBot]);
 
-    const handleUpdateBot = (botId: string, key: string, value: any) => {
-        let updatedRecord: any = null;
-        setBotList(prev => prev.map(bot => {
-            if (bot._id === botId) {
-                updatedRecord = { ...bot, [key]: value };
-                return updatedRecord;
-            }
-            return bot;
-        }));
-        if (updatedRecord) {
-            debouncedApiUpdate(botId, updatedRecord);
-        }
+    const handleUpdateBot = (botId: string, key: string, value: string) => {
+        const currentBot = botList.find((bot) => bot._id === botId);
+        if (!currentBot) return;
+        const updatedRecord = { ...currentBot, [key]: value };
+        debouncedApiUpdate(botId, {
+            botToken: updatedRecord.botToken,
+            botUsername: updatedRecord.botUsername,
+            note: updatedRecord.note,
+        });
     };
-
-    const handleDeleteBot = async (botId: string) => {
-        const response = await deleteBot(telegramId, botId);
-        if (response.status) {
-            notification.success({
-                message: "Xóa bot thành công",
-            });
-            setBotList(prev => prev.filter(bot => bot._id !== botId));
-        } else {
-            notification.error({
-                message: "Lỗi khi xóa bot",
-                description: response.message || "Đã xảy ra lỗi không xác định.",
-            });
-        }
-    }
-
-    const handleTestBot = async (botId: string) => {
-        setLoadingTest(true);
-        const response = await testBotConnection(telegramId, botId);
-        setLoadingTest(false);
-        if (response.status) {
-            notification.success({
-                message: "Gửi tin nhắn test thành công",
-            });
-        } else {
-            notification.error({
-                message: "Lỗi khi gửi tin nhắn test",
-                description: response.message || "Đã xảy ra lỗi không xác định.",
-            });
-        }
-    }
 
     const columns = [
         {
             title: 'STT',
             dataIndex: 'index',
             key: 'index',
-            render: (_: any, __: any, index: number) => (page - 1) * limit + index + 1,
+            render: (_: unknown, __: unknown, index: number) => (page - 1) * limit + index + 1,
             width: 70,
         },
         {
@@ -127,9 +63,9 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
             dataIndex: 'botUsername',
             key: 'botUsername',
             width: 250,
-            render: (text: string, record: any) => (
+            render: (text: string, record: { _id: string }) => (
                 <Input
-                    value={text}
+                    defaultValue={text}
                     onChange={(e) => handleUpdateBot(record._id, 'botUsername', e.target.value)}
                 />
             )
@@ -138,10 +74,10 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
             title: 'Token',
             dataIndex: 'botToken',
             key: 'botToken',
-            render: (text: string, record: any) => (
+            render: (text: string, record: { _id: string }) => (
                 <div className="flex items-center gap-2">
                     <Input
-                        value={text}
+                        defaultValue={text}
                         onChange={(e) => handleUpdateBot(record._id, 'botToken', e.target.value)}
                     />
                     <Button
@@ -155,9 +91,9 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
             title: 'Ghi chú',
             dataIndex: 'note',
             key: 'note',
-            render: (text: string, record: any) => (
+            render: (text: string, record: { _id: string }) => (
                 <Input
-                    value={text}
+                    defaultValue={text}
                     onChange={(e) => handleUpdateBot(record._id, 'note', e.target.value)}
                 />
             ),
@@ -166,30 +102,25 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
         {
             title: '',
             key: 'action',
-            render: (_: any, record: any) => (
+            render: (_: unknown, record: { _id: string }) => (
                 <div className="flex gap-2">
                     <Button
-                        loading={loadingTest}
-                        onClick={() => handleTestBot(record._id)}
+                        loading={isTestingBot}
+                        onClick={() => testBotConnection(record._id)}
                         type="primary"
                         icon={<SendOutlined />}
                     />
                     <Button
-                        onClick={() => handleDeleteBot(record._id)}
+                        onClick={() => deleteBot(record._id)}
                         danger
+                        loading={isDeletingBot}
                         icon={<DeleteFilled />}
                     />
                 </div>
             ),
             width: 120,
         }
-    ]
-
-    useEffect(() => {
-        if (isShowModal) {
-            fetchBotList();
-        }
-    }, [isShowModal, page, debouncedSearch, limit]);
+    ];
 
     return (
         <Modal
@@ -209,8 +140,8 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
                     current: page,
                     pageSize: limit,
                     total: totalItems,
-                    onChange: (page, pageSize) => {
-                        setPage(page);
+                    onChange: (newPage, pageSize) => {
+                        setPage(newPage);
                         setLimit(pageSize || limit);
                     },
                     showTotal(total, range) {
@@ -224,6 +155,5 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
                 columns={columns}
             />
         </Modal>
-
-    )
+    );
 }

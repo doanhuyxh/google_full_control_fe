@@ -57,6 +57,7 @@
         "eslint no-lone-blocks": "off",
         "react/no-unescaped-entities": "off",
         "eslint no-mixed-spaces-and-tabs": "smart-tabs",
-        "@next/next/no-img-element": "off"
+        "@next/next/no-img-element": "off",
+        "no-unsafe-functions": "off"
     }
 }

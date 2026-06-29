@@ -1,9 +1,8 @@
 "use client"
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { Form, Input, Modal, Select, Spin } from "antd";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
-import { sendMailToOtherEmail } from "@/libs/network/google.api";
 import TiptapComponent from "@/components/common/TextEditer/TiptapEditor"
 
 interface GoogleFormSendEmailProps {
@@ -15,8 +14,7 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
 
     const [formData] = Form.useForm();
     const { notification } = useAntdApp();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const { accountData, setSearchGoogle, loadingGoogle, searchGoogle, fetchGoogleAccounts, setLimitGoogle } = useGoogleAccount();
+    const { accountData, setSearchGoogle, loadingGoogle, searchGoogle, setLimitGoogle, sendMailToOtherEmail, isSendingEmail } = useGoogleAccount();
 
     const handleSendEmail = async () => {
         try {
@@ -30,18 +28,16 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
                 });
                 return;
             }
-            setIsLoading(true);
             const results = await Promise.all(
                 listEmailRecipient.map(recipientEmail =>
-                    sendMailToOtherEmail(
-                        emailIdSent,
-                        recipientEmail,
-                        values.subject,
-                        values.message
-                    )
+                    sendMailToOtherEmail({
+                        fromAccountId: emailIdSent,
+                        to: recipientEmail,
+                        subject: values.subject,
+                        message: values.message,
+                    })
                 )
             );
-            setIsLoading(false);
             const failedResults = results.filter(result => !result.status);
             if (failedResults.length === 0) {
                 notification.success({
@@ -71,12 +67,9 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
     }, [formData]);
 
     useEffect(() => {
-        if (!isShowModal) {
-            return;
-        }
+        if (!isShowModal) return;
         setLimitGoogle(100);
-        fetchGoogleAccounts();
-    }, [isShowModal, searchGoogle]);
+    }, [isShowModal, setLimitGoogle]);
 
     if (!isShowModal) {
         return null
@@ -87,7 +80,7 @@ export default function GoogleFormSendEmail({ isShowModal, onCloseModal }: Googl
         title={<p className="text-center">Send Email</p>}
         open={isShowModal}
         onCancel={onCloseModal}
-        confirmLoading={isLoading}
+        confirmLoading={isSendingEmail}
         onOk={handleSendEmail}
         okText="Send Email"
         destroyOnHidden

@@ -11,8 +11,6 @@ import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScr
 import { formatUtcToLocal } from "@/libs/utils/timeUtils";
 import { Edit3 } from "lucide-react";
 import { DeleteFilled, BarChartOutlined } from "@ant-design/icons";
-import { deleteCloudinaryAccount, getCloudinaryUsage } from "@/libs/network/cloudinary.api";
-import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import CloudinaryUsageModal from "./CloudinaryUsageModal";
 
 export default function CloudinaryComponent() {
@@ -25,56 +23,32 @@ export default function CloudinaryComponent() {
         limitCloudinary,
         setLimitCloudinary,
         setSearchCloudinary,
-        removeCloudinaryAccountById,
-        addCloudinaryAccount,
+        deleteCloudinaryAccount,
+        fetchCloudinaryUsage,
         loadingCloudinary,
+        isDeletingCloudinary,
+        isLoadingCloudinaryUsage,
+        cloudinaryUsageData,
     } = useCloudinaryAccount();
-    const { notification } = useAntdApp();
+
     const [isShowModalUsage, setIsShowModalUsage] = useState<boolean>(false);
     const [accountViewUsage, setAccountViewUsage] = useState<CloudinaryData | null>(null);
-    const [dataCloudinaryUsage, setDataCloudinaryUsage] = useState<any | null>(null);
-    const [waitLoadingDataCloudinaryUsage, setWaitLoadingDataCloudinaryUsage] = useState<boolean>(false);
-
     const [isModalOpenForm, setIsModalOpenForm] = useState(false);
     const [dataForm, setDataForm] = useState<CloudinaryData | null>(null);
 
     const handleFormModal = (data: CloudinaryData | null) => {
         setIsModalOpenForm(true);
         setDataForm(data);
-    }
-
-    const handleDeleteAccount = async (id: string) => {
-        const response = await deleteCloudinaryAccount(id);
-        if (!response.status) {
-            notification.error({
-                message: "Error",
-                description: response.message || "An error occurred while deleting the Cloudinary account.",
-            });
-            return;
-        }
-        removeCloudinaryAccountById(id);
-        notification.success({
-            message: "Success",
-            description: "Cloudinary account has been deleted successfully.",
-        });
-    }
+    };
 
     const handleShowUsageModal = async (cloudinaryId: string) => {
-        setWaitLoadingDataCloudinaryUsage(true);
         const account = accountData.find(acc => acc._id === cloudinaryId) || null;
         setAccountViewUsage(account);
-        const response = await getCloudinaryUsage(cloudinaryId);
-        setWaitLoadingDataCloudinaryUsage(false);
-        if (!response.status) {
-            notification.error({
-                message: "Error",
-                description: response.message || "An error occurred while fetching Cloudinary usage data.",
-            });
-            return;
+        const response = await fetchCloudinaryUsage(cloudinaryId);
+        if (response.status) {
+            setIsShowModalUsage(true);
         }
-        setDataCloudinaryUsage(response.data);
-        setIsShowModalUsage(true);
-    }
+    };
 
     const clolumns = [
         {
@@ -108,7 +82,7 @@ export default function CloudinaryComponent() {
                             type="dashed"
                             onClick={() => handleShowUsageModal(record._id)}
                             icon={<BarChartOutlined />}
-                            loading={waitLoadingDataCloudinaryUsage}
+                            loading={isLoadingCloudinaryUsage}
                         />
                     </Tooltip>
                     <Tooltip title="Xóa">
@@ -118,12 +92,13 @@ export default function CloudinaryComponent() {
                             okText="Xóa"
                             cancelText="Hủy"
                             okButtonProps={{ danger: true }}
-                            onConfirm={() => handleDeleteAccount(record._id)}
+                            onConfirm={() => deleteCloudinaryAccount(record._id)}
                         >
                             <Button
                                 size="small"
                                 type="primary"
                                 danger
+                                loading={isDeletingCloudinary}
                                 icon={<DeleteFilled size={16} />}
                             />
                         </Popconfirm>
@@ -168,12 +143,11 @@ export default function CloudinaryComponent() {
                 isModalOpen={isModalOpenForm}
                 setIsModalOpen={setIsModalOpenForm}
                 data={dataForm}
-                addCloudinaryAccount={addCloudinaryAccount}
             />
             <CloudinaryUsageModal
                 isModalOpen={isShowModalUsage}
                 handleCancel={() => setIsShowModalUsage(false)}
-                data={dataCloudinaryUsage}
+                data={cloudinaryUsageData}
                 account={accountViewUsage}
             />
         </Card>

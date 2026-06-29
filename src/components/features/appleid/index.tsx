@@ -7,9 +7,7 @@ import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScr
 import { formatUtcToLocal } from "@/libs/utils/timeUtils";
 import { Edit3 } from "lucide-react";
 import { DeleteFilled } from "@ant-design/icons";
-import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import AppleIdData, { QuestionSecurity } from "@/libs/interfaces/appleIdData";
-import { deleteAppleIDAccount } from "@/libs/network/appleId.api";
 import { useAppleIdHook } from "@/libs/hooks/users/appleIdHook";
 import AppleIdControls from "./AppleIdControls";
 import AppleIdFormModal from "./AppleIdFormModal";
@@ -25,13 +23,11 @@ export default function AppleIdComponent() {
         limitAppleId,
         setLimitAppleId,
         setSearchAppleId,
-        removeAppleIdAccountById,
-        addAppleIdAccount,
+        deleteAppleIdAccount,
         loadingAppleId,
+        isDeletingAppleId,
     } = useAppleIdHook();
-    const { notification } = useAntdApp();
     const { countries } = useCountries();
-
 
     const [isModalOpenForm, setIsModalOpenForm] = useState(false);
     const [dataForm, setDataForm] = useState<AppleIdData | null>(null);
@@ -39,24 +35,7 @@ export default function AppleIdComponent() {
     const handleFormModal = (data: AppleIdData | null) => {
         setIsModalOpenForm(true);
         setDataForm(data);
-    }
-
-    const handleDeleteAccount = async (id: string) => {
-        const response = await deleteAppleIDAccount(id);
-        if (!response.status) {
-            notification.error({
-                message: "Error",
-                description: response.message || "An error occurred while deleting the Apple ID account.",
-            });
-            return;
-        }
-        removeAppleIdAccountById(id);
-        notification.success({
-            message: "Success",
-            description: "Apple ID account has been deleted successfully.",
-        });
-    }
-
+    };
 
     const clolumns = [
         {
@@ -118,12 +97,13 @@ export default function AppleIdComponent() {
                             okText="Xóa"
                             cancelText="Hủy"
                             okButtonProps={{ danger: true }}
-                            onConfirm={() => handleDeleteAccount(record._id)}
+                            onConfirm={() => deleteAppleIdAccount(record._id)}
                         >
                             <Button
                                 type="primary"
                                 danger
                                 size="small"
+                                loading={isDeletingAppleId}
                                 icon={<DeleteFilled size={16} />}
                             />
                         </Popconfirm>
@@ -168,7 +148,6 @@ export default function AppleIdComponent() {
                 isModalOpen={isModalOpenForm}
                 setIsModalOpen={setIsModalOpenForm}
                 data={dataForm}
-                addAppleIdAccount={addAppleIdAccount}
             />
         </Card>
     );

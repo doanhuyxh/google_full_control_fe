@@ -1,7 +1,7 @@
 "use client";
 
 import { Table, Avatar, Button, Input, Select, Tooltip, Modal, Card } from "antd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DeleteOutlined } from "@ant-design/icons";
 import { Copy, Download, History, Lock, QrCode, Upload } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
@@ -11,7 +11,6 @@ import { useCommon } from "@/libs/hooks/useCommon";
 import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { GoogleAccount, GoogleAccountStatusOptions } from "@/libs/interfaces/googleData";
-import { updateGoogleAccount, deleteGoogleAccount } from "@/libs/network/google.api";
 import GoogleAccountFilter from "./filter";
 import GoogleFormModal from "./form";
 import GoogleFormSendEmail from "./form-send-email";
@@ -34,10 +33,8 @@ export default function GoogleAccountComponent() {
         searchGoogle,
         setSearchGoogle,
         totalItemsGoogle,
-        fetchGoogleAccounts,
-        removeGoogleAccountById,
-        handleUpdateDataLocal,
-        handleAddNewAccount
+        updateGoogleField,
+        deleteGoogleAccount,
     } = useGoogleAccount();
 
     const [isShowModalHistoryEmail, setIsShowModalHistoryEmail] = useState<boolean>(false);
@@ -99,23 +96,10 @@ export default function GoogleAccountComponent() {
             return;
         }
 
-        const response = await updateGoogleAccount(id, "cookies", cookieValue);
-        if (response.status) {
-            notification.success({
-                message: "Cập nhật thành công",
-                description: "Cookies đã được cập nhật.",
-                placement: "topRight",
-            });
-            handleUpdateDataLocal(id, "cookies", cookieValue);
+        const response = await updateGoogleField(id, "cookies", cookieValue);
+        if (response?.status) {
             setCookieModal({ isShow: false, id: undefined, cookies: "" });
-            return;
         }
-
-        notification.error({
-            message: "Cập nhật thất bại",
-            description: response.message || "Đã có lỗi xảy ra khi cập nhật cookies.",
-            placement: "topRight",
-        });
     };
 
     const handleViewPassword = async (encodedPassword: string) => {
@@ -123,47 +107,16 @@ export default function GoogleAccountComponent() {
         await copiedToClipboard(decoded);
     };
 
-    const handleUpdateData = async (id: string, field: string, value: any) => {
-        if (value === undefined || value === null || value === '') return;
-        const response = await updateGoogleAccount(id, field, value);
-        if (response.status) {
-            notification.success({
-                message: 'Cập nhật thành công',
-                description: 'Dữ liệu đã được cập nhật thành công.',
-                placement: 'topRight',
-            });
-            if (field === 'currentPassword' || field === 'cookies') {
-                handleUpdateDataLocal(id, field as keyof GoogleAccount, value);
-            }
-        } else {
-            notification.error({
-                message: 'Cập nhật thất bại',
-                description: response.message || 'Đã có lỗi xảy ra khi cập nhật dữ liệu.',
-                placement: 'topRight',
-            });
-        }
-    }
+    const handleUpdateData = async (id: string, field: string, value: unknown) => {
+        await updateGoogleField(id, field, value);
+    };
+
+    const handleDeleteAccount = async (id: string) => {
+        await deleteGoogleAccount(id);
+    };
 
     const handleFormModal = () => {
         setFormDataModal({ isShowModal: true, _id: undefined });
-    }
-
-    const handleDeleteAccount = async (id: string) => {
-        const response = await deleteGoogleAccount(id);
-        if (response.status) {
-            notification.success({
-                message: 'Xóa thành công',
-                description: 'Tài khoản đã được xóa thành công.',
-                placement: 'topRight',
-            });
-            removeGoogleAccountById(id);
-        } else {
-            notification.error({
-                message: 'Xóa thất bại',
-                description: response.message || 'Đã có lỗi xảy ra khi xóa tài khoản.',
-                placement: 'topRight',
-            });
-        }
     }
 
     const handleShowEmailHistoryModal = (googleAccountId: string, emailName?: string) => {
@@ -433,10 +386,6 @@ export default function GoogleAccountComponent() {
         }
     ]
 
-    useEffect(() => {
-        fetchGoogleAccounts();
-    }, [pageGoogle, limitGoogle, statusGoogle, searchGoogle]);
-
     return (
         <Card className="w-full p-6 rounded-lg shadow-lg">
             <GoogleAccountFilter
@@ -476,7 +425,6 @@ export default function GoogleAccountComponent() {
                 isShowModal={formDataModal.isShowModal}
                 onCloseModal={() => setFormDataModal({ isShowModal: false })}
                 accountId={formDataModal._id}
-                newAccount={handleAddNewAccount}
             />
             <GoogleFormSendEmail
                 isShowModal={isShowModelSendEmail}
