@@ -1,14 +1,31 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider, App, theme as antdTheme } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import vi_VN from 'antd/locale/vi_VN';
 import { antdComponentConfig } from "@/libs/constants/colors";
 
-export default function AntdProvider({ children, initialTheme }: { children: React.ReactNode; initialTheme: "light" | "dark" }) {
-    const [theme, setTheme] = useState<"light" | "dark">(initialTheme);
+type AppTheme = "light" | "dark";
+
+const ThemeContext = createContext<{
+    theme: AppTheme;
+    setTheme: (theme: AppTheme) => void;
+} | null>(null);
+
+export function useAppTheme() {
+    const context = useContext(ThemeContext);
+
+    if (!context) {
+        throw new Error("useAppTheme must be used within AntdProvider");
+    }
+
+    return context;
+}
+
+export default function AntdProvider({ children, initialTheme }: { children: React.ReactNode; initialTheme: AppTheme }) {
+    const [theme, setTheme] = useState<AppTheme>(initialTheme);
 
     useEffect(() => {
         setTheme(initialTheme);
@@ -45,6 +62,7 @@ export default function AntdProvider({ children, initialTheme }: { children: Rea
     }, []);
 
     return (
+        <ThemeContext.Provider value={{ theme, setTheme }}>
         <AntdRegistry>
             <ConfigProvider
                 locale={vi_VN}
@@ -77,5 +95,6 @@ export default function AntdProvider({ children, initialTheme }: { children: Rea
                 </App>
             </ConfigProvider>
         </AntdRegistry>
+        </ThemeContext.Provider>
     )
 }

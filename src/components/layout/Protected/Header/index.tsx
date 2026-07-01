@@ -1,18 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Layout, Switch, Dropdown, Avatar, MenuProps, Space, Button, theme } from "antd";
 import { MoonOutlined, SunOutlined, UserOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
 import RealTimeClock from "@/components/common/RealTimeClock";
+import { useAppTheme } from "@/components/providers/antd-provider";
 
 const { Header } = Layout;
 
 const THEME_COOKIE_MAX_AGE = 31536000;
-
-function getThemeFromCookie(): "light" | "dark" {
-    const match = document.cookie.match(/(?:^|;\s*)theme=(light|dark)(?:;|$)/);
-    return match?.[1] === "dark" ? "dark" : "light";
-}
 
 function applyTheme(nextTheme: "light" | "dark") {
     document.documentElement.classList.toggle("dark", nextTheme === "dark");
@@ -27,16 +23,9 @@ export default function AppHeader({
     onOpenMobileMenu?: () => void;
 }) {
     const { token } = theme.useToken();
+    const { theme: appTheme, setTheme } = useAppTheme();
     const [menuOpen, setMenuOpen] = useState(false);
-    const [isDark, setIsDark] = useState(
-        () => typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
-    );
-
-    useEffect(() => {
-        const savedTheme = getThemeFromCookie();
-        applyTheme(savedTheme);
-        setIsDark(savedTheme === "dark");
-    }, []);
+    const isDark = appTheme === "dark";
 
 
     const itemsProfile: MenuProps["items"] = [
@@ -73,7 +62,7 @@ export default function AppHeader({
     const handleToggleDarkMode = (checked: boolean) => {
         const nextTheme = checked ? "light" : "dark";
         applyTheme(nextTheme);
-        setIsDark(nextTheme === "dark");
+        setTheme(nextTheme);
     };
 
     return (
