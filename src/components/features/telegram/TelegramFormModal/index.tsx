@@ -1,5 +1,5 @@
-import { createTelegramAccount, getTelegramAccountDetail, updateTelegramAccount } from "@/libs/network/telegram.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
+import { useTelegramAccount, useTelegramAccountDetail } from "@/libs/hooks/users/telegramAccountHook";
 import { Modal, Form, Input, InputNumber } from "antd";
 import { useEffect } from "react";
 
@@ -7,68 +7,36 @@ interface TelegramFormModalProps {
     isVisible: boolean;
     teleId: string;
     onClose: () => void;
-    onAddData: (data: any) => void;
-    onUpdateData: (data: any) => void;
 }
 
-export default function TelegramFormModal({ isVisible, teleId, onClose, onAddData, onUpdateData }: TelegramFormModalProps) {
+export default function TelegramFormModal({ isVisible, teleId, onClose }: TelegramFormModalProps) {
     const [form] = Form.useForm();
     const { notification } = useAntdApp();
-
-    const initData = async () => {
-        const response = await getTelegramAccountDetail(teleId);
-        if (response.status) {
-            form.setFieldsValue(response.data);
-        } else {
-            notification.error({
-                message: 'Lấy chi tiết tài khoản Telegram thất bại',
-                description: response.message || 'Không thể kết nối đến máy chủ',
-            });
-        }
-    }
+    const { createTelegramAccount, updateTelegramAccount, isCreatingTelegram, isUpdatingTelegram } = useTelegramAccount();
+    const { data: detailData } = useTelegramAccountDetail(teleId, isVisible && !!teleId);
 
     useEffect(() => {
         if (isVisible && form) {
             form.resetFields();
-            if (teleId) {
-                initData();
+            if (teleId && detailData) {
+                form.setFieldsValue(detailData);
             }
         }
-    }, [isVisible, teleId, form]);
+    }, [isVisible, teleId, detailData, form]);
 
     const handleSave = async () => {
         try {
             const values = await form.validateFields();
-            let dataSave: any = null;
             if (teleId) {
-                const response = await updateTelegramAccount(teleId, values);
-                if (!response.status) {
-                    notification.error({
-                        message: 'Cập nhật tài khoản Telegram thất bại',
-                        description: response.message || 'Không thể kết nối đến máy chủ',
-                    });
-                    return;
-                }
-                dataSave = response.data;
+                const response = await updateTelegramAccount({ teleId, formData: values });
+                if (!response.status) return;
             } else {
                 const response = await createTelegramAccount(values);
-                if (!response.status) {
-                    notification.error({
-                        message: 'Tạo tài khoản Telegram thất bại',
-                        description: response.message || 'Không thể kết nối đến máy chủ',
-                    });
-                    return;
-                }
-                dataSave = response.data;
-            }
-            if (teleId) {
-                onUpdateData(dataSave);
-            } else {
-                onAddData(dataSave);
+                if (!response.status) return;
             }
             onClose();
-        } catch (error: any) {
-            if (error.errorFields) {
+        } catch (error: unknown) {
+            if (error && typeof error === "object" && "errorFields" in error) {
                 notification.error({
                     message: 'Lỗi xác thực',
                     description: 'Vui lòng kiểm tra lại các trường thông tin.',
@@ -80,7 +48,7 @@ export default function TelegramFormModal({ isVisible, teleId, onClose, onAddDat
                 });
             }
         }
-    }
+    };
 
     return (
         <Modal
@@ -91,6 +59,7 @@ export default function TelegramFormModal({ isVisible, teleId, onClose, onAddDat
             open={isVisible}
             onCancel={onClose}
             onOk={handleSave}
+            confirmLoading={isCreatingTelegram || isUpdatingTelegram}
         >
             <Form
                 form={form}

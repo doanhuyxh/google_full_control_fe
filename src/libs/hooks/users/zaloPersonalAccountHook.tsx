@@ -1,66 +1,79 @@
-import { useCallback, useEffect, useState } from "react";
+import {
+    ZaloPersonalDataFormData,
+    ZaloPersonalDataUpdateData,
+} from "@/libs/interfaces/zaloPersonal";
+import { useAntdApp } from "@/libs/hooks/useAntdApp";
 
-import { useDebounce } from "@/libs/hooks/useDebounce";
-import ZaloPersonalData from "@/libs/intefaces/zaloPersonal";
-import { getZaloPersonalAccount } from "@/libs/network/zalo-personal.api";
+import { useZaloPersonalAccountQueries } from "./queries/zaloPersonalAccountQueries";
+import { notifyMutationResult } from "./useMutationNotifications";
 
 export function useZaloPersonalAccount() {
-    const [accountData, setAccountData] = useState<ZaloPersonalData[]>([]);
-    const [loadingZaloPersonal, setLoadingZaloPersonal] = useState<boolean>(false);
-    const [pageZaloPersonal, setPageZaloPersonal] = useState<number>(1);
-    const [limitZaloPersonal, setLimitZaloPersonal] = useState<number>(30);
-    const [searchZaloPersonal, setSearchZaloPersonal] = useState<string>("");
-    const [totalPagesZaloPersonal, setTotalPagesZaloPersonal] = useState<number>(0);
-    const [totalItemsZaloPersonal, setTotalItemsZaloPersonal] = useState<number>(0);
-    const debouncedSearch = useDebounce<string>(searchZaloPersonal, 600);
+    const { notification } = useAntdApp();
+    const {
+        createMutation,
+        updateMutation,
+        deleteMutation,
+        loginViaCookieMutation,
+        getLoginInfoMutation,
+        ...rest
+    } = useZaloPersonalAccountQueries();
 
-    const fetchZaloPersonalAccounts = useCallback(async () => {
-        setLoadingZaloPersonal(true);
-        const response = await getZaloPersonalAccount(pageZaloPersonal, limitZaloPersonal, debouncedSearch);
-        if (response.status) {
-            setAccountData(response.data.items);
-            setTotalPagesZaloPersonal(response.data.pagination.totalPages);
-            setTotalItemsZaloPersonal(response.data.pagination.total);
+    const createZaloPersonalAccount = async (payload: ZaloPersonalDataFormData) =>
+        notifyMutationResult(await createMutation.mutateAsync(payload), notification, {
+            successMessage: "Success",
+            successDescription: "Data saved successfully",
+            errorMessage: "Error",
+        });
+
+    const updateZaloPersonalAccount = async (args: {
+        id: string;
+        payload: ZaloPersonalDataUpdateData;
+    }) =>
+        notifyMutationResult(await updateMutation.mutateAsync(args), notification, {
+            successMessage: "Success",
+            successDescription: "Data saved successfully",
+            errorMessage: "Error",
+        });
+
+    const deleteZaloPersonalAccount = async (id: string) =>
+        notifyMutationResult(await deleteMutation.mutateAsync(id), notification, {
+            successMessage: "Success",
+            successDescription: "Zalo Personal account has been deleted successfully.",
+            errorMessage: "Error",
+            errorDescription: "An error occurred while deleting the Zalo Personal account.",
+        });
+
+    const loginZaloViaCookie = async (id: string) =>
+        notifyMutationResult(await loginViaCookieMutation.mutateAsync(id), notification, {
+            successMessage: "Success",
+            successDescription: "Login via cookie initiated successfully.",
+            errorMessage: "Error",
+            errorDescription: "An error occurred while logging in via cookie.",
+        });
+
+    const getZaloLoginInfo = async (id: string) => {
+        const result = await getLoginInfoMutation.mutateAsync(id);
+        if (!result.status) {
+            notification.error({
+                message: "Error",
+                description: result.message || "An error occurred while fetching account details.",
+            });
         }
-        setLoadingZaloPersonal(false);
-    }, [pageZaloPersonal, limitZaloPersonal, debouncedSearch]);
-
-    const removeZaloPersonalAccountById = (id: string) => {
-        setAccountData((prevAccounts) => prevAccounts.filter((account) => account._id !== id));
-    }
-
-    const addZaloPersonalAccount = (newAccount: ZaloPersonalData) => {
-        setAccountData((prevAccounts) => [newAccount, ...prevAccounts]);
-    }
-    
-    const updateZaloPersonalAccount = (updatedAccount: ZaloPersonalData) => {
-        setAccountData((prevAccounts) =>
-            prevAccounts.map((account) =>
-                account._id === updatedAccount._id ? updatedAccount : account
-            )
-        );
-    }
-
-    useEffect(() => {
-        fetchZaloPersonalAccounts();
-    }, [fetchZaloPersonalAccounts]);
-
+        return result;
+    };
 
     return {
-        accountData,
-        setAccountData,
-        loadingZaloPersonal,
-        fetchZaloPersonalAccounts,
-        pageZaloPersonal,
-        setPageZaloPersonal,
-        limitZaloPersonal,
-        setLimitZaloPersonal,
-        searchZaloPersonal,
-        setSearchZaloPersonal,
-        totalPagesZaloPersonal,
-        totalItemsZaloPersonal,
-        removeZaloPersonalAccountById,
-        addZaloPersonalAccount,
+        ...rest,
+        createZaloPersonalAccount,
         updateZaloPersonalAccount,
+        deleteZaloPersonalAccount,
+        loginZaloViaCookie,
+        getZaloLoginInfo,
+        isCreatingZalo: createMutation.isPending,
+        isUpdatingZalo: updateMutation.isPending,
+        isDeletingZalo: deleteMutation.isPending,
+        isLoggingInZalo: loginViaCookieMutation.isPending,
+        isLoadingZaloLoginInfo: getLoginInfoMutation.isPending,
+        zaloLoginInfoData: getLoginInfoMutation.data?.status ? getLoginInfoMutation.data.data : null,
     };
 }

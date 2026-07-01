@@ -4,22 +4,29 @@ import { useState } from "react";
 import { Layout, Switch, Dropdown, Avatar, MenuProps, Space, Button, theme } from "antd";
 import { MoonOutlined, SunOutlined, UserOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
 import RealTimeClock from "@/components/common/RealTimeClock";
+import { useAppTheme } from "@/components/providers/antd-provider";
+
 const { Header } = Layout;
 
+const THEME_COOKIE_MAX_AGE = 31536000;
+
+function applyTheme(nextTheme: "light" | "dark") {
+    document.documentElement.classList.toggle("dark", nextTheme === "dark");
+    document.cookie = `theme=${nextTheme}; path=/; max-age=${THEME_COOKIE_MAX_AGE}`;
+}
+
 export default function AppHeader({
-    onToggleTheme,
-    isDark,
     isMobile,
     onOpenMobileMenu,
 }: {
-    onToggleTheme?: (value: boolean) => void;
-    isDark?: boolean;
     isMobile?: boolean;
     onOpenMobileMenu?: () => void;
 }) {
     const { token } = theme.useToken();
+    const { theme: appTheme, setTheme } = useAppTheme();
     const [menuOpen, setMenuOpen] = useState(false);
-    const [localDark, setLocalDark] = useState(isDark || false);
+    const isDark = appTheme === "dark";
+
 
     const itemsProfile: MenuProps["items"] = [
         {
@@ -52,11 +59,11 @@ export default function AppHeader({
         },
     ];
 
-    const handleTongleDarkMode = () => {
-        onToggleTheme?.(!localDark);
-        setLocalDark(!localDark);
-        document.cookie = `theme=${!localDark ? "dark" : "light"}; path=/; max-age=31536000`;
-    }
+    const handleToggleDarkMode = (checked: boolean) => {
+        const nextTheme = checked ? "light" : "dark";
+        applyTheme(nextTheme);
+        setTheme(nextTheme);
+    };
 
     return (
         <Header
@@ -88,8 +95,8 @@ export default function AppHeader({
                     size="small"
                     checkedChildren={<SunOutlined />}
                     unCheckedChildren={<MoonOutlined />}
-                    checked={!localDark}
-                    onChange={handleTongleDarkMode}
+                    checked={!isDark}
+                    onChange={handleToggleDarkMode}
                 />
                 <Dropdown
                     menu={{ items: itemsProfile }}

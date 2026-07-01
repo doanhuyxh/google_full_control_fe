@@ -1,57 +1,45 @@
-import { useCallback, useEffect, useState } from "react";
+import { FormAppleIdData } from "@/libs/interfaces/appleIdData";
+import { useAntdApp } from "@/libs/hooks/useAntdApp";
 
-import { useDebounce } from "@/libs/hooks/useDebounce";
-import AppleIdData from "@/libs/intefaces/appleIdData";
-import { getAppleIDAccounts } from "@/libs/network/appleId.api";
-
+import { useAppleIdQueries } from "./queries/appleIdQueries";
+import { notifyMutationResult } from "./useMutationNotifications";
 
 export function useAppleIdHook() {
-    const [accountData, setAccountData] = useState<AppleIdData[]>([]);
-    const [loadingAppleId, setLoadingAppleId] = useState<boolean>(false);
-    const [pageAppleId, setPageAppleId] = useState<number>(1);
-    const [limitAppleId, setLimitAppleId] = useState<number>(30);
-    const [searchAppleId, setSearchAppleId] = useState<string>("");
-    const [totalPagesAppleId, setTotalPagesAppleId] = useState<number>(0);
-    const [totalItemsAppleId, setTotalItemsAppleId] = useState<number>(0);
-    const debouncedSearch = useDebounce<string>(searchAppleId, 600);
+    const { notification } = useAntdApp();
+    const {
+        createMutation,
+        updateMutation,
+        deleteMutation,
+        ...rest
+    } = useAppleIdQueries();
 
-    const fetchAppleIdAccounts = useCallback(async () => {
-        setLoadingAppleId(true);
-        const response = await getAppleIDAccounts(pageAppleId, limitAppleId, debouncedSearch);
-        if (response.status) {
-            setAccountData(response.data.items);
-            setTotalPagesAppleId(response.data.pagination.totalPages);
-            setTotalItemsAppleId(response.data.pagination.total);
-        }
-        setLoadingAppleId(false);
-    }, [pageAppleId, limitAppleId, debouncedSearch]);
-    const removeAppleIdAccountById = (id: string) => {
-        setAccountData((prevAccounts) => prevAccounts.filter((account) => account._id !== id));
-    }
+    const createAppleIdAccount = async (payload: FormAppleIdData) =>
+        notifyMutationResult(await createMutation.mutateAsync(payload), notification, {
+            successMessage: "Thành công",
+            successDescription: "Tài khoản Apple ID đã được tạo mới thành công.",
+        });
 
-    const addAppleIdAccount = (newAccount: AppleIdData) => {
-        setAccountData((prevAccounts) => [newAccount, ...prevAccounts]);
-    }
+    const updateAppleIdAccount = async (args: { id: string; payload: FormAppleIdData }) =>
+        notifyMutationResult(await updateMutation.mutateAsync(args), notification, {
+            successMessage: "Thành công",
+            successDescription: "Tài khoản Apple ID đã được cập nhật thành công.",
+        });
 
-    useEffect(() => {
-        fetchAppleIdAccounts();
-    }, [fetchAppleIdAccounts]);
-
+    const deleteAppleIdAccount = async (id: string) =>
+        notifyMutationResult(await deleteMutation.mutateAsync(id), notification, {
+            successMessage: "Success",
+            successDescription: "Apple ID account has been deleted successfully.",
+            errorMessage: "Error",
+            errorDescription: "An error occurred while deleting the Apple ID account.",
+        });
 
     return {
-        accountData,
-        setAccountData,
-        loadingAppleId,
-        fetchAppleIdAccounts,
-        pageAppleId,
-        setPageAppleId,
-        limitAppleId,
-        setLimitAppleId,
-        searchAppleId,
-        setSearchAppleId,
-        totalPagesAppleId,
-        totalItemsAppleId,
-        removeAppleIdAccountById,
-        addAppleIdAccount,
+        ...rest,
+        createAppleIdAccount,
+        updateAppleIdAccount,
+        deleteAppleIdAccount,
+        isCreatingAppleId: createMutation.isPending,
+        isUpdatingAppleId: updateMutation.isPending,
+        isDeletingAppleId: deleteMutation.isPending,
     };
 }

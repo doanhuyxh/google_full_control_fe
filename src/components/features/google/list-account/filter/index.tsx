@@ -1,5 +1,5 @@
 import { useDebounce } from "@/libs/hooks/useDebounce";
-import { GoogleAccountStatusOptions } from "@/libs/intefaces/googleData";
+import { GoogleAccountStatusOptions } from "@/libs/interfaces/googleData";
 import { Button, Input, Select, Tooltip } from "antd";
 import { MailPlusIcon, PlusCircle, SettingsIcon } from "lucide-react";
 import { useEffect, useState } from "react";

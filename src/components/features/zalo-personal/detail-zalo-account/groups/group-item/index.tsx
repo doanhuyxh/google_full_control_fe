@@ -1,6 +1,6 @@
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
-import { ProfilesMemberGroup, ZaloGroupInfo, ZaloLoginInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ProfilesMemberGroup, ZaloGroupInfo, ZaloLoginInfo } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 import { getMemberInZaloGroup } from "@/libs/network/zalo-personal.api";
 import { getAllValueFromObject, merchObjectToObject } from "@/libs/utils/JsUtils";
 import { formatTimestampToLocal } from "@/libs/utils/timeUtils";

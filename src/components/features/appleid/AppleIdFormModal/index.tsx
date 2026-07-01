@@ -4,73 +4,45 @@ import { Modal, Form, Input, DatePicker, Button, Space, Card, Row, Col, Select }
 import { useEffect } from "react";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import AppleIdData, { FormAppleIdData } from "@/libs/intefaces/appleIdData";
-import { createAppleIDAccount, updateAppleIDAccount } from "@/libs/network/appleId.api";
+import AppleIdData, { FormAppleIdData } from "@/libs/interfaces/appleIdData";
+import { useAppleIdHook } from "@/libs/hooks/users/appleIdHook";
 import useCountries from "@/libs/hooks/useCountries";
 
 interface AppleIdFormModalProps {
     isModalOpen: boolean;
     setIsModalOpen: (isOpen: boolean) => void;
     data: AppleIdData | null;
-    addAppleIdAccount?: (newAccount: AppleIdData) => void;
-    refreshData?: () => void; // Thêm tùy chọn refresh nếu cần
 }
 
 export default function AppleIdFormModal({
     isModalOpen,
     setIsModalOpen,
     data,
-    addAppleIdAccount
 }: AppleIdFormModalProps) {
     const [formData] = Form.useForm();
-    const { notification } = useAntdApp();
     const { countries } = useCountries();
+    const { createAppleIdAccount, updateAppleIdAccount, isCreatingAppleId, isUpdatingAppleId } = useAppleIdHook();
 
     const handleOk = async () => {
         try {
             const values = await formData.validateFields();
-
-            // Chuẩn bị dữ liệu để gửi đi (Convert dayjs object thành string cho birthday)
             const payload: FormAppleIdData = {
                 ...values,
                 birthday: values.birthday ? dayjs(values.birthday).format("YYYY-MM-DD") : "",
             };
 
-            let response: any;
             if (data) {
-                response = await updateAppleIDAccount(data._id, payload);
+                const response = await updateAppleIdAccount({ id: data._id, payload });
+                if (!response.status) return;
             } else {
-                response = await createAppleIDAccount(payload);
-            }
-
-            if (!response.status) {
-                notification.error({
-                    message: "Lỗi",
-                    description: response.message || "Đã xảy ra lỗi khi lưu tài khoản Apple ID.",
-                });
-                return;
-            }
-
-            notification.success({
-                message: "Thành công",
-                description: `Tài khoản Apple ID đã được ${data ? "cập nhật" : "tạo mới"} thành công.`,
-            });
-
-            if (!data && addAppleIdAccount) {
-                addAppleIdAccount(response.data);
+                const response = await createAppleIdAccount(payload);
+                if (!response.status) return;
             }
 
             formData.resetFields();
             setIsModalOpen(false);
-        } catch (error: any) {
-            if (error.errorFields && error.errorFields.length > 0) {
-                return;
-            }
-            notification.error({
-                message: "Lỗi",
-                description: error instanceof Error ? error.message : "Đã xảy ra lỗi hệ thống.",
-            });
+        } catch (error: unknown) {
+            if (error && typeof error === "object" && "errorFields" in error) return;
         }
     };
 
@@ -82,7 +54,6 @@ export default function AppleIdFormModal({
     useEffect(() => {
         if (isModalOpen) {
             if (data) {
-                // Khi edit, cần convert string date sang dayjs object cho DatePicker
                 formData.setFieldsValue({
                     ...data,
                     birthday: data.birthday ? dayjs(data.birthday) : null,
@@ -98,6 +69,7 @@ export default function AppleIdFormModal({
             open={isModalOpen}
             onCancel={handleCancel}
             onOk={handleOk}
+            confirmLoading={isCreatingAppleId || isUpdatingAppleId}
             title={
                 <p className="text-center text-lg font-semibold">
                     {data ? "Cập nhật tài khoản Apple ID" : "Thêm mới tài khoản Apple ID"}
@@ -105,7 +77,7 @@ export default function AppleIdFormModal({
             }
             okText="Lưu"
             cancelText="Hủy"
-            width={800} // Tăng độ rộng modal vì form dài
+            width={800}
         >
             <Form
                 form={formData}
@@ -114,7 +86,6 @@ export default function AppleIdFormModal({
                 className="w-full"
                 autoComplete="off"
             >
-                {/* --- Thông tin đăng nhập --- */}
                 <h3 className="mb-3 font-semibold text-gray-700 border-b pb-1">Thông tin đăng nhập</h3>
                 <Row gutter={16}>
                     <Col span={12}>
@@ -137,7 +108,6 @@ export default function AppleIdFormModal({
                     </Col>
                 </Row>
 
-                {/* --- Thông tin cá nhân --- */}
                 <h3 className="mb-3 mt-2 font-semibold text-gray-700 border-b pb-1">Thông tin cá nhân</h3>
                 <Row gutter={16}>
                     <Col span={12}>
@@ -210,7 +180,6 @@ export default function AppleIdFormModal({
                 <Form.Item label="Địa chỉ" name="address">
                     <Input.TextArea rows={2} placeholder="Nhập địa chỉ" />
                 </Form.Item>
-                {/* --- Câu hỏi bảo mật --- */}
                 <h3 className="mb-3 mt-2 font-semibold text-gray-700 border-b pb-1">Câu hỏi bảo mật</h3>
                 <Form.List name="questionSecurity">
                     {(fields, { add, remove }) => (

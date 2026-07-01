@@ -1,7 +1,7 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
-import ApiResponse, { ApiZaloResponse, PaginatedResponse } from "@/libs/intefaces/apiResponseData";
-import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData, ZaloPersonalMessageHistoryData } from "@/libs/intefaces/zaloPersonal";
-import { ChangedProfiles, ZaloGroup, ZaloLoginInfo, ZaloPersonalGroupData, ZaloPersonalGroupMemberData, ZaloThreadType } from "../intefaces/zaloPersonal/zaloAccData";
+import ApiResponse, { ApiZaloResponse, PaginatedResponse } from "@/libs/interfaces/apiResponseData";
+import ZaloPersonalData, { ZaloPersonalDataFormData, ZaloPersonalDataUpdateData, ZaloPersonalMessageHistoryData } from "@/libs/interfaces/zaloPersonal";
+import { ChangedProfiles, ZaloGroup, ZaloLoginInfo, ZaloPersonalGroupData, ZaloPersonalGroupMemberData, ZaloThreadType } from "../interfaces/zaloPersonal/zaloAccData";
 
 export async function getZaloPersonalAccount(page: number, limit: number, search: string): Promise<ApiResponse<PaginatedResponse<ZaloPersonalData>>> {
     const queryParams = new URLSearchParams();

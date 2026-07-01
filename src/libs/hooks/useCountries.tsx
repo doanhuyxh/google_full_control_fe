@@ -1,5 +1,5 @@
 import {useState, useEffect, useCallback} from 'react';
-import CountryData from '@/libs/intefaces/countriesData';
+import CountryData from '@/libs/interfaces/countriesData';
 import { useAntdApp } from './useAntdApp';
 import useLocalStorage from './useLocalStorage';
 
@@ -14,9 +14,14 @@ export default function useCountries() {
                 setLoading(false);
                 return;
             }
-            const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2,cca3,flags,ccn3,cioc,independent,status,unMember');
+            const response = await fetch(
+                'https://api.restcountries.com/countries/v5/codes.alpha_2/ca?pretty=1',
+                { headers: { 'Authorization': 'Bearer rc_live_663c3af4a29043ff93c75c43c04c137a' } }
+            );
+            
             if (!response.ok) {
-                throw new Error('Failed to fetch countries data');
+                
+                return;
             }
             const data: CountryData[] = await response.json();
             setCountries(data);

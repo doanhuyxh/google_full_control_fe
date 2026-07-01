@@ -1,8 +1,6 @@
-import { createBot } from "@/libs/network/telegram.api";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
+import { useTelegramBot } from "@/libs/hooks/users/telegramBotHook";
 import { Form, Input, Modal } from "antd";
-import { useState } from "react";
-
 
 interface BotFormModalProp {
     telegramId: string;
@@ -13,46 +11,32 @@ interface BotFormModalProp {
 export default function BotFormModal({ isShowModal, onClose, telegramId }: BotFormModalProp) {
     const [form] = Form.useForm();
     const { notification } = useAntdApp();
-    const [loading, setLoading] = useState(false);
+    const { createBot, isCreatingBot } = useTelegramBot(telegramId, isShowModal);
 
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            setLoading(true);
-            const response = await createBot(
-                telegramId,
-                values.botToken,
-                values.botUsername,
-                values.note || ""
-            );
-            setLoading(false);
-            if (!response.status) {
-                notification.error({
-                    message: "Lỗi khi tạo bot",
-                    description: response.message || "Đã xảy ra lỗi không xác định.",
-                });
-                return;
-            }
-            notification.success({
-                message: "Tạo bot thành công",
+            const response = await createBot({
+                botToken: values.botToken,
+                botUsername: values.botUsername,
+                note: values.note || "",
             });
+            if (!response.status) return;
             onClose();
             form.resetFields();
-        } catch (error: any) {
-            if (error.errorFields) {
+        } catch (error: unknown) {
+            if (error && typeof error === "object" && "errorFields" in error) {
                 notification.error({
                     message: "Vui lòng điền đủ các trường thông tin",
-                })
-                return;
+                });
             } else {
                 notification.error({
                     message: 'Lỗi không xác định',
                     description: 'Đã xảy ra lỗi khi lưu dữ liệu.',
                 });
             }
-
-        };
-    }
+        }
+    };
 
     const handleCancel = () => {
         form.resetFields();
@@ -68,7 +52,7 @@ export default function BotFormModal({ isShowModal, onClose, telegramId }: BotFo
             onCancel={handleCancel}
             okText="Tạo mới"
             cancelText="Hủy"
-            confirmLoading={loading}
+            confirmLoading={isCreatingBot}
         >
             <Form
                 form={form}

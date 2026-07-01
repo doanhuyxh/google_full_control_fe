@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
-import ApiResponse, { PaginatedResponse } from "@/libs/intefaces/apiResponseData";
-import { BotTelegramAccountData, TelegramAccountData } from "../intefaces/telegramData";
+import ApiResponse, { PaginatedResponse } from "@/libs/interfaces/apiResponseData";
+import { BotTelegramAccountData, TelegramAccountData } from "../interfaces/telegramData";
 
 
 

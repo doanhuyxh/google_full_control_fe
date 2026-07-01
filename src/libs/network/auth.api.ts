@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
-import ApiResponse from "../intefaces/apiResponseData";
-import { AuthResponse, LoginHistoryResponse, UserProfile } from "../intefaces/authData";
+import ApiResponse from "../interfaces/apiResponseData";
+import { AuthResponse, LoginHistoryResponse, UserProfile } from "../interfaces/authData";
 
 export async function loginApi(email: string, password: string, ipAddress: string, userAgent: string, coordinates: { latitude: number; longitude: number }): Promise<ApiResponse<AuthResponse>> {
     return await fetcherBackEnd<ApiResponse<AuthResponse>>("/api/auth/login", {

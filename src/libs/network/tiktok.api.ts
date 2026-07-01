@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
-import ApiResponse, { PaginatedResponse } from "../intefaces/apiResponseData";
-import TikTokAccountData, { FormTikTokAccountData } from "../intefaces/tiktokData";
+import ApiResponse, { PaginatedResponse } from "../interfaces/apiResponseData";
+import TikTokAccountData, { FormTikTokAccountData } from "../interfaces/tiktokData";
 
 
 export async function getTikTokAccount(page: number, limit: number, search: string): Promise<ApiResponse<PaginatedResponse<TikTokAccountData>>> {

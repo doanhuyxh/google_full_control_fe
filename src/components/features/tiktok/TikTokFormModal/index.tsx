@@ -1,22 +1,20 @@
 import { Form, Modal, Input, Select, Row, Col, Divider } from "antd";
-import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { addTikTokAccount, updateTikTokAccount } from "@/libs/network/tiktok.api";
-import { FormTikTokAccountData } from "@/libs/intefaces/tiktokData";
+import { FormTikTokAccountData } from "@/libs/interfaces/tiktokData";
 import useCountries from "@/libs/hooks/useCountries";
 import { useEffect } from "react";
-import TikTokAccountData from "@/libs/intefaces/tiktokData";
+import TikTokAccountData from "@/libs/interfaces/tiktokData";
+import { useTikTokAccount } from "@/libs/hooks/users/tiktokAccountHook";
 
 interface TikTokFormModalProps {
     isShowModal: boolean;
     onCloseModal: () => void;
-    onSuccess?: () => void;
     editData?: TikTokAccountData | null;
 }
 
-export default function TikTokFormModal({ isShowModal, onCloseModal, onSuccess, editData }: TikTokFormModalProps) {
+export default function TikTokFormModal({ isShowModal, onCloseModal, editData }: TikTokFormModalProps) {
     const [formData] = Form.useForm();
-    const { notification } = useAntdApp();
     const { countries } = useCountries();
+    const { createTikTokAccount, updateTikTokAccount, isCreatingTikTok, isUpdatingTikTok } = useTikTokAccount();
 
     useEffect(() => {
         if (editData) {
@@ -41,35 +39,18 @@ export default function TikTokFormModal({ isShowModal, onCloseModal, onSuccess, 
         try {
             const values: FormTikTokAccountData = await formData.validateFields();
 
-            let response;
             if (editData) {
-                response = await updateTikTokAccount(editData._id, values);
+                const response = await updateTikTokAccount({ id: editData._id, payload: values });
+                if (!response.status) return;
             } else {
-                response = await addTikTokAccount(values);
+                const response = await createTikTokAccount(values);
+                if (!response.status) return;
             }
 
-            if (response.status) {
-                notification.success({
-                    message: "Thành công",
-                    description: editData
-                        ? "Cập nhật tài khoản TikTok thành công."
-                        : "Thêm tài khoản TikTok thành công.",
-                });
-                formData.resetFields();
-                onSuccess?.();
-                onCloseModal();
-            } else {
-                notification.error({
-                    message: "Lỗi",
-                    description: response.message || "Không thể lưu tài khoản TikTok. Vui lòng thử lại sau.",
-                });
-            }
-        } catch (error) {
-            console.log("Failed to save TikTok account:", error);
-            notification.error({
-                message: "Lỗi",
-                description: "Vui lòng kiểm tra lại thông tin đã nhập.",
-            });
+            formData.resetFields();
+            onCloseModal();
+        } catch {
+            // validation error
         }
     };
 
@@ -87,22 +68,16 @@ export default function TikTokFormModal({ isShowModal, onCloseModal, onSuccess, 
                     onCloseModal();
                 }}
                 onOk={handleSave}
+                confirmLoading={isCreatingTikTok || isUpdatingTikTok}
                 width={1200}
             >
                 <Row gutter={24}>
-                    {/* CỘT 1: THÔNG TIN ĐỊNH DANH (Dữ liệu hệ thống) */}
                     <Col span={12} className="border-r border-gray-100">
                         <Divider orientation="left" plain>Thông tin hệ thống</Divider>
-                        <Form.Item
-                            label="ID tài khoản (UID)"
-                            name="uid"
-                        >
+                        <Form.Item label="ID tài khoản (UID)" name="uid">
                             <Input placeholder="Ví dụ: 706..." />
                         </Form.Item>
-                        <Form.Item
-                            label="SecUid"
-                            name="secUid"
-                        >
+                        <Form.Item label="SecUid" name="secUid">
                             <Input placeholder="Mã bảo mật định danh" />
                         </Form.Item>
                         <Form.Item
@@ -112,20 +87,13 @@ export default function TikTokFormModal({ isShowModal, onCloseModal, onSuccess, 
                         >
                             <Input placeholder="@username" />
                         </Form.Item>
-                        <Form.Item
-                            label="Signature (Chữ ký)"
-                            name="signature"
-                        >
+                        <Form.Item label="Signature (Chữ ký)" name="signature">
                             <Input.TextArea placeholder="Nội dung bio/signature" rows={2} />
                         </Form.Item>
                     </Col>
-                    {/* CỘT 2: THÔNG TIN CÁ NHÂN & BẢO MẬT */}
                     <Col span={12}>
                         <Divider orientation="left" plain>Thông tin đăng nhập</Divider>
-                        <Form.Item
-                            label="Nickname"
-                            name="nickName"
-                        >
+                        <Form.Item label="Nickname" name="nickName">
                             <Input placeholder="Tên hiển thị" />
                         </Form.Item>
                         <Form.Item label="Mật khẩu" name="password">
@@ -162,7 +130,6 @@ export default function TikTokFormModal({ isShowModal, onCloseModal, onSuccess, 
                             </Col>
                         </Row>
                     </Col>
-                    {/* DÀNH RIÊNG CHO COOKIES */}
                     <Col span={24}>
                         <Divider />
                         <Form.Item

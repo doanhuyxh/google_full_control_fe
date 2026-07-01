@@ -1,5 +1,5 @@
 import { useCommon } from "@/libs/hooks/useCommon";
-import { ProfilesMemberGroup } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ProfilesMemberGroup } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 import { formatTimestampToLocal } from "@/libs/utils/timeUtils";
 import { Avatar, Button, Card, Space, Tag, Typography } from "antd";
 

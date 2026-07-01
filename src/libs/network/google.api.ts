@@ -1,6 +1,6 @@
 import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
-import ApiResponse, { PaginatedResponse } from "../intefaces/apiResponseData";
-import { GoogleAccount, GoogleAccountCreateData } from "../intefaces/googleData";
+import ApiResponse, { PaginatedResponse } from "../interfaces/apiResponseData";
+import { GoogleAccount, GoogleAccountCreateData } from "../interfaces/googleData";
 
 export async function getGoogleAccount(page: number, limit: number, status: string, search: string): Promise<ApiResponse<PaginatedResponse<GoogleAccount>>> {
     const queryParams = new URLSearchParams();

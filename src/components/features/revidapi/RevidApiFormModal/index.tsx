@@ -1,25 +1,22 @@
 import { Form, Input, Modal } from "antd";
 import { useEffect } from "react";
 
-import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import RevapiData, { FormRevapiData } from "@/libs/intefaces/revapiData";
-import { createRevapiData, updateRevapiData } from "@/libs/network/revapi.api";
+import RevapiData, { FormRevapiData } from "@/libs/interfaces/revapiData";
+import { useRevidApiAccount } from "@/libs/hooks/users/revidapiAccountHook";
 
 interface RevidApiFormModalProps {
     isShowModal: boolean;
     onCloseModal: () => void;
-    onSuccess?: () => void;
     editData?: RevapiData | null;
 }
 
 export default function RevidApiFormModal({
     isShowModal,
     onCloseModal,
-    onSuccess,
     editData,
 }: RevidApiFormModalProps) {
     const [formData] = Form.useForm();
-    const { notification } = useAntdApp();
+    const { createRevidApiAccount, updateRevidApiAccount, isCreatingRevidApi, isUpdatingRevidApi } = useRevidApiAccount();
 
     useEffect(() => {
         if (editData) {
@@ -38,31 +35,18 @@ export default function RevidApiFormModal({
         try {
             const values: FormRevapiData = await formData.validateFields();
 
-            const response = editData
-                ? await updateRevapiData(editData._id, values)
-                : await createRevapiData(values);
-
-            if (response.status) {
-                notification.success({
-                    message: "Thành công",
-                    description: editData
-                        ? "Cập nhật tài khoản Revid API thành công."
-                        : "Thêm tài khoản Revid API thành công.",
-                });
-                formData.resetFields();
-                onSuccess?.();
-                onCloseModal();
+            if (editData) {
+                const response = await updateRevidApiAccount({ id: editData._id, payload: values });
+                if (!response.status) return;
             } else {
-                notification.error({
-                    message: "Lỗi",
-                    description: response.message || "Không thể lưu tài khoản Revid API. Vui lòng thử lại sau.",
-                });
+                const response = await createRevidApiAccount(values);
+                if (!response.status) return;
             }
+
+            formData.resetFields();
+            onCloseModal();
         } catch {
-            notification.error({
-                message: "Lỗi",
-                description: "Vui lòng kiểm tra lại thông tin đã nhập.",
-            });
+            // validation error
         }
     };
 
@@ -80,6 +64,7 @@ export default function RevidApiFormModal({
                     onCloseModal();
                 }}
                 onOk={handleSave}
+                confirmLoading={isCreatingRevidApi || isUpdatingRevidApi}
                 width={700}
                 okText="Lưu"
                 cancelText="Hủy"
@@ -103,17 +88,11 @@ export default function RevidApiFormModal({
                     <Input.Password placeholder="Nhập mật khẩu" />
                 </Form.Item>
 
-                <Form.Item
-                    label="Access Token"
-                    name="access_token"
-                >
+                <Form.Item label="Access Token" name="access_token">
                     <Input.TextArea placeholder="Nhập access token" rows={3} />
                 </Form.Item>
 
-                <Form.Item
-                    label="API Key"
-                    name="api_key"
-                >
+                <Form.Item label="API Key" name="api_key">
                     <Input placeholder="Nhập API key" />
                 </Form.Item>
             </Modal>

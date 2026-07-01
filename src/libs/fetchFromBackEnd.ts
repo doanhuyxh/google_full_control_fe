@@ -1,5 +1,5 @@
 const baseURL = process.env.NEXT_PUBLIC_BACK_END_API_BASE_URL || '';
-import ApiResponse from '@/libs/intefaces/apiResponseData';
+import ApiResponse from '@/libs/interfaces/apiResponseData';
 import { RcFile } from 'antd/es/upload';
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 

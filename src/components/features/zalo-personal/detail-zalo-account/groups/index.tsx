@@ -1,6 +1,6 @@
 "use client";
 
-import { ZaloGroupInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ZaloGroupInfo } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 import { leaveZaloGroup } from "@/libs/network/zalo-personal.api";
 import { LogoutOutlined, MessageOutlined } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";

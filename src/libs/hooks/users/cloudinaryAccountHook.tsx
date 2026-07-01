@@ -1,57 +1,62 @@
-import { useCallback, useEffect, useState } from "react";
+import { CloudinaryDataFormData } from "@/libs/interfaces/cloudinaryData";
+import { useAntdApp } from "@/libs/hooks/useAntdApp";
 
-import { useDebounce } from "@/libs/hooks/useDebounce";
-import { getAccountCloudinary } from "@/libs/network/cloudinary.api";
-import { CloudinaryData } from "@/libs/intefaces/cloudinaryData";
+import { useCloudinaryAccountQueries } from "./queries/cloudinaryAccountQueries";
+import { notifyMutationResult } from "./useMutationNotifications";
 
 export function useCloudinaryAccount() {
-    const [accountData, setAccountData] = useState<CloudinaryData[]>([]);
-    const [loadingCloudinary, setLoadingCloudinary] = useState<boolean>(false);
-    const [pageCloudinary, setPageCloudinary] = useState<number>(1);
-    const [limitCloudinary, setLimitCloudinary] = useState<number>(30);
-    const [searchCloudinary, setSearchCloudinary] = useState<string>("");
-    const [totalPagesCloudinary, setTotalPagesCloudinary] = useState<number>(0);
-    const [totalItemsCloudinary, setTotalItemsCloudinary] = useState<number>(0);
-    const debouncedSearch = useDebounce<string>(searchCloudinary, 600);
+    const { notification } = useAntdApp();
+    const {
+        createMutation,
+        updateMutation,
+        deleteMutation,
+        usageMutation,
+        ...rest
+    } = useCloudinaryAccountQueries();
 
-    const fetchCloudinaryAccounts = useCallback(async () => {
-        setLoadingCloudinary(true);
-        const response = await getAccountCloudinary(pageCloudinary, limitCloudinary, debouncedSearch);
-        if (response.status) {
-            setAccountData(response.data.items);
-            setTotalPagesCloudinary(response.data.pagination.totalPages);
-            setTotalItemsCloudinary(response.data.pagination.total);
+    const createCloudinaryAccount = async (payload: CloudinaryDataFormData) =>
+        notifyMutationResult(await createMutation.mutateAsync(payload), notification, {
+            successMessage: "Success",
+            successDescription: "Cloudinary account has been created successfully.",
+            errorMessage: "Error",
+        });
+
+    const updateCloudinaryAccount = async (args: { id: string; payload: CloudinaryDataFormData }) =>
+        notifyMutationResult(await updateMutation.mutateAsync(args), notification, {
+            successMessage: "Success",
+            successDescription: "Cloudinary account has been updated successfully.",
+            errorMessage: "Error",
+        });
+
+    const deleteCloudinaryAccount = async (id: string) =>
+        notifyMutationResult(await deleteMutation.mutateAsync(id), notification, {
+            successMessage: "Success",
+            successDescription: "Cloudinary account has been deleted successfully.",
+            errorMessage: "Error",
+            errorDescription: "An error occurred while deleting the Cloudinary account.",
+        });
+
+    const fetchCloudinaryUsage = async (id: string) => {
+        const result = await usageMutation.mutateAsync(id);
+        if (!result.status) {
+            notification.error({
+                message: "Error",
+                description: result.message || "An error occurred while fetching Cloudinary usage data.",
+            });
         }
-        setLoadingCloudinary(false);
-    }, [pageCloudinary, limitCloudinary, debouncedSearch]);
-
-    const removeCloudinaryAccountById = (id: string) => {
-        setAccountData((prevAccounts) => prevAccounts.filter((account) => account._id !== id));
-    }
-
-    const addCloudinaryAccount = (newAccount: CloudinaryData) => {
-        setAccountData((prevAccounts) => [newAccount, ...prevAccounts]);
-    }
-
-    useEffect(() => {
-        fetchCloudinaryAccounts();
-    }, [fetchCloudinaryAccounts]);
-
+        return result;
+    };
 
     return {
-        accountData,
-        setAccountData,
-        loadingCloudinary,
-        fetchCloudinaryAccounts,
-        pageCloudinary,
-        setPageCloudinary,
-        limitCloudinary,
-        setLimitCloudinary,
-        searchCloudinary,
-        setSearchCloudinary,
-        totalPagesCloudinary,
-        totalItemsCloudinary,
-        removeCloudinaryAccountById,
-        addCloudinaryAccount,
+        ...rest,
+        createCloudinaryAccount,
+        updateCloudinaryAccount,
+        deleteCloudinaryAccount,
+        fetchCloudinaryUsage,
+        isCreatingCloudinary: createMutation.isPending,
+        isUpdatingCloudinary: updateMutation.isPending,
+        isDeletingCloudinary: deleteMutation.isPending,
+        isLoadingCloudinaryUsage: usageMutation.isPending,
+        cloudinaryUsageData: usageMutation.data?.status ? usageMutation.data.data : null,
     };
 }

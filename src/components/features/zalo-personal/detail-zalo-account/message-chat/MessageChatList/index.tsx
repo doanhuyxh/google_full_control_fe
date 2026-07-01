@@ -1,7 +1,7 @@
 import { Empty, Spin } from "antd";
 import { useEffect, useRef } from "react";
 import MessageChatItem from "../MessageChatItem";
-import { ChatMessage } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ChatMessage } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 
 interface MessageChatListProps {
     isLoadingMessages: boolean;

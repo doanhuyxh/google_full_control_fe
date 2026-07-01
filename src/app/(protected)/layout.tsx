@@ -1,19 +1,15 @@
-import { cookies } from "next/headers";
-import { ReactNode } from "react";
-import AntdLayout from "@/components/layout/Protected";
-import ReduxProvider from "@/libs/redux/ReduxProvider";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
+"use client";
 
-export default async function AdminLayout({ children }: { children: ReactNode }) {
-    const cookieStore = await cookies();
-    const theme = cookieStore.get("theme")?.value || "light";
+import { ReactNode } from "react";
+import ReduxProvider from "@/components/providers/ReduxProvider";
+import ProtectedLayout from "@/components/layout/Protected";
+
+export default function AdminLayout({ children }: { children: ReactNode }) {
     return (
-        <AntdRegistry>
+        <ProtectedLayout>
             <ReduxProvider>
-                <AntdLayout initialTheme={theme}>
-                    {children}
-                </AntdLayout>
+                {children}
             </ReduxProvider>
-        </AntdRegistry>
+        </ProtectedLayout>
     )
 }

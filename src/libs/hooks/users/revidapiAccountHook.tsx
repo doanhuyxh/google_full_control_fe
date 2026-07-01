@@ -1,76 +1,125 @@
-import { useEffect, useState } from "react";
+import { FormRevapiData } from "@/libs/interfaces/revapiData";
+import { useAntdApp } from "@/libs/hooks/useAntdApp";
 
-import RevapiData from "@/libs/intefaces/revapiData";
-import { getRevapiData } from "@/libs/network/revapi.api";
-import { useDebounce } from "../useDebounce";
-import { useAntdApp } from "../useAntdApp";
+import { useRevidApiAccountQueries } from "./queries/revidapiAccountQueries";
+import { notifyMutationResult, useQueryFetchErrorNotification } from "./useMutationNotifications";
 
 export function useRevidApiAccount() {
-    const [listRevidApiAccount, setListRevidApiAccount] = useState<RevapiData[]>([]);
-    const [loadingRevidApi, setLoadingRevidApi] = useState<boolean>(false);
-    const [pageRevidApi, setPageRevidApi] = useState<number>(1);
-    const [limitRevidApi, setLimitRevidApi] = useState<number>(30);
-    const [searchRevidApi, setSearchRevidApi] = useState<string>("");
-    const [totalPagesRevidApi, setTotalPagesRevidApi] = useState<number>(0);
-    const [totalItemsRevidApi, setTotalItemsRevidApi] = useState<number>(0);
-    const debouncedSearch = useDebounce<string>(searchRevidApi, 600);
     const { notification } = useAntdApp();
+    const {
+        createMutation,
+        updateMutation,
+        deleteMutation,
+        bulkLoginMutation,
+        bulkApiKeyMutation,
+        bulkCreditMutation,
+        syncAllMutation,
+        importMutation,
+        updateRevidApiField: updateRevidApiFieldQuery,
+        isFetchError,
+        fetchError,
+        ...rest
+    } = useRevidApiAccountQueries();
 
-    const fetchRevidApiAccounts = async () => {
-        setLoadingRevidApi(true);
-        const response = await getRevapiData(pageRevidApi, limitRevidApi, debouncedSearch);
-        if (response.status) {
-            setListRevidApiAccount(response.data.items);
-            setTotalPagesRevidApi(response.data.pagination.totalPages);
-            setTotalItemsRevidApi(response.data.pagination.total);
-        } else {
-            notification.error({
-                message: "Lấy danh sách Revid API thất bại",
-                description: response.message || "Không thể kết nối đến máy chủ",
-            });
-        }
-        setLoadingRevidApi(false);
+    useQueryFetchErrorNotification(
+        isFetchError,
+        fetchError,
+        "Lấy danh sách Revid API thất bại"
+    );
+
+    const createRevidApiAccount = async (payload: FormRevapiData) =>
+        notifyMutationResult(await createMutation.mutateAsync(payload), notification, {
+            successMessage: "Thành công",
+            successDescription: "Thêm tài khoản Revid API thành công.",
+        });
+
+    const updateRevidApiAccount = async (args: { id: string; payload: FormRevapiData }) =>
+        notifyMutationResult(await updateMutation.mutateAsync(args), notification, {
+            successMessage: "Cập nhật thành công",
+            successDescription: "Cập nhật tài khoản Revid API thành công.",
+            errorMessage: "Cập nhật thất bại",
+            errorDescription: "Đã có lỗi xảy ra khi cập nhật dữ liệu.",
+        });
+
+    const deleteRevidApiAccount = async (id: string) =>
+        notifyMutationResult(await deleteMutation.mutateAsync(id), notification, {
+            successMessage: "Xóa thành công",
+            successDescription: "Tài khoản đã được xóa thành công.",
+            errorMessage: "Xóa thất bại",
+            errorDescription: "Đã có lỗi xảy ra khi xóa tài khoản.",
+        });
+
+    const bulkLoginRevidApi = async (ids: string[]) => {
+        const results = await bulkLoginMutation.mutateAsync(ids);
+        const successCount = results.filter((r) => r.status).length;
+        notification.info({
+            message: "Kết quả Login active",
+            description: `Thành công ${successCount}/${results.length}`,
+        });
+        return results;
     };
 
-    const removeRevidApiAccountById = (id: string) => {
-        setListRevidApiAccount((prev) => prev.filter((account) => account._id !== id));
+    const bulkApiKeyRevidApi = async (ids: string[]) => {
+        const results = await bulkApiKeyMutation.mutateAsync(ids);
+        const successCount = results.filter((r) => r.status).length;
+        notification.info({
+            message: "Kết quả API Key active",
+            description: `Thành công ${successCount}/${results.length}`,
+        });
+        return results;
     };
 
-    const updateRevidApiAccountLocal = (updatedAccount: RevapiData) => {
-        setListRevidApiAccount((prev) =>
-            prev.map((account) =>
-                account._id === updatedAccount._id ? updatedAccount : account
-            )
-        );
+    const bulkCreditRevidApi = async (ids: string[]) => {
+        const results = await bulkCreditMutation.mutateAsync(ids);
+        const successCount = results.filter((r) => r.status).length;
+        notification.info({
+            message: "Kết quả Lấy Credit",
+            description: `Thành công ${successCount}/${results.length}`,
+        });
+        return results;
     };
 
-    const handleUpdateFieldLocal = (id: string, field: keyof RevapiData, value: string | number) => {
-        setListRevidApiAccount((prev) =>
-            prev.map((account) =>
-                account._id === id ? { ...account, [field]: value } : account
-            )
-        );
+    const syncAllRevidApi = async (ids: string[]) => {
+        const results = await syncAllMutation.mutateAsync(ids);
+        const successCount = results.filter((r) => r.success).length;
+        const failedCount = results.length - successCount;
+        const missingTokenCount = results.filter((r) => r.reason === "missing_access_token").length;
+        notification.info({
+            message: "Kết quả Đồng bộ tất cả",
+            description: `Thành công ${successCount}/${results.length}. Thất bại ${failedCount}/${results.length}. Thiếu access_token: ${missingTokenCount}.`,
+        });
+        return results;
     };
 
-    useEffect(() => {
-        fetchRevidApiAccounts();
-    }, [debouncedSearch, pageRevidApi, limitRevidApi]);
+    const updateRevidApiField = async (id: string, field: string, value: string) => {
+        const result = await updateRevidApiFieldQuery(id, field, value);
+        if (!result) return;
+        return notifyMutationResult(result, notification, {
+            successMessage: "Cập nhật thành công",
+            successDescription: "Cập nhật tài khoản Revid API thành công.",
+            errorMessage: "Cập nhật thất bại",
+            errorDescription: "Đã có lỗi xảy ra khi cập nhật dữ liệu.",
+        });
+    };
 
     return {
-        listRevidApiAccount,
-        setListRevidApiAccount,
-        loadingRevidApi,
-        fetchRevidApiAccounts,
-        pageRevidApi,
-        setPageRevidApi,
-        limitRevidApi,
-        setLimitRevidApi,
-        searchRevidApi,
-        setSearchRevidApi,
-        totalPagesRevidApi,
-        totalItemsRevidApi,
-        removeRevidApiAccountById,
-        updateRevidApiAccountLocal,
-        handleUpdateFieldLocal,
+        ...rest,
+        createRevidApiAccount,
+        updateRevidApiAccount,
+        deleteRevidApiAccount,
+        updateRevidApiField,
+        bulkLoginRevidApi,
+        bulkApiKeyRevidApi,
+        bulkCreditRevidApi,
+        syncAllRevidApi,
+        importRevidApiAccounts: importMutation.mutateAsync,
+        isBulkLoading:
+            bulkLoginMutation.isPending ||
+            bulkApiKeyMutation.isPending ||
+            bulkCreditMutation.isPending ||
+            syncAllMutation.isPending,
+        isImportingRevidApi: importMutation.isPending,
+        isCreatingRevidApi: createMutation.isPending,
+        isUpdatingRevidApi: updateMutation.isPending,
     };
 }

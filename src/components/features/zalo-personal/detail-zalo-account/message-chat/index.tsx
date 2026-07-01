@@ -2,15 +2,15 @@ import useIndexedDBStorage from "@/libs/hooks/useIndexedDBStorage";
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
 import useSearchParamsClient from "@/libs/hooks/useSearchParamsClient";
 import { useSocketManager } from "@/libs/hooks/useSocketManager";
-import { ChangedProfiles, ZaloGroupInfo, ZaloLoginInfo, ZaloThreadType } from "@/libs/intefaces/zaloPersonal/zaloAccData";
-import { ZaloMsgTypeEnum } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ChangedProfiles, ZaloGroupInfo, ZaloLoginInfo, ZaloThreadType } from "@/libs/interfaces/zaloPersonal/zaloAccData";
+import { ZaloMsgTypeEnum } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 import { getZaloPersonalMessageHistory, sendMessageToZaloGroup, sendMessageToZaloUser } from "@/libs/network/zalo-personal.api";
 import { useAppSelector } from "@/libs/redux/hooks";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MessageChatComposer from "./MessageChatComposer";
 import MessageChatHeader from "./MessageChatHeader";
 import MessageChatList from "./MessageChatList";
-import { ZaloWebhookMessagePayload, ChatMessage } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ZaloWebhookMessagePayload, ChatMessage } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 
 interface MessageChatZaloAccountProps {
     accountId: string;

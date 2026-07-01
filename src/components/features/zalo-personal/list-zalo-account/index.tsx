@@ -1,24 +1,23 @@
 "use client"
 
 import { useZaloPersonalAccount } from "@/libs/hooks/users/zaloPersonalAccountHook";
-import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import ZaloPersonalData from "@/libs/intefaces/zaloPersonal";
+import ZaloPersonalData from "@/libs/interfaces/zaloPersonal";
 import { useState } from "react";
 import { Avatar, Button, Card, Input, Table, Tooltip } from "antd";
 import ZaloPersonalAccountControls from "./ZaloAccountControls";
 import useDynamicAntdTableScrollHeight from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import FormZaloAccount from "./formZaloAccount";
 import { DeleteFilled, EditOutlined } from "@ant-design/icons";
-import { deleteZaloPersonalAccount, getLoginInfoAccZalo, loginZaloPersonalViaCookie } from "@/libs/network/zalo-personal.api";
 import FormLoginQr from "./formLoginQr";
 import { Cookie, QrCode } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ZaloLoginInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ZaloLoginInfo } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
 
 
 export default function ZaloPersonalListAccountComponent() {
-    const { accountData,
+    const {
+        accountData,
         totalItemsZaloPersonal,
         pageZaloPersonal,
         setPageZaloPersonal,
@@ -26,12 +25,14 @@ export default function ZaloPersonalListAccountComponent() {
         setLimitZaloPersonal,
         searchZaloPersonal,
         setSearchZaloPersonal,
-        removeZaloPersonalAccountById,
-        addZaloPersonalAccount,
-        updateZaloPersonalAccount,
-        loadingZaloPersonal
+        deleteZaloPersonalAccount,
+        loginZaloViaCookie,
+        getZaloLoginInfo,
+        loadingZaloPersonal,
+        isDeletingZalo,
+        isLoggingInZalo,
+        isLoadingZaloLoginInfo,
     } = useZaloPersonalAccount();
-    const { notification } = useAntdApp();
     const navigation = useRouter();
 
     const [isModalOpenForm, setIsModalOpenForm] = useState(false);
@@ -43,61 +44,22 @@ export default function ZaloPersonalListAccountComponent() {
     const handleFormModal = (data: ZaloPersonalData | null) => {
         setIsModalOpenForm(true);
         setDataForm(data);
-    }
-
-    const handleDeleteAccount = async (id: string) => {
-        const response = await deleteZaloPersonalAccount(id);
-        if (!response.status) {
-            notification.error({
-                message: "Error",
-                description: response.message || "An error occurred while deleting the Zalo Personal account.",
-            });
-            return;
-        }
-        removeZaloPersonalAccountById(id);
-        notification.success({
-            message: "Success",
-            description: "Zalo Personal account has been deleted successfully.",
-        });
-    }
+    };
 
     const handleLoginViaCookie = async (id: string) => {
-        const response = await loginZaloPersonalViaCookie(id);
-        if (!response.status) {
-            notification.error({
-                message: "Error",
-                description: response.message || "An error occurred while logging in via cookie.",
-            });
-            return;
-        }
-        notification.success({
-            message: "Success",
-            description: "Login via cookie initiated successfully.",
-        });
-        const accountIndex = accountData.findIndex((account) => account._id === id);
-        if (accountIndex !== -1) {
-            const updatedAccount = { ...accountData[accountIndex], isLogin: true };
-            updateZaloPersonalAccount(updatedAccount);
-        }
-    }
+        await loginZaloViaCookie(id);
+    };
 
     const handleDetailAccount = async (id: string) => {
-        const response = await getLoginInfoAccZalo(id);
-        if (!response.status) {
-            notification.error({
-                message: "Error",
-                description: response.message || "An error occurred while fetching account details.",
-            });
-            return;
-        }
+        const response = await getZaloLoginInfo(id);
+        if (!response.status) return;
         setZaloInfoDetail(response.data.data);
         navigation.push(`/accounts/zalo-personal/${id}?tab=groups`);
-
-    }
+    };
 
     const clolumns = [
         {
-            title: "STT", key: "stt", render: (_: any, __: any, index: number) => (index + 1 + (pageZaloPersonal - 1) * limitZaloPersonal), width: 80
+            title: "STT", key: "stt", render: (_: unknown, __: unknown, index: number) => (index + 1 + (pageZaloPersonal - 1) * limitZaloPersonal), width: 80
         },
         {
             title: 'avatar', dataIndex: 'avatar', key: 'avatar', render: (avatar: string) => (<Avatar src={avatar || 'https://adminlte.io/themes/v3/dist/img/user2-100x100.jpg'} size={35} alt="avatar" className="w-5 h-5 rounded-full" />), width: 80
@@ -111,11 +73,7 @@ export default function ZaloPersonalListAccountComponent() {
         {
             title: 'Mật khẩu', dataIndex: 'password', key: 'password', width: 250,
             render: (text: string) => (
-                <Input.Password
-                    value={text}
-                    readOnly
-                    visibilityToggle
-                />
+                <Input.Password value={text} readOnly visibilityToggle />
             ),
         },
         {
@@ -124,13 +82,14 @@ export default function ZaloPersonalListAccountComponent() {
             }
         },
         {
-            title: 'Hành động', key: 'actions', render: (_: any, record: ZaloPersonalData) => (
+            title: 'Hành động', key: 'actions', render: (_: unknown, record: ZaloPersonalData) => (
                 <div className="flex gap-2 justify-end flex-wrap">
                     <Tooltip title="Lấy thông tin tài khoản">
                         <Button
                             size="small"
                             disabled={record.isLogin === false}
                             type="primary"
+                            loading={isLoadingZaloLoginInfo}
                             onClick={() => handleDetailAccount(record._id)}
                         >
                             Thông tin
@@ -140,8 +99,9 @@ export default function ZaloPersonalListAccountComponent() {
                         <Button
                             size="small"
                             disabled={record.imei === "" || record.imei === null}
-                            onClick={handleLoginViaCookie.bind(null, record._id)}
+                            onClick={() => handleLoginViaCookie(record._id)}
                             type="primary"
+                            loading={isLoggingInZalo}
                         >
                             <Cookie size={12} />
                         </Button>
@@ -166,13 +126,13 @@ export default function ZaloPersonalListAccountComponent() {
                     <Button
                         size="small"
                         danger
-                        onClick={() => handleDeleteAccount(record._id)}
+                        loading={isDeletingZalo}
+                        onClick={() => deleteZaloPersonalAccount(record._id)}
                         icon={<DeleteFilled />} />
-
                 </div>
             )
         },
-    ]
+    ];
 
     return (
         <Card className="w-full p-6 rounded-lg border-2 border-gray-200 shadow-sm">
@@ -203,12 +163,6 @@ export default function ZaloPersonalListAccountComponent() {
                 isShowModal={isModalOpenForm}
                 onCloseModal={() => setIsModalOpenForm(false)}
                 dataForm={dataForm}
-                handleAddSuccess={(newAccount) => {
-                    addZaloPersonalAccount(newAccount);
-                }}
-                handleUpdateSuccess={(updatedAccount) => {
-                    updateZaloPersonalAccount(updatedAccount);
-                }}
             />
             <FormLoginQr isShowModal={isModalOpenLoginQr} onCloseModal={() => setIsModalOpenLoginQr(false)} zaloId={selectedZaloId} />
         </Card>

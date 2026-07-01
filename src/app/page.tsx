@@ -1,10 +1,11 @@
 export const metadata = {
-  title: 'Merry Christmas',
-  description: 'Celebrate the holiday season with our interactive Merry Christmas 3D experience!',
+  title: 'Google Full Control FE',
+  description: 'Google Full Control FE',
 }
 
-import HomePageComponent from "@/components/features/home-page";
+
+import LoginComponent from "@/components/features/auth/login";
 
 export default function Home() {
-  return <HomePageComponent/>
+  return <LoginComponent/>
 }

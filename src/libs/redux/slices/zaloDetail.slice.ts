@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ChangedProfiles, ZaloGroupInfo } from "@/libs/intefaces/zaloPersonal/zaloAccData";
+import { ChangedProfiles, ZaloGroupInfo } from "@/libs/interfaces/zaloPersonal/zaloAccData";
 
 export type ZaloDetailTab = "groups" | "friends";
 
