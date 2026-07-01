@@ -1,136 +1,74 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-
-import { useDebounce } from "@/libs/hooks/useDebounce";
-import { NO_CACHE_QUERY_OPTIONS } from "@/libs/hooks/queryOptions";
-import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import ZaloPersonalData, {
+import {
     ZaloPersonalDataFormData,
     ZaloPersonalDataUpdateData,
 } from "@/libs/interfaces/zaloPersonal";
-import {
-    createZaloPersonalAccount,
-    deleteZaloPersonalAccount,
-    getLoginInfoAccZalo,
-    getZaloPersonalAccount,
-    loginZaloPersonalViaCookie,
-    updateZaloPersonalAccount,
-} from "@/libs/network/zalo-personal.api";
+import { useAntdApp } from "@/libs/hooks/useAntdApp";
 
-const QUERY_KEY = "zalo-personal-accounts";
+import { useZaloPersonalAccountQueries } from "./queries/zaloPersonalAccountQueries";
+import { notifyMutationResult } from "./useMutationNotifications";
 
 export function useZaloPersonalAccount() {
-    const queryClient = useQueryClient();
     const { notification } = useAntdApp();
-    const [pageZaloPersonal, setPageZaloPersonal] = useState<number>(1);
-    const [limitZaloPersonal, setLimitZaloPersonal] = useState<number>(30);
-    const [searchZaloPersonal, setSearchZaloPersonal] = useState<string>("");
-    const debouncedSearch = useDebounce<string>(searchZaloPersonal, 600);
+    const {
+        createMutation,
+        updateMutation,
+        deleteMutation,
+        loginViaCookieMutation,
+        getLoginInfoMutation,
+        ...rest
+    } = useZaloPersonalAccountQueries();
 
-    const queryKey = [QUERY_KEY, pageZaloPersonal, limitZaloPersonal, debouncedSearch] as const;
+    const createZaloPersonalAccount = async (payload: ZaloPersonalDataFormData) =>
+        notifyMutationResult(await createMutation.mutateAsync(payload), notification, {
+            successMessage: "Success",
+            successDescription: "Data saved successfully",
+            errorMessage: "Error",
+        });
 
-    const invalidateList = () => queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    const updateZaloPersonalAccount = async (args: {
+        id: string;
+        payload: ZaloPersonalDataUpdateData;
+    }) =>
+        notifyMutationResult(await updateMutation.mutateAsync(args), notification, {
+            successMessage: "Success",
+            successDescription: "Data saved successfully",
+            errorMessage: "Error",
+        });
 
-    const { data: response, isFetching, refetch } = useQuery({
-        queryKey,
-        queryFn: async () => {
-            const result = await getZaloPersonalAccount(pageZaloPersonal, limitZaloPersonal, debouncedSearch);
-            if (!result.status) throw new Error(result.message);
-            return result;
-        },
-        ...NO_CACHE_QUERY_OPTIONS,
-    });
+    const deleteZaloPersonalAccount = async (id: string) =>
+        notifyMutationResult(await deleteMutation.mutateAsync(id), notification, {
+            successMessage: "Success",
+            successDescription: "Zalo Personal account has been deleted successfully.",
+            errorMessage: "Error",
+            errorDescription: "An error occurred while deleting the Zalo Personal account.",
+        });
 
-    const createMutation = useMutation({
-        mutationFn: (payload: ZaloPersonalDataFormData) => createZaloPersonalAccount(payload),
-        onSuccess: (result) => {
-            if (!result.status) {
-                notification.error({ message: "Error", description: result.message });
-                return;
-            }
-            notification.success({ message: "Success", description: "Data saved successfully" });
-            invalidateList();
-        },
-    });
+    const loginZaloViaCookie = async (id: string) =>
+        notifyMutationResult(await loginViaCookieMutation.mutateAsync(id), notification, {
+            successMessage: "Success",
+            successDescription: "Login via cookie initiated successfully.",
+            errorMessage: "Error",
+            errorDescription: "An error occurred while logging in via cookie.",
+        });
 
-    const updateMutation = useMutation({
-        mutationFn: ({ id, payload }: { id: string; payload: ZaloPersonalDataUpdateData }) =>
-            updateZaloPersonalAccount(id, payload),
-        onSuccess: (result) => {
-            if (!result.status) {
-                notification.error({ message: "Error", description: result.message });
-                return;
-            }
-            notification.success({ message: "Success", description: "Data saved successfully" });
-            invalidateList();
-        },
-    });
-
-    const deleteMutation = useMutation({
-        mutationFn: (id: string) => deleteZaloPersonalAccount(id),
-        onSuccess: (result) => {
-            if (!result.status) {
-                notification.error({
-                    message: "Error",
-                    description: result.message || "An error occurred while deleting the Zalo Personal account.",
-                });
-                return;
-            }
-            notification.success({
-                message: "Success",
-                description: "Zalo Personal account has been deleted successfully.",
+    const getZaloLoginInfo = async (id: string) => {
+        const result = await getLoginInfoMutation.mutateAsync(id);
+        if (!result.status) {
+            notification.error({
+                message: "Error",
+                description: result.message || "An error occurred while fetching account details.",
             });
-            invalidateList();
-        },
-    });
-
-    const loginViaCookieMutation = useMutation({
-        mutationFn: (id: string) => loginZaloPersonalViaCookie(id),
-        onSuccess: (result) => {
-            if (!result.status) {
-                notification.error({
-                    message: "Error",
-                    description: result.message || "An error occurred while logging in via cookie.",
-                });
-                return;
-            }
-            notification.success({
-                message: "Success",
-                description: "Login via cookie initiated successfully.",
-            });
-            invalidateList();
-        },
-    });
-
-    const getLoginInfoMutation = useMutation({
-        mutationFn: (id: string) => getLoginInfoAccZalo(id),
-        onSuccess: (result) => {
-            if (!result.status) {
-                notification.error({
-                    message: "Error",
-                    description: result.message || "An error occurred while fetching account details.",
-                });
-            }
-        },
-    });
+        }
+        return result;
+    };
 
     return {
-        accountData: response?.data?.items ?? [],
-        loadingZaloPersonal: isFetching,
-        fetchZaloPersonalAccounts: refetch,
-        pageZaloPersonal,
-        setPageZaloPersonal,
-        limitZaloPersonal,
-        setLimitZaloPersonal,
-        searchZaloPersonal,
-        setSearchZaloPersonal,
-        totalPagesZaloPersonal: response?.data?.pagination?.totalPages ?? 0,
-        totalItemsZaloPersonal: response?.data?.pagination?.total ?? 0,
-        createZaloPersonalAccount: createMutation.mutateAsync,
-        updateZaloPersonalAccount: updateMutation.mutateAsync,
-        deleteZaloPersonalAccount: deleteMutation.mutateAsync,
-        loginZaloViaCookie: loginViaCookieMutation.mutateAsync,
-        getZaloLoginInfo: getLoginInfoMutation.mutateAsync,
+        ...rest,
+        createZaloPersonalAccount,
+        updateZaloPersonalAccount,
+        deleteZaloPersonalAccount,
+        loginZaloViaCookie,
+        getZaloLoginInfo,
         isCreatingZalo: createMutation.isPending,
         isUpdatingZalo: updateMutation.isPending,
         isDeletingZalo: deleteMutation.isPending,

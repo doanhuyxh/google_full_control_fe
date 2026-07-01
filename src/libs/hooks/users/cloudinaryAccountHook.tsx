@@ -1,113 +1,58 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-
-import { useDebounce } from "@/libs/hooks/useDebounce";
-import { NO_CACHE_QUERY_OPTIONS } from "@/libs/hooks/queryOptions";
-import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import { CloudinaryDataFormData } from "@/libs/interfaces/cloudinaryData";
-import {
-    createCloudinaryAccount,
-    deleteCloudinaryAccount,
-    getAccountCloudinary,
-    getCloudinaryUsage,
-    updateCloudinaryAccount,
-} from "@/libs/network/cloudinary.api";
+import { useAntdApp } from "@/libs/hooks/useAntdApp";
 
-const QUERY_KEY = "cloudinary-accounts";
+import { useCloudinaryAccountQueries } from "./queries/cloudinaryAccountQueries";
+import { notifyMutationResult } from "./useMutationNotifications";
 
 export function useCloudinaryAccount() {
-    const queryClient = useQueryClient();
     const { notification } = useAntdApp();
-    const [pageCloudinary, setPageCloudinary] = useState<number>(1);
-    const [limitCloudinary, setLimitCloudinary] = useState<number>(30);
-    const [searchCloudinary, setSearchCloudinary] = useState<string>("");
-    const debouncedSearch = useDebounce<string>(searchCloudinary, 600);
+    const {
+        createMutation,
+        updateMutation,
+        deleteMutation,
+        usageMutation,
+        ...rest
+    } = useCloudinaryAccountQueries();
 
-    const queryKey = [QUERY_KEY, pageCloudinary, limitCloudinary, debouncedSearch] as const;
+    const createCloudinaryAccount = async (payload: CloudinaryDataFormData) =>
+        notifyMutationResult(await createMutation.mutateAsync(payload), notification, {
+            successMessage: "Success",
+            successDescription: "Cloudinary account has been created successfully.",
+            errorMessage: "Error",
+        });
 
-    const invalidateList = () => queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    const updateCloudinaryAccount = async (args: { id: string; payload: CloudinaryDataFormData }) =>
+        notifyMutationResult(await updateMutation.mutateAsync(args), notification, {
+            successMessage: "Success",
+            successDescription: "Cloudinary account has been updated successfully.",
+            errorMessage: "Error",
+        });
 
-    const { data: response, isFetching, refetch } = useQuery({
-        queryKey,
-        queryFn: async () => {
-            const result = await getAccountCloudinary(pageCloudinary, limitCloudinary, debouncedSearch);
-            if (!result.status) throw new Error(result.message);
-            return result;
-        },
-        ...NO_CACHE_QUERY_OPTIONS,
-    });
+    const deleteCloudinaryAccount = async (id: string) =>
+        notifyMutationResult(await deleteMutation.mutateAsync(id), notification, {
+            successMessage: "Success",
+            successDescription: "Cloudinary account has been deleted successfully.",
+            errorMessage: "Error",
+            errorDescription: "An error occurred while deleting the Cloudinary account.",
+        });
 
-    const createMutation = useMutation({
-        mutationFn: (payload: CloudinaryDataFormData) => createCloudinaryAccount(payload),
-        onSuccess: (result) => {
-            if (!result.status) {
-                notification.error({ message: "Error", description: result.message });
-                return;
-            }
-            notification.success({ message: "Success", description: "Cloudinary account has been created successfully." });
-            invalidateList();
-        },
-    });
-
-    const updateMutation = useMutation({
-        mutationFn: ({ id, payload }: { id: string; payload: CloudinaryDataFormData }) =>
-            updateCloudinaryAccount(id, payload),
-        onSuccess: (result) => {
-            if (!result.status) {
-                notification.error({ message: "Error", description: result.message });
-                return;
-            }
-            notification.success({ message: "Success", description: "Cloudinary account has been updated successfully." });
-            invalidateList();
-        },
-    });
-
-    const deleteMutation = useMutation({
-        mutationFn: (id: string) => deleteCloudinaryAccount(id),
-        onSuccess: (result) => {
-            if (!result.status) {
-                notification.error({
-                    message: "Error",
-                    description: result.message || "An error occurred while deleting the Cloudinary account.",
-                });
-                return;
-            }
-            notification.success({
-                message: "Success",
-                description: "Cloudinary account has been deleted successfully.",
+    const fetchCloudinaryUsage = async (id: string) => {
+        const result = await usageMutation.mutateAsync(id);
+        if (!result.status) {
+            notification.error({
+                message: "Error",
+                description: result.message || "An error occurred while fetching Cloudinary usage data.",
             });
-            invalidateList();
-        },
-    });
-
-    const usageMutation = useMutation({
-        mutationFn: (id: string) => getCloudinaryUsage(id),
-        onSuccess: (result) => {
-            if (!result.status) {
-                notification.error({
-                    message: "Error",
-                    description: result.message || "An error occurred while fetching Cloudinary usage data.",
-                });
-            }
-        },
-    });
+        }
+        return result;
+    };
 
     return {
-        accountData: response?.data?.items ?? [],
-        loadingCloudinary: isFetching,
-        fetchCloudinaryAccounts: refetch,
-        pageCloudinary,
-        setPageCloudinary,
-        limitCloudinary,
-        setLimitCloudinary,
-        searchCloudinary,
-        setSearchCloudinary,
-        totalPagesCloudinary: response?.data?.pagination?.totalPages ?? 0,
-        totalItemsCloudinary: response?.data?.pagination?.total ?? 0,
-        createCloudinaryAccount: createMutation.mutateAsync,
-        updateCloudinaryAccount: updateMutation.mutateAsync,
-        deleteCloudinaryAccount: deleteMutation.mutateAsync,
-        fetchCloudinaryUsage: usageMutation.mutateAsync,
+        ...rest,
+        createCloudinaryAccount,
+        updateCloudinaryAccount,
+        deleteCloudinaryAccount,
+        fetchCloudinaryUsage,
         isCreatingCloudinary: createMutation.isPending,
         isUpdatingCloudinary: updateMutation.isPending,
         isDeletingCloudinary: deleteMutation.isPending,
