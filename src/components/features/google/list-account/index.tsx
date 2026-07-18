@@ -6,7 +6,6 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { Copy, Download, History, Lock, QrCode, Upload } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
-import { useToolsDataBackEnd } from "@/libs/hooks/useToolsDataBackEnd";
 import { useCommon } from "@/libs/hooks/useCommon";
 import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
@@ -39,8 +38,13 @@ export default function GoogleAccountComponent() {
 
     const [isShowModalHistoryEmail, setIsShowModalHistoryEmail] = useState<boolean>(false);
     const [emailShowHistory, setEmailShowHistory] = useState<{ emailName?: string, googleAccountId?: string }>({});
-    const [showModalPassword, setShowModalPassword] = useState<{ isShow: boolean; password?: string, id?: string }>({ isShow: false, password: '', id: '' });
-    const { decodeData } = useToolsDataBackEnd();
+    const [showModalPassword, setShowModalPassword] = useState<{
+        isShow: boolean;
+        password?: string;
+        id?: string;
+        field?: "currentPassword" | "appPassword" | "f2a";
+        title?: string;
+    }>({ isShow: false, password: "", id: "", field: "currentPassword", title: "Mật khẩu mới" });
     const { copiedToClipboard } = useCommon();
     const { notification, modal } = useAntdApp();
 
@@ -102,13 +106,28 @@ export default function GoogleAccountComponent() {
         }
     };
 
-    const handleViewPassword = async (encodedPassword: string) => {
-        const decoded = await decodeData(encodedPassword);
-        await copiedToClipboard(decoded);
+    const handleViewPassword = async (password: string) => {
+        if (!password) {
+            notification.warning({
+                message: "Chưa có dữ liệu",
+                description: "Trường này đang trống.",
+                placement: "topRight",
+            });
+            return;
+        }
+        await copiedToClipboard(password);
     };
 
     const handleUpdateData = async (id: string, field: string, value: unknown) => {
         await updateGoogleField(id, field, value);
+    };
+
+    const openSensitiveFieldModal = (
+        id: string,
+        field: "currentPassword" | "appPassword" | "f2a",
+        title: string,
+    ) => {
+        setShowModalPassword({ isShow: true, password: "", id, field, title });
     };
 
     const handleDeleteAccount = async (id: string) => {
@@ -195,15 +214,23 @@ export default function GoogleAccountComponent() {
             title: 'App Password',
             dataIndex: 'appPassword',
             key: 'appPassword',
-            width: 200,
+            width: 120,
             render: (appPassword: string, record: GoogleAccount) => (
-                <DebouncedInputCell
-                    recordId={record._id}
-                    initialValue={appPassword}
-                    dataIndex="appPassword"
-                    onUpdate={handleUpdateData}
-                    type="password"
-                />
+                <div className="flex gap-2">
+                    <Button
+                        type="default"
+                        size="small"
+                        icon={<Copy size={12} color="#06477d" />}
+                        onClick={() => handleViewPassword(appPassword)}
+                    />
+                    <Tooltip title="Cập nhật App Password">
+                        <Button
+                            size="small"
+                            icon={<Lock size={12} />}
+                            onClick={() => openSensitiveFieldModal(record._id, "appPassword", "App Password mới")}
+                        />
+                    </Tooltip>
+                </div>
             ),
         },
         {
@@ -238,23 +265,24 @@ export default function GoogleAccountComponent() {
             title: 'F2A',
             dataIndex: 'f2a',
             key: 'f2a',
-            width: 250,
-            render: (f2a: string, record: GoogleAccount) => {
-                return <div className="flex gap-2">
-                    <DebouncedInputCell
-                        recordId={record._id}
-                        initialValue={f2a}
-                        dataIndex="f2a"
-                        onUpdate={handleUpdateData}
-                        type="password"
-                    />
+            width: 120,
+            render: (f2a: string, record: GoogleAccount) => (
+                <div className="flex gap-2">
                     <Button
-                        icon={<Copy size={12} color="#06477d" />}
+                        type="default"
                         size="small"
-                        onClick={() => copiedToClipboard(f2a)}
+                        icon={<Copy size={12} color="#06477d" />}
+                        onClick={() => handleViewPassword(f2a)}
                     />
+                    <Tooltip title="Cập nhật F2A thủ công">
+                        <Button
+                            size="small"
+                            icon={<Lock size={12} />}
+                            onClick={() => openSensitiveFieldModal(record._id, "f2a", "Mã F2A mới")}
+                        />
+                    </Tooltip>
                 </div>
-            },
+            ),
         },
         {
             title: 'Mã bí mật',
@@ -327,9 +355,7 @@ export default function GoogleAccountComponent() {
                             danger
                             size="small"
                             icon={<Lock size={16} />}
-                            onClick={() => {
-                                setShowModalPassword({ isShow: true, password: '', id: record._id });
-                            }}
+                            onClick={() => openSensitiveFieldModal(record._id, "currentPassword", "Mật khẩu mới")}
                         />
                     </Tooltip>
                     <Tooltip title="Tải cookies">
@@ -438,18 +464,22 @@ export default function GoogleAccountComponent() {
             />
             <Modal
                 open={showModalPassword.isShow}
-                onCancel={() => setShowModalPassword({ isShow: false, password: '' })}
+                onCancel={() => setShowModalPassword({ isShow: false, password: "", field: "currentPassword", title: "Mật khẩu mới" })}
                 onOk={async () => {
-                    await handleUpdateData(showModalPassword.id || '', 'currentPassword', showModalPassword.password);
-                    setShowModalPassword({ isShow: false, password: '' });
+                    await handleUpdateData(
+                        showModalPassword.id || "",
+                        showModalPassword.field || "currentPassword",
+                        showModalPassword.password,
+                    );
+                    setShowModalPassword({ isShow: false, password: "", field: "currentPassword", title: "Mật khẩu mới" });
                 }}
             >
                 <div className="flex flex-col gap-4">
-                    <h3 className="text-lg font-medium">Mật khẩu mới</h3>
+                    <h3 className="text-lg font-medium">{showModalPassword.title}</h3>
                     <Input.Password
                         value={showModalPassword.password}
                         onChange={(e) => setShowModalPassword({ ...showModalPassword, password: e.target.value })}
-                        placeholder="Nhập mật khẩu mới"
+                        placeholder="Nhập giá trị mới"
                     />
                 </div>
             </Modal>

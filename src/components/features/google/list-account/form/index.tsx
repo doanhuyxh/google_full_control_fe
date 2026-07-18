@@ -70,11 +70,11 @@ export default function GoogleFormModal({ isShowModal, onCloseModal, accountId }
                 </Form.Item>
 
                 <Form.Item label="App Password" name="appPassword">
-                    <Input placeholder="Nhập app password" />
+                    <Input.Password placeholder="Nhập app password" />
                 </Form.Item>
 
                 <Form.Item label="2FA/Google Authenticator" name="f2a">
-                    <Input placeholder="Nhập 2FA/Google Authenticator" />
+                    <Input.Password placeholder="Nhập 2FA/Google Authenticator" />
                 </Form.Item>
 
                 <Form.Item label="Recovery Email" name="recoveryEmail">
