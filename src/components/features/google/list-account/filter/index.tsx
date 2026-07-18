@@ -46,7 +46,7 @@ export default function GoogleAccountFilter({ onSearch, value, status, setStatus
                 </Button>
             </Tooltip>
             <Select placeholder="Lọc theo trạng thái"
-                className="full-option flex-1 md:flex-none"
+                className="full-option flex-1 md:flex-none min-w-40"
                 allowClear
                 value={status}
                 onChange={setStatus}

@@ -1,9 +1,9 @@
 "use client";
 
-import { Table, Avatar, Button, Input, Select, Tooltip, Modal, Card } from "antd";
+import { Table, Avatar, Button, Select, Tooltip, Card } from "antd";
 import { useState } from "react";
 import { DeleteOutlined } from "@ant-design/icons";
-import { Copy, Download, History, Lock, QrCode, Upload } from "lucide-react";
+import { Copy, Download, History, QrCode, Upload } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
 import { useCommon } from "@/libs/hooks/useCommon";
@@ -38,13 +38,6 @@ export default function GoogleAccountComponent() {
 
     const [isShowModalHistoryEmail, setIsShowModalHistoryEmail] = useState<boolean>(false);
     const [emailShowHistory, setEmailShowHistory] = useState<{ emailName?: string, googleAccountId?: string }>({});
-    const [showModalPassword, setShowModalPassword] = useState<{
-        isShow: boolean;
-        password?: string;
-        id?: string;
-        field?: "currentPassword" | "appPassword" | "f2a";
-        title?: string;
-    }>({ isShow: false, password: "", id: "", field: "currentPassword", title: "Mật khẩu mới" });
     const { copiedToClipboard } = useCommon();
     const { notification, modal } = useAntdApp();
 
@@ -106,28 +99,8 @@ export default function GoogleAccountComponent() {
         }
     };
 
-    const handleViewPassword = async (password: string) => {
-        if (!password) {
-            notification.warning({
-                message: "Chưa có dữ liệu",
-                description: "Trường này đang trống.",
-                placement: "topRight",
-            });
-            return;
-        }
-        await copiedToClipboard(password);
-    };
-
     const handleUpdateData = async (id: string, field: string, value: unknown) => {
         await updateGoogleField(id, field, value);
-    };
-
-    const openSensitiveFieldModal = (
-        id: string,
-        field: "currentPassword" | "appPassword" | "f2a",
-        title: string,
-    ) => {
-        setShowModalPassword({ isShow: true, password: "", id, field, title });
     };
 
     const handleDeleteAccount = async (id: string) => {
@@ -143,6 +116,23 @@ export default function GoogleAccountComponent() {
         setIsShowModalHistoryEmail(true);
     }
 
+    const renderPasswordCell = (value: string, record: GoogleAccount, dataIndex: string) => (
+        <div className="flex gap-2">
+            <DebouncedInputCell
+                recordId={record._id}
+                initialValue={value}
+                dataIndex={dataIndex}
+                onUpdate={handleUpdateData}
+                type="password"
+            />
+            <Button
+                type="default"
+                size="small"
+                icon={<Copy size={12} color="#06477d" />}
+                onClick={() => copiedToClipboard(value)}
+            />
+        </div>
+    );
 
     const columns: ColumnsType<GoogleAccount> = [
         {
@@ -200,38 +190,17 @@ export default function GoogleAccountComponent() {
             title: 'Mật khẩu',
             dataIndex: 'currentPassword',
             key: 'currentPassword',
-            width: 100,
-            render: (currentPassword: string) => (
-                <Button
-                    type="default"
-                    size="small"
-                    icon={<Copy size={12} color="#06477d" />}
-                    onClick={() => handleViewPassword(currentPassword)}
-                />
-            ),
+            width: 220,
+            render: (currentPassword: string, record: GoogleAccount) =>
+                renderPasswordCell(currentPassword, record, "currentPassword"),
         },
         {
             title: 'App Password',
             dataIndex: 'appPassword',
             key: 'appPassword',
-            width: 120,
-            render: (appPassword: string, record: GoogleAccount) => (
-                <div className="flex gap-2">
-                    <Button
-                        type="default"
-                        size="small"
-                        icon={<Copy size={12} color="#06477d" />}
-                        onClick={() => handleViewPassword(appPassword)}
-                    />
-                    <Tooltip title="Cập nhật App Password">
-                        <Button
-                            size="small"
-                            icon={<Lock size={12} />}
-                            onClick={() => openSensitiveFieldModal(record._id, "appPassword", "App Password mới")}
-                        />
-                    </Tooltip>
-                </div>
-            ),
+            width: 220,
+            render: (appPassword: string, record: GoogleAccount) =>
+                renderPasswordCell(appPassword, record, "appPassword"),
         },
         {
             title: 'Email khôi phục',
@@ -265,24 +234,9 @@ export default function GoogleAccountComponent() {
             title: 'F2A',
             dataIndex: 'f2a',
             key: 'f2a',
-            width: 120,
-            render: (f2a: string, record: GoogleAccount) => (
-                <div className="flex gap-2">
-                    <Button
-                        type="default"
-                        size="small"
-                        icon={<Copy size={12} color="#06477d" />}
-                        onClick={() => handleViewPassword(f2a)}
-                    />
-                    <Tooltip title="Cập nhật F2A thủ công">
-                        <Button
-                            size="small"
-                            icon={<Lock size={12} />}
-                            onClick={() => openSensitiveFieldModal(record._id, "f2a", "Mã F2A mới")}
-                        />
-                    </Tooltip>
-                </div>
-            ),
+            width: 220,
+            render: (f2a: string, record: GoogleAccount) =>
+                renderPasswordCell(f2a, record, "f2a"),
         },
         {
             title: 'Mã bí mật',
@@ -348,14 +302,6 @@ export default function GoogleAccountComponent() {
                             size="small"
                             icon={<QrCode size={16} />}
                             onClick={() => setFormModalUpdate2FA({ isShowModal: true, _id: record._id })}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Cập nhật mật khẩu">
-                        <Button
-                            danger
-                            size="small"
-                            icon={<Lock size={16} />}
-                            onClick={() => openSensitiveFieldModal(record._id, "currentPassword", "Mật khẩu mới")}
                         />
                     </Tooltip>
                     <Tooltip title="Tải cookies">
@@ -462,27 +408,6 @@ export default function GoogleAccountComponent() {
                 googleAccountId={emailShowHistory.googleAccountId || ''}
                 emailName={emailShowHistory.emailName || ''}
             />
-            <Modal
-                open={showModalPassword.isShow}
-                onCancel={() => setShowModalPassword({ isShow: false, password: "", field: "currentPassword", title: "Mật khẩu mới" })}
-                onOk={async () => {
-                    await handleUpdateData(
-                        showModalPassword.id || "",
-                        showModalPassword.field || "currentPassword",
-                        showModalPassword.password,
-                    );
-                    setShowModalPassword({ isShow: false, password: "", field: "currentPassword", title: "Mật khẩu mới" });
-                }}
-            >
-                <div className="flex flex-col gap-4">
-                    <h3 className="text-lg font-medium">{showModalPassword.title}</h3>
-                    <Input.Password
-                        value={showModalPassword.password}
-                        onChange={(e) => setShowModalPassword({ ...showModalPassword, password: e.target.value })}
-                        placeholder="Nhập giá trị mới"
-                    />
-                </div>
-            </Modal>
             <ModalImportCookieStringForm
                 isShowModal={cookieModal.isShow}
                 onCloseModal={() => setCookieModal({ isShow: false, id: undefined, cookies: "" })}
