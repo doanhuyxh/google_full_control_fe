@@ -2,6 +2,7 @@
 import { useCallback } from 'react';
 import { Socket, io } from 'socket.io-client';
 import Cookies from 'js-cookie';
+import { EnvsConfigKey } from '@/libs/constants/configKey';
 
 let socketInstance: Socket | null = null;
 
@@ -14,7 +15,7 @@ export const useSocketManager = () => {
         console.log('🔗 Attempting to connect socket...', rawUrl);
         if (!token || !rawUrl) return;
         if (socketInstance?.connected) return; // Đã kết nối rồi thì không làm gì cả
-        const fullUrl = `${process.env.NEXT_PUBLIC_BACK_END_SOCKET_IO_URL}/${rawUrl}`;
+        const fullUrl = `${EnvsConfigKey.BACK_END_SOCKET_IO_URL ?? ""}/${rawUrl}`;
         console.log('🌐 Connecting to Socket.IO server at:', fullUrl);
         // Khởi tạo trực tiếp Socket instance
         socketInstance = io(fullUrl, {

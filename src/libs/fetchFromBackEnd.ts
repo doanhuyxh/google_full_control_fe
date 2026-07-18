@@ -1,6 +1,8 @@
-const baseURL = process.env.NEXT_PUBLIC_BACK_END_API_BASE_URL || '';
+import { EnvsConfigKey } from "@/libs/constants/configKey";
 import ApiResponse from '@/libs/interfaces/apiResponseData';
 import { RcFile } from 'antd/es/upload';
+
+const baseURL = EnvsConfigKey.BACK_END_API_BASE_URL ?? "";
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 interface FetchOptions {

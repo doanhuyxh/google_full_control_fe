@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
+    "generate:firebase-config": "node --experimental-strip-types scripts/generate-firebase-config.mjs",
+    "dev": "node --experimental-strip-types scripts/generate-firebase-config.mjs && next dev --turbopack",
+    "build": "node --experimental-strip-types scripts/generate-firebase-config.mjs && next build",
     "start": "next start",
     "lint": "eslint"
   },
@@ -25,6 +26,7 @@
     "antd": "^5.27.6",
     "antd-style": "^3.7.1",
     "dayjs": "^1.11.18",
+    "firebase": "^12.15.0",
     "html5-qrcode": "^2.3.8",
     "idb-keyval": "^6.2.2",
     "js-cookie": "^3.0.5",
