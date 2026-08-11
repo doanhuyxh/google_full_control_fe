@@ -4,15 +4,13 @@ import { useLayoutEffect, useEffect, useState } from "react";
 import { Layout, Menu, Skeleton, theme, Drawer } from "antd";
 import {
     ApiTwoTone,
-    AppstoreOutlined,
     DashboardOutlined,
     DatabaseOutlined,
     FolderAddFilled,
-    TikTokOutlined,
-    UserOutlined
+    TikTokOutlined
 } from "@ant-design/icons";
 import { usePathname, useRouter } from "next/navigation";
-import { AppleIcon, BookTemplateIcon, Mail, MessageCircle, User } from "lucide-react";
+import { AppleIcon, Mail, MessageCircle, User } from "lucide-react";
 
 const { Sider } = Layout;
 
@@ -31,6 +29,18 @@ const menuItems = [
         key: "/accounts/zalo-personal",
         label: "Zalo Cá nhân",
         icon: <MessageCircle size={16} />,
+        children: [
+            {
+                key: "/accounts/zalo-personal/list",
+                label: "Danh sách tài khoản",
+                icon: <User size={16} />,
+            },
+            {
+                key: "/accounts/zalo-personal/backup",
+                label: "Sao lưu dữ liệu",
+                icon: <DatabaseOutlined />,
+            },
+        ]
     },
     {
         key: "/accounts/cloudinary",

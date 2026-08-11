@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "generate:firebase-config": "node --experimental-strip-types scripts/generate-firebase-config.mjs",
-    "dev": "node --experimental-strip-types scripts/generate-firebase-config.mjs && next dev --turbopack",
-    "build": "node --experimental-strip-types scripts/generate-firebase-config.mjs && next build",
+    "dev": "next dev --turbopack",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
