@@ -1,7 +1,8 @@
 "use client";
 
-import { Table, Avatar, Button, Select, Tooltip } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { Table, Avatar, Button, Select, Dropdown } from "antd";
+import type { MenuProps } from "antd";
+import { DeleteOutlined, MoreOutlined } from "@ant-design/icons";
 import { Check, Copy, Download, History, QrCode, Upload } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useCommon } from "@/libs/hooks/useCommon";
@@ -271,62 +272,61 @@ export default function GoogleAccountTable({
         {
             title: COLUMN_LABEL_BY_KEY.actions,
             key: "actions",
-            width: 120,
-            render: (_: unknown, record: GoogleAccount) => (
-                <div className="flex gap-2 justify-end">
-                    <Tooltip title="Quét mã 2FA">
-                        <Button
-                            type="primary"
-                            size="small"
-                            icon={<QrCode size={16} />}
-                            onClick={() => onUpdate2FA(record._id)}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Tải cookies">
-                        <Button
-                            size="small"
-                            type="dashed"
-                            icon={<Download color="blue" size={16} />}
-                            onClick={() => onDownloadCookies(record)}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Nhập cookies">
-                        <Button
-                            size="small"
-                            icon={<Upload size={16} />}
-                            onClick={() => onImportCookies(record)}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Lịch sử gửi email từ hệ thống">
-                        <Button
-                            type="dashed"
-                            size="small"
-                            icon={<History color="blue" size={16} />}
-                            onClick={() => onShowEmailHistory(record._id, record.email)}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Xóa tài khoản">
-                        <Button
-                            danger
-                            type="primary"
-                            size="small"
-                            icon={<DeleteOutlined color="red" size={16} />}
-                            onClick={() => {
-                                modal.confirm({
-                                    title: "Xác nhận xóa",
-                                    content: `Bạn có chắc chắn muốn xóa tài khoản ${record.email}?`,
-                                    okText: "Xóa",
-                                    okType: "danger",
-                                    cancelText: "Hủy",
-                                    onOk() {
-                                        onDelete(record._id);
-                                    },
-                                });
-                            }}
-                        />
-                    </Tooltip>
-                </div>
-            ),
+            width: 40,
+            fixed: "right",
+            render: (_: unknown, record: GoogleAccount) => {
+                const items: MenuProps["items"] = [
+                    {
+                        key: "update-2fa",
+                        icon: <QrCode size={14} />,
+                        label: "Quét mã 2FA",
+                        onClick: () => onUpdate2FA(record._id),
+                    },
+                    {
+                        key: "download-cookies",
+                        icon: <Download size={14} />,
+                        label: "Tải cookies",
+                        onClick: () => onDownloadCookies(record),
+                    },
+                    {
+                        key: "import-cookies",
+                        icon: <Upload size={14} />,
+                        label: "Nhập cookies",
+                        onClick: () => onImportCookies(record),
+                    },
+                    {
+                        key: "email-history",
+                        icon: <History size={14} />,
+                        label: "Lịch sử gửi email",
+                        onClick: () => onShowEmailHistory(record._id, record.email),
+                    },
+                    { type: "divider" },
+                    {
+                        key: "delete",
+                        danger: true,
+                        icon: <DeleteOutlined />,
+                        label: "Xóa tài khoản",
+                        onClick: () => {
+                            modal.confirm({
+                                title: "Xác nhận xóa",
+                                content: `Bạn có chắc chắn muốn xóa tài khoản ${record.email}?`,
+                                okText: "Xóa",
+                                okType: "danger",
+                                cancelText: "Hủy",
+                                onOk() {
+                                    onDelete(record._id);
+                                },
+                            });
+                        },
+                    },
+                ];
+
+                return (
+                    <Dropdown menu={{ items }} trigger={["click"]} placement="bottomRight">
+                        <Button type="text" size="small" icon={<MoreOutlined />} />
+                    </Dropdown>
+                );
+            },
         },
     ];
 

@@ -26,7 +26,7 @@ export const COLUMN_OPTIONS: ColumnVisibilityOption[] = [
     { label: "Trạng thái", value: "status" },
     { label: "Ghi chú", value: "note" },
     { label: "Ngày tạo", value: "createdAt" },
-    { label: "Hành động", value: "actions", disabled: true },
+    { label: "[]", value: "actions", disabled: true },
 ];
 
 export const DEFAULT_VISIBLE_COLUMNS = COLUMN_OPTIONS.map((option) => option.value);
