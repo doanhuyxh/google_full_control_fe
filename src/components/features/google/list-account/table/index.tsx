@@ -49,22 +49,103 @@ export default function GoogleAccountTable({
     const tableScrollY = useDynamicAntdTableScrollHeight();
 
     const renderPasswordCell = (value: string, record: GoogleAccount, dataIndex: string) => (
-        <div className="flex gap-2">
-            <DebouncedInputCell
-                recordId={record._id}
-                initialValue={value}
-                dataIndex={dataIndex}
-                onUpdate={onUpdate}
-                type="password"
-            />
-            <Button
-                type="default"
-                size="small"
-                icon={<Copy size={12} color="#06477d" />}
-                onClick={() => copiedToClipboard(value)}
-            />
-        </div>
+        <DebouncedInputCell
+            recordId={record._id}
+            initialValue={value}
+            dataIndex={dataIndex}
+            onUpdate={onUpdate}
+            type="password"
+        />
     );
+
+    const getActionMenuItems = (record: GoogleAccount): MenuProps["items"] => [
+        {
+            key: "copy",
+            type: "group",
+            label: "Sao chép",
+            children: [
+                {
+                    key: "copy-email",
+                    icon: <Copy size={14} />,
+                    label: "Email",
+                    disabled: !record.email,
+                    onClick: () => copiedToClipboard(record.email),
+                },
+                {
+                    key: "copy-password",
+                    icon: <Copy size={14} />,
+                    label: "Mật khẩu",
+                    disabled: !record.currentPassword,
+                    onClick: () => copiedToClipboard(record.currentPassword),
+                },
+                {
+                    key: "copy-app-password",
+                    icon: <Copy size={14} />,
+                    label: "App Password",
+                    disabled: !record.appPassword,
+                    onClick: () => copiedToClipboard(record.appPassword),
+                },
+                {
+                    key: "copy-f2a",
+                    icon: <Copy size={14} />,
+                    label: "F2A",
+                    disabled: !record.f2a,
+                    onClick: () => copiedToClipboard(record.f2a),
+                },
+                {
+                    key: "copy-recovery-email",
+                    icon: <Copy size={14} />,
+                    label: "Email khôi phục",
+                    disabled: !record.recoveryEmail,
+                    onClick: () => copiedToClipboard(record.recoveryEmail),
+                },
+            ],
+        },
+        { type: "divider" },
+        {
+            key: "update-2fa",
+            icon: <QrCode size={14} />,
+            label: "Quét mã 2FA",
+            onClick: () => onUpdate2FA(record._id),
+        },
+        {
+            key: "download-cookies",
+            icon: <Download size={14} />,
+            label: "Tải cookies",
+            onClick: () => onDownloadCookies(record),
+        },
+        {
+            key: "import-cookies",
+            icon: <Upload size={14} />,
+            label: "Nhập cookies",
+            onClick: () => onImportCookies(record),
+        },
+        {
+            key: "email-history",
+            icon: <History size={14} />,
+            label: "Lịch sử gửi email",
+            onClick: () => onShowEmailHistory(record._id, record.email),
+        },
+        { type: "divider" },
+        {
+            key: "delete",
+            danger: true,
+            icon: <DeleteOutlined />,
+            label: "Xóa tài khoản",
+            onClick: () => {
+                modal.confirm({
+                    title: "Xác nhận xóa",
+                    content: `Bạn có chắc chắn muốn xóa tài khoản ${record.email}?`,
+                    okText: "Xóa",
+                    okType: "danger",
+                    cancelText: "Hủy",
+                    onOk() {
+                        onDelete(record._id);
+                    },
+                });
+            },
+        },
+    ];
 
     const columns: ColumnsType<GoogleAccount> = [
         {
@@ -122,7 +203,7 @@ export default function GoogleAccountTable({
             title: COLUMN_LABEL_BY_KEY.currentPassword,
             dataIndex: "currentPassword",
             key: "currentPassword",
-            width: 220,
+            width: 180,
             render: (currentPassword: string, record: GoogleAccount) =>
                 renderPasswordCell(currentPassword, record, "currentPassword"),
         },
@@ -130,7 +211,7 @@ export default function GoogleAccountTable({
             title: COLUMN_LABEL_BY_KEY.appPassword,
             dataIndex: "appPassword",
             key: "appPassword",
-            width: 220,
+            width: 180,
             render: (appPassword: string, record: GoogleAccount) =>
                 renderPasswordCell(appPassword, record, "appPassword"),
         },
@@ -177,7 +258,7 @@ export default function GoogleAccountTable({
             title: COLUMN_LABEL_BY_KEY.f2a,
             dataIndex: "f2a",
             key: "f2a",
-            width: 220,
+            width: 180,
             render: (f2a: string, record: GoogleAccount) => renderPasswordCell(f2a, record, "f2a"),
         },
         {
@@ -272,61 +353,18 @@ export default function GoogleAccountTable({
         {
             title: COLUMN_LABEL_BY_KEY.actions,
             key: "actions",
-            width: 40,
+            width: 56,
             fixed: "right",
-            render: (_: unknown, record: GoogleAccount) => {
-                const items: MenuProps["items"] = [
-                    {
-                        key: "update-2fa",
-                        icon: <QrCode size={14} />,
-                        label: "Quét mã 2FA",
-                        onClick: () => onUpdate2FA(record._id),
-                    },
-                    {
-                        key: "download-cookies",
-                        icon: <Download size={14} />,
-                        label: "Tải cookies",
-                        onClick: () => onDownloadCookies(record),
-                    },
-                    {
-                        key: "import-cookies",
-                        icon: <Upload size={14} />,
-                        label: "Nhập cookies",
-                        onClick: () => onImportCookies(record),
-                    },
-                    {
-                        key: "email-history",
-                        icon: <History size={14} />,
-                        label: "Lịch sử gửi email",
-                        onClick: () => onShowEmailHistory(record._id, record.email),
-                    },
-                    { type: "divider" },
-                    {
-                        key: "delete",
-                        danger: true,
-                        icon: <DeleteOutlined />,
-                        label: "Xóa tài khoản",
-                        onClick: () => {
-                            modal.confirm({
-                                title: "Xác nhận xóa",
-                                content: `Bạn có chắc chắn muốn xóa tài khoản ${record.email}?`,
-                                okText: "Xóa",
-                                okType: "danger",
-                                cancelText: "Hủy",
-                                onOk() {
-                                    onDelete(record._id);
-                                },
-                            });
-                        },
-                    },
-                ];
-
-                return (
-                    <Dropdown menu={{ items }} trigger={["click"]} placement="bottomRight">
-                        <Button type="text" size="small" icon={<MoreOutlined />} />
-                    </Dropdown>
-                );
-            },
+            align: "center",
+            render: (_: unknown, record: GoogleAccount) => (
+                <Dropdown
+                    menu={{ items: getActionMenuItems(record) }}
+                    trigger={["click"]}
+                    placement="bottomRight"
+                >
+                    <Button type="text" size="small" icon={<MoreOutlined />} />
+                </Dropdown>
+            ),
         },
     ];
 
