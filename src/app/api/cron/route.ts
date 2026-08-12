@@ -1,6 +1,7 @@
+import { EnvsConfigKey } from "@/libs/constants/configKey";
 
 export async function GET() {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_BASE_URL}/api/webhook/health-tracking`, {
+    const response = await fetch(`${EnvsConfigKey.BACK_END_API_BASE_URL ?? ""}/api/webhook/health-tracking`, {
         method: 'GET',
     });
     if (response.ok) {

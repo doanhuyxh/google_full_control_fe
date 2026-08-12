@@ -28,5 +28,16 @@ export function useCommon() {
         }
     };
 
-    return { sleep, copiedToClipboard };
+    const formatNumber = (number: string) => {
+        if (!number) return "0";
+        return Number(number).toLocaleString("vi-VN");
+    };
+
+    const checkNullOrEmptyObject = (object: any) => {
+        if (!object) return true;
+        if (Object.keys(object).length === 0) return true;
+        return false;
+    }
+
+    return { sleep, copiedToClipboard, formatNumber, checkNullOrEmptyObject };
 }
