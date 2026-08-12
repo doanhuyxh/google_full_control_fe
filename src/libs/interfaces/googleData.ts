@@ -13,6 +13,7 @@ export interface GoogleAccount {
     f2a: string;
     status: string;
     note: string;
+    resources_used: string[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -41,4 +42,9 @@ export const GoogleAccountStatusOptions = [
     { value: 'live', label: 'Sống' },
     { value: 'suspended', label: 'Cấm (Khóa)' },
     { value: 'phone_verification', label: 'Xác minh điện thoại' }
+];
+
+export const GoogleAccountResourcesUsedOptions = [
+    { value: 'gmail', label: 'Gmail' },
+    { value: 'drive', label: 'Drive' },
 ];

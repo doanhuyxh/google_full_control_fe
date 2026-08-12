@@ -28,5 +28,10 @@ export function useCommon() {
         }
     };
 
-    return { sleep, copiedToClipboard };
+    const formatNumber = (number: string) => {
+        if (!number) return "0";
+        return Number(number).toLocaleString("vi-VN");
+    };
+
+    return { sleep, copiedToClipboard, formatNumber };
 }

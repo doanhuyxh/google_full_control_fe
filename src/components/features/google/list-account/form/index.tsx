@@ -1,5 +1,5 @@
 import { Form, Modal, Input } from "antd";
-import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
+import { useGoogleAccount } from "@/libs/hooks/users/googleAccountHook";
 
 interface GoogleFormProps {
     isShowModal?: boolean;

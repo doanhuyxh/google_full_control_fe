@@ -2,7 +2,7 @@
 import { useCallback, useEffect } from "react";
 import { Form, Input, Modal, Select, Spin } from "antd";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
+import { useGoogleAccount } from "@/libs/hooks/users/googleAccountHook";
 import TiptapComponent from "@/components/common/TextEditer/TiptapEditor"
 
 interface GoogleFormSendEmailProps {

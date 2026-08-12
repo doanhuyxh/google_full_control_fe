@@ -1,23 +1,43 @@
 "use client";
 
-import { Table, Avatar, Button, Select, Tooltip, Card } from "antd";
+import { Card } from "antd";
 import { useState } from "react";
-import { DeleteOutlined } from "@ant-design/icons";
-import { Copy, Download, History, QrCode, Upload } from "lucide-react";
-import type { ColumnsType } from "antd/es/table";
-import { useGoogleAccount } from "@/libs/hooks/users/googleAccoutHook";
-import { useCommon } from "@/libs/hooks/useCommon";
-import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
+import { useGoogleAccount } from "@/libs/hooks/users/googleAccountHook";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { GoogleAccount, GoogleAccountStatusOptions } from "@/libs/interfaces/googleData";
-import GoogleAccountFilter from "./filter";
+import useLocalStorage from "@/libs/hooks/useLocalStorage";
+import { GoogleAccount } from "@/libs/interfaces/googleData";
+import GoogleAccountFilter, { type ColumnVisibilityOption } from "./filter";
+import GoogleAccountTable from "./table";
 import GoogleFormModal from "./form";
 import GoogleFormSendEmail from "./form-send-email";
 import ViewHistoryEmailSent from "./view-history-email-sent";
-import DebouncedInputCell from "@/components/common/AntCustom/DebouncedInputCell";
-import DebouncedInputTextAreaCell from "@/components/common/AntCustom/DebounceInputTextAreaCel";
 import Update2FAModal from "./update-2fa-modal";
 import ModalImportCookieStringForm from "./form-import-cookie-string";
+
+const FIXED_COLUMN_KEYS = ["index", "actions"] as const;
+
+const COLUMN_OPTIONS: ColumnVisibilityOption[] = [
+    { label: "STT", value: "index", disabled: true },
+    { label: "AVATAR", value: "avatar" },
+    { label: "Họ và tên", value: "fullName" },
+    { label: "Email", value: "email" },
+    { label: "Số điện thoại", value: "phoneNumber" },
+    { label: "Mật khẩu", value: "currentPassword" },
+    { label: "App Password", value: "appPassword" },
+    { label: "Email khôi phục", value: "recoveryEmail" },
+    { label: "Recovery Phone", value: "recoveryPhoneNumber" },
+    { label: "F2A", value: "f2a" },
+    { label: "Mã bí mật", value: "privateCode" },
+    { label: "Tài nguyên sử dụng", value: "resources_used" },
+    { label: "Tổng lượt gửi email hôm nay", value: "totalSendMailToday" },
+    { label: "Tổng dung lượng driver sử dụng", value: "totalDriverStrongUse" },
+    { label: "Trạng thái", value: "status" },
+    { label: "Ghi chú", value: "note" },
+    { label: "Ngày tạo", value: "createdAt" },
+    { label: "Hành động", value: "actions", disabled: true },
+];
+
+const DEFAULT_VISIBLE_COLUMNS = COLUMN_OPTIONS.map((option) => option.value);
 
 export default function GoogleAccountComponent() {
     const {
@@ -34,12 +54,13 @@ export default function GoogleAccountComponent() {
         totalItemsGoogle,
         updateGoogleField,
         deleteGoogleAccount,
+        resourcesUsedGoogle,
+        setResourcesUsedGoogle,
     } = useGoogleAccount();
 
     const [isShowModalHistoryEmail, setIsShowModalHistoryEmail] = useState<boolean>(false);
-    const [emailShowHistory, setEmailShowHistory] = useState<{ emailName?: string, googleAccountId?: string }>({});
-    const { copiedToClipboard } = useCommon();
-    const { notification, modal } = useAntdApp();
+    const [emailShowHistory, setEmailShowHistory] = useState<{ emailName?: string; googleAccountId?: string }>({});
+    const { notification } = useAntdApp();
 
     const [formDataModal, setFormDataModal] = useState<{
         isShowModal: boolean;
@@ -57,6 +78,10 @@ export default function GoogleAccountComponent() {
         id: undefined,
         cookies: "",
     });
+    const [visibleColumns, setVisibleColumns] = useLocalStorage<string[]>(
+        "google-account-visible-columns",
+        DEFAULT_VISIBLE_COLUMNS,
+    );
 
     const handleDownloadCookies = (record: GoogleAccount) => {
         if (!record.cookies) {
@@ -103,294 +128,55 @@ export default function GoogleAccountComponent() {
         await updateGoogleField(id, field, value);
     };
 
-    const handleDeleteAccount = async (id: string) => {
-        await deleteGoogleAccount(id);
+    const handleVisibleColumnsChange = (keys: string[]) => {
+        const nextKeys = Array.from(new Set([...FIXED_COLUMN_KEYS, ...keys]));
+        setVisibleColumns(nextKeys);
     };
-
-    const handleFormModal = () => {
-        setFormDataModal({ isShowModal: true, _id: undefined });
-    }
-
-    const handleShowEmailHistoryModal = (googleAccountId: string, emailName?: string) => {
-        setEmailShowHistory({ googleAccountId, emailName });
-        setIsShowModalHistoryEmail(true);
-    }
-
-    const renderPasswordCell = (value: string, record: GoogleAccount, dataIndex: string) => (
-        <div className="flex gap-2">
-            <DebouncedInputCell
-                recordId={record._id}
-                initialValue={value}
-                dataIndex={dataIndex}
-                onUpdate={handleUpdateData}
-                type="password"
-            />
-            <Button
-                type="default"
-                size="small"
-                icon={<Copy size={12} color="#06477d" />}
-                onClick={() => copiedToClipboard(value)}
-            />
-        </div>
-    );
-
-    const columns: ColumnsType<GoogleAccount> = [
-        {
-            title: 'STT',
-            dataIndex: 'index',
-            key: 'index',
-            width: 60,
-            render: (_: any, __: any, index: number) => (pageGoogle - 1) * limitGoogle + index + 1,
-        },
-        {
-            title: 'AVATAR',
-            dataIndex: 'avatar',
-            key: 'avatar',
-            width: 100,
-            render: (avatar: string) => <Avatar src={avatar || 'https://via.placeholder.com/150'} alt="Ảnh đại diện" size={30} />,
-        },
-        {
-            title: 'Họ và tên',
-            dataIndex: 'fullName',
-            key: 'fullName',
-            width: 200,
-            render: (fullName: string, record: GoogleAccount) => (
-                <DebouncedInputCell
-                    recordId={record._id}
-                    initialValue={fullName}
-                    dataIndex="fullName"
-                    onUpdate={handleUpdateData}
-                />
-            ),
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-            width: 200,
-            render: (email: string) => (
-                <span className="text-sm">{email}</span>
-            ),
-        },
-        {
-            title: 'Số điện thoại',
-            dataIndex: 'phoneNumber',
-            key: 'phoneNumber',
-            width: 180,
-            render: (phoneNumber: string, record: GoogleAccount) => (
-                <DebouncedInputCell
-                    recordId={record._id}
-                    initialValue={phoneNumber}
-                    dataIndex="phoneNumber"
-                    onUpdate={handleUpdateData}
-                />
-            ),
-        },
-        {
-            title: 'Mật khẩu',
-            dataIndex: 'currentPassword',
-            key: 'currentPassword',
-            width: 220,
-            render: (currentPassword: string, record: GoogleAccount) =>
-                renderPasswordCell(currentPassword, record, "currentPassword"),
-        },
-        {
-            title: 'App Password',
-            dataIndex: 'appPassword',
-            key: 'appPassword',
-            width: 220,
-            render: (appPassword: string, record: GoogleAccount) =>
-                renderPasswordCell(appPassword, record, "appPassword"),
-        },
-        {
-            title: 'Email khôi phục',
-            dataIndex: 'recoveryEmail',
-            key: 'recoveryEmail',
-            width: 250,
-            render: (recoveryEmail: string, record: GoogleAccount) => (
-                <DebouncedInputCell
-                    recordId={record._id}
-                    initialValue={recoveryEmail}
-                    dataIndex="recoveryEmail"
-                    onUpdate={handleUpdateData}
-                />
-            ),
-        },
-        {
-            title: 'Recovery Phone',
-            dataIndex: 'recoveryPhoneNumber',
-            key: 'recoveryPhoneNumber',
-            width: 180,
-            render: (recoveryPhoneNumber: string, record: GoogleAccount) => (
-                <DebouncedInputCell
-                    recordId={record._id}
-                    initialValue={recoveryPhoneNumber}
-                    dataIndex="recoveryPhoneNumber"
-                    onUpdate={handleUpdateData}
-                />
-            ),
-        },
-        {
-            title: 'F2A',
-            dataIndex: 'f2a',
-            key: 'f2a',
-            width: 220,
-            render: (f2a: string, record: GoogleAccount) =>
-                renderPasswordCell(f2a, record, "f2a"),
-        },
-        {
-            title: 'Mã bí mật',
-            dataIndex: 'privateCode',
-            key: 'privateCode',
-            width: 300,
-            render: (privateCode: string, record: GoogleAccount) => (
-                <DebouncedInputTextAreaCell
-                    recordId={record._id}
-                    initialValue={privateCode}
-                    dataIndex="privateCode"
-                    onUpdate={handleUpdateData}
-                />
-            ),
-        },
-        {
-            title: 'Trạng thái',
-            dataIndex: 'status',
-            key: 'status',
-            width: 180,
-            render: (status: string, record: GoogleAccount) => (
-                <Select
-                    size="small"
-                    defaultValue={status}
-                    style={{ width: '100%' }}
-                    onChange={(value) => handleUpdateData(record._id, 'status', value)}
-                    options={GoogleAccountStatusOptions}
-                />
-            ),
-        },
-        {
-            title: 'Ghi chú',
-            dataIndex: 'note',
-            key: 'note',
-            width: 150,
-            render: (note: string, record: GoogleAccount) => (
-                <DebouncedInputCell
-                    recordId={record._id}
-                    initialValue={note}
-                    dataIndex="note"
-                    onUpdate={handleUpdateData}
-                />
-            ),
-        },
-        {
-            title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-            width: 180,
-            render: (createdAt: Date) => (
-                <span className="text-xs">{new Date(createdAt).toLocaleString()}</span>
-            ),
-        },
-        {
-            title: 'Hành động',
-            key: 'actions',
-            width: 120,
-            render: (_, record: GoogleAccount) => (
-                <div className="flex gap-2 justify-end">
-                    <Tooltip title="Quét mã 2FA">
-                        <Button
-                            type="primary"
-                            size="small"
-                            icon={<QrCode size={16} />}
-                            onClick={() => setFormModalUpdate2FA({ isShowModal: true, _id: record._id })}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Tải cookies">
-                        <Button
-                            size="small"
-                            type="dashed"
-                            icon={<Download color="blue" size={16} />}
-                            onClick={() => handleDownloadCookies(record)}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Nhập cookies">
-                        <Button
-                            size="small"
-                            icon={<Upload size={16} />}
-                            onClick={() =>
-                                setCookieModal({
-                                    isShow: true,
-                                    id: record._id,
-                                    cookies: record.cookies || "",
-                                })
-                            }
-                        />
-                    </Tooltip>
-                    <Tooltip title="Lịch sử gửi email từ hệ thống">
-                        <Button
-                            type="dashed"
-                            size="small"
-                            icon={<History color="blue" size={16} />}
-                            onClick={() => handleShowEmailHistoryModal(record._id, record.email)}
-                        />
-                    </Tooltip>
-                    <Tooltip title="Xóa tài khoản">
-                        <Button
-                            danger
-                            type="primary"
-                            size="small"
-                            icon={<DeleteOutlined color="red" size={16} />}
-                            onClick={() => {
-                                modal.confirm({
-                                    title: 'Xác nhận xóa',
-                                    content: `Bạn có chắc chắn muốn xóa tài khoản ${record.email}?`,
-                                    okText: 'Xóa',
-                                    okType: 'danger',
-                                    cancelText: 'Hủy',
-                                    onOk() {
-                                        handleDeleteAccount(record._id);
-                                    },
-                                });
-                            }}
-                        />
-                    </Tooltip>
-                </div>
-            ),
-        }
-    ]
 
     return (
         <Card className="w-full p-6 rounded-lg shadow-lg">
             <GoogleAccountFilter
                 value={searchGoogle}
                 onSearch={(value: string) => {
-                    setSearchGoogle(value)
+                    setSearchGoogle(value);
                 }}
                 status={statusGoogle}
-                handleFormModal={handleFormModal}
+                handleFormModal={() => setFormDataModal({ isShowModal: true, _id: undefined })}
                 handleSendEmailModal={() => setIsShowModelSendEmail(true)}
-                setStatus={setStatusGoogle} />
-            <Table
-                columns={columns}
+                setStatus={setStatusGoogle}
+                columnOptions={COLUMN_OPTIONS}
+                visibleColumns={visibleColumns}
+                onVisibleColumnsChange={handleVisibleColumnsChange}
+                resources_used={resourcesUsedGoogle}
+                setResourcesUsed={setResourcesUsedGoogle}
+            />
+            <GoogleAccountTable
                 dataSource={accountData}
                 loading={loadingGoogle}
-                rowKey={(record) => record._id}
-                pagination={{
-                    current: pageGoogle,
-                    pageSize: limitGoogle,
-                    total: totalItemsGoogle,
-                    showSizeChanger: true,
-                    pageSizeOptions: [10, 20, 30, 50, 100],
-                    onChange: (page, pageSize) => {
-                        setPageGoogle(page);
-                        setLimitGoogle(pageSize);
-                    },
-                    showTotal(total, range) {
-                        return `Hiển thị ${range[0]} - ${range[1]} của ${total} tài khoản`;
-                    },
+                page={pageGoogle}
+                pageSize={limitGoogle}
+                total={totalItemsGoogle}
+                visibleColumns={visibleColumns}
+                onPageChange={(page, pageSize) => {
+                    setPageGoogle(page);
+                    setLimitGoogle(pageSize);
                 }}
-                scroll={{
-                    x: "max-content",
-                    y: useDynamicAntdTableScrollHeight()
+                onUpdate={handleUpdateData}
+                onDelete={async (id) => {
+                    await deleteGoogleAccount(id);
+                }}
+                onDownloadCookies={handleDownloadCookies}
+                onImportCookies={(record) =>
+                    setCookieModal({
+                        isShow: true,
+                        id: record._id,
+                        cookies: record.cookies || "",
+                    })
+                }
+                onUpdate2FA={(id) => setFormModalUpdate2FA({ isShowModal: true, _id: id })}
+                onShowEmailHistory={(googleAccountId, emailName) => {
+                    setEmailShowHistory({ googleAccountId, emailName });
+                    setIsShowModalHistoryEmail(true);
                 }}
             />
             <GoogleFormModal
@@ -405,8 +191,8 @@ export default function GoogleAccountComponent() {
             <ViewHistoryEmailSent
                 isShowModal={isShowModalHistoryEmail}
                 onCloseModal={() => setIsShowModalHistoryEmail(false)}
-                googleAccountId={emailShowHistory.googleAccountId || ''}
-                emailName={emailShowHistory.emailName || ''}
+                googleAccountId={emailShowHistory.googleAccountId || ""}
+                emailName={emailShowHistory.emailName || ""}
             />
             <ModalImportCookieStringForm
                 isShowModal={cookieModal.isShow}
@@ -422,5 +208,5 @@ export default function GoogleAccountComponent() {
                 onUpdate={handleUpdateData}
             />
         </Card>
-    )
+    );
 }

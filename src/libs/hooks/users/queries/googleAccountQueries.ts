@@ -19,15 +19,16 @@ export function useGoogleAccountQueries() {
     const [limitGoogle, setLimitGoogle] = useState<number>(30);
     const [statusGoogle, setStatusGoogle] = useState<string>("");
     const [searchGoogle, setSearchGoogle] = useState<string>("");
+    const [resourcesUsedGoogle, setResourcesUsedGoogle] = useState<string>("");
 
-    const queryKey = [QUERY_KEY, pageGoogle, limitGoogle, statusGoogle, searchGoogle] as const;
+    const queryKey = [QUERY_KEY, pageGoogle, limitGoogle, statusGoogle, searchGoogle, resourcesUsedGoogle] as const;
 
     const invalidateList = () => queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
 
     const { data: response, isFetching, refetch } = useQuery({
         queryKey,
         queryFn: async () => {
-            const result = await getGoogleAccount(pageGoogle, limitGoogle, statusGoogle, searchGoogle);
+            const result = await getGoogleAccount(pageGoogle, limitGoogle, statusGoogle, searchGoogle, resourcesUsedGoogle);
             if (!result.status) throw new Error(result.message);
             return result;
         },
@@ -94,5 +95,7 @@ export function useGoogleAccountQueries() {
         deleteMutation,
         sendEmailMutation,
         updateGoogleField,
+        resourcesUsedGoogle,
+        setResourcesUsedGoogle,
     };
 }

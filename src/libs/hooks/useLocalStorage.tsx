@@ -11,15 +11,9 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (value: SetValue<
         initialValueRef.current = initialValue;
     }, [initialValue]);
 
-    const [storedValue, setStoredValue] = useState<T>(() => {
-        try {
-            if (typeof window === 'undefined') return initialValue;
-            const item = window.localStorage.getItem(key);
-            return item ? JSON.parse(item) : initialValue;
-        } catch {
-            return initialValue;
-        }
-    });
+    // Always start with initialValue so SSR and the first client render match.
+    // localStorage is applied in useEffect after mount to avoid hydration mismatches.
+    const [storedValue, setStoredValue] = useState<T>(initialValue);
 
     const setValue = (value: SetValue<T>) => {
         try {

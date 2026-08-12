@@ -1,0 +1,340 @@
+"use client";
+
+import { Table, Avatar, Button, Select, Tooltip } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
+import { Copy, Download, History, QrCode, Upload } from "lucide-react";
+import type { ColumnsType } from "antd/es/table";
+import { useCommon } from "@/libs/hooks/useCommon";
+import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
+import { useAntdApp } from "@/libs/hooks/useAntdApp";
+import { GoogleAccount, GoogleAccountResourcesUsedOptions, GoogleAccountStatusOptions } from "@/libs/interfaces/googleData";
+import DebouncedInputCell from "@/components/common/AntCustom/DebouncedInputCell";
+import DebouncedInputTextAreaCell from "@/components/common/AntCustom/DebounceInputTextAreaCel";
+
+interface GoogleAccountTableProps {
+    dataSource: GoogleAccount[];
+    loading: boolean;
+    page: number;
+    pageSize: number;
+    total: number;
+    visibleColumns: string[];
+    onPageChange: (page: number, pageSize: number) => void;
+    onUpdate: (id: string, field: string, value: unknown) => void | Promise<unknown>;
+    onDelete: (id: string) => void | Promise<unknown>;
+    onDownloadCookies: (record: GoogleAccount) => void;
+    onImportCookies: (record: GoogleAccount) => void;
+    onUpdate2FA: (id: string) => void;
+    onShowEmailHistory: (googleAccountId: string, emailName?: string) => void;
+}
+
+export default function GoogleAccountTable({
+    dataSource,
+    loading,
+    page,
+    pageSize,
+    total,
+    visibleColumns,
+    onPageChange,
+    onUpdate,
+    onDelete,
+    onDownloadCookies,
+    onImportCookies,
+    onUpdate2FA,
+    onShowEmailHistory,
+}: GoogleAccountTableProps) {
+    const { copiedToClipboard, formatNumber } = useCommon();
+    const { modal } = useAntdApp();
+    const tableScrollY = useDynamicAntdTableScrollHeight();
+
+    const renderPasswordCell = (value: string, record: GoogleAccount, dataIndex: string) => (
+        <div className="flex gap-2">
+            <DebouncedInputCell
+                recordId={record._id}
+                initialValue={value}
+                dataIndex={dataIndex}
+                onUpdate={onUpdate}
+                type="password"
+            />
+            <Button
+                type="default"
+                size="small"
+                icon={<Copy size={12} color="#06477d" />}
+                onClick={() => copiedToClipboard(value)}
+            />
+        </div>
+    );
+
+    const columns: ColumnsType<GoogleAccount> = [
+        {
+            title: "STT",
+            dataIndex: "index",
+            key: "index",
+            width: 60,
+            render: (_: unknown, __: unknown, index: number) => (page - 1) * pageSize + index + 1,
+        },
+        {
+            title: "AVATAR",
+            dataIndex: "avatar",
+            key: "avatar",
+            width: 100,
+            render: (avatar: string) => (
+                <Avatar src={avatar || "https://via.placeholder.com/150"} alt="Ảnh đại diện" size={30} />
+            ),
+        },
+        {
+            title: "Họ và tên",
+            dataIndex: "fullName",
+            key: "fullName",
+            width: 200,
+            render: (fullName: string, record: GoogleAccount) => (
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={fullName}
+                    dataIndex="fullName"
+                    onUpdate={onUpdate}
+                />
+            ),
+        },
+        {
+            title: "Email",
+            dataIndex: "email",
+            key: "email",
+            width: 200,
+            render: (email: string) => <span className="text-sm">{email}</span>,
+        },
+        {
+            title: "Số điện thoại",
+            dataIndex: "phoneNumber",
+            key: "phoneNumber",
+            width: 180,
+            render: (phoneNumber: string, record: GoogleAccount) => (
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={phoneNumber}
+                    dataIndex="phoneNumber"
+                    onUpdate={onUpdate}
+                />
+            ),
+        },
+        {
+            title: "Mật khẩu",
+            dataIndex: "currentPassword",
+            key: "currentPassword",
+            width: 220,
+            render: (currentPassword: string, record: GoogleAccount) =>
+                renderPasswordCell(currentPassword, record, "currentPassword"),
+        },
+        {
+            title: "App Password",
+            dataIndex: "appPassword",
+            key: "appPassword",
+            width: 220,
+            render: (appPassword: string, record: GoogleAccount) =>
+                renderPasswordCell(appPassword, record, "appPassword"),
+        },
+        {
+            title: "Email khôi phục",
+            dataIndex: "recoveryEmail",
+            key: "recoveryEmail",
+            width: 250,
+            render: (recoveryEmail: string, record: GoogleAccount) => (
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={recoveryEmail}
+                    dataIndex="recoveryEmail"
+                    onUpdate={onUpdate}
+                />
+            ),
+        },
+        {
+            title: "Recovery Phone",
+            dataIndex: "recoveryPhoneNumber",
+            key: "recoveryPhoneNumber",
+            width: 180,
+            render: (recoveryPhoneNumber: string, record: GoogleAccount) => (
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={recoveryPhoneNumber}
+                    dataIndex="recoveryPhoneNumber"
+                    onUpdate={onUpdate}
+                />
+            ),
+        },
+        {
+            title: "F2A",
+            dataIndex: "f2a",
+            key: "f2a",
+            width: 220,
+            render: (f2a: string, record: GoogleAccount) => renderPasswordCell(f2a, record, "f2a"),
+        },
+        {
+            title: "Mã bí mật",
+            dataIndex: "privateCode",
+            key: "privateCode",
+            width: 300,
+            render: (privateCode: string, record: GoogleAccount) => (
+                <DebouncedInputTextAreaCell
+                    recordId={record._id}
+                    initialValue={privateCode}
+                    dataIndex="privateCode"
+                    onUpdate={onUpdate}
+                />
+            ),
+        },
+        {
+            title: "Tài nguyên sử dụng",
+            dataIndex: "resources_used",
+            key: "resources_used",
+            width: 180,
+            render:(_, item: GoogleAccount) => <Select
+                size="small"
+                mode="multiple"
+                defaultValue={item.resources_used}
+                style={{ width: "100%" }}
+                onChange={(value) => onUpdate(item._id, "resources_used", value)}
+                options={GoogleAccountResourcesUsedOptions}
+            />,
+        },
+        {
+            title: "Email hôm nay",
+            dataIndex: "totalSendMailToday",
+            key: "totalSendMailToday",
+            width: 180,
+            render: (totalSendMailToday: string) => <span className="text-xs">{formatNumber(totalSendMailToday)}</span>,
+        },
+        {
+            title: "Driver Strong Use",
+            dataIndex: "totalDriverStrongUse",
+            key: "totalDriverStrongUse",
+            width: 180,
+            render: (totalDriverStrongUse: string) => <span className="text-xs">{formatNumber(totalDriverStrongUse)}</span>,
+        },
+        {
+            title: "Trạng thái",
+            dataIndex: "status",
+            key: "status",
+            width: 180,
+            render: (status: string, record: GoogleAccount) => (
+                <Select
+                    size="small"
+                    defaultValue={status}
+                    style={{ width: "100%" }}
+                    onChange={(value) => onUpdate(record._id, "status", value)}
+                    options={GoogleAccountStatusOptions}
+                />
+            ),
+        },
+        {
+            title: "Ghi chú",
+            dataIndex: "note",
+            key: "note",
+            width: 150,
+            render: (note: string, record: GoogleAccount) => (
+                <DebouncedInputCell
+                    recordId={record._id}
+                    initialValue={note}
+                    dataIndex="note"
+                    onUpdate={onUpdate}
+                />
+            ),
+        },
+        {
+            title: "Ngày tạo",
+            dataIndex: "createdAt",
+            key: "createdAt",
+            width: 180,
+            render: (createdAt: Date) => (
+                <span className="text-xs">{new Date(createdAt).toLocaleString()}</span>
+            ),
+        },
+        {
+            title: "Hành động",
+            key: "actions",
+            width: 120,
+            render: (_: unknown, record: GoogleAccount) => (
+                <div className="flex gap-2 justify-end">
+                    <Tooltip title="Quét mã 2FA">
+                        <Button
+                            type="primary"
+                            size="small"
+                            icon={<QrCode size={16} />}
+                            onClick={() => onUpdate2FA(record._id)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Tải cookies">
+                        <Button
+                            size="small"
+                            type="dashed"
+                            icon={<Download color="blue" size={16} />}
+                            onClick={() => onDownloadCookies(record)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Nhập cookies">
+                        <Button
+                            size="small"
+                            icon={<Upload size={16} />}
+                            onClick={() => onImportCookies(record)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Lịch sử gửi email từ hệ thống">
+                        <Button
+                            type="dashed"
+                            size="small"
+                            icon={<History color="blue" size={16} />}
+                            onClick={() => onShowEmailHistory(record._id, record.email)}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Xóa tài khoản">
+                        <Button
+                            danger
+                            type="primary"
+                            size="small"
+                            icon={<DeleteOutlined color="red" size={16} />}
+                            onClick={() => {
+                                modal.confirm({
+                                    title: "Xác nhận xóa",
+                                    content: `Bạn có chắc chắn muốn xóa tài khoản ${record.email}?`,
+                                    okText: "Xóa",
+                                    okType: "danger",
+                                    cancelText: "Hủy",
+                                    onOk() {
+                                        onDelete(record._id);
+                                    },
+                                });
+                            }}
+                        />
+                    </Tooltip>
+                </div>
+            ),
+        },
+    ];
+
+    const visibleTableColumns = columns.filter((column) =>
+        visibleColumns.includes(String(column.key)),
+    );
+
+    return (
+        <Table
+            columns={visibleTableColumns}
+            dataSource={dataSource}
+            loading={loading}
+            rowKey={(record) => record._id}
+            pagination={{
+                current: page,
+                pageSize,
+                total,
+                showSizeChanger: true,
+                pageSizeOptions: [10, 20, 30, 50, 100],
+                onChange: onPageChange,
+                showTotal(totalItems, range) {
+                    return `Hiển thị ${range[0]} - ${range[1]} của ${totalItems} tài khoản`;
+                },
+            }}
+            scroll={{
+                x: "max-content",
+                y: tableScrollY,
+            }}
+            size="small"
+        />
+    );
+}

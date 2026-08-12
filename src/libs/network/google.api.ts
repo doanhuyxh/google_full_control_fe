@@ -2,12 +2,13 @@ import { fetcherBackEnd } from "@/libs/fetchFromBackEnd";
 import ApiResponse, { PaginatedResponse } from "../interfaces/apiResponseData";
 import { GoogleAccount, GoogleAccountCreateData } from "../interfaces/googleData";
 
-export async function getGoogleAccount(page: number, limit: number, status: string, search: string): Promise<ApiResponse<PaginatedResponse<GoogleAccount>>> {
+export async function getGoogleAccount(page: number, limit: number, status: string, search: string, resources_used: string): Promise<ApiResponse<PaginatedResponse<GoogleAccount>>> {
     const queryParams = new URLSearchParams();
     if (page) queryParams.append("page", page.toString());
     if (limit) queryParams.append("limit", limit.toString());
     if (status) queryParams.append("status", status);
     if (search) queryParams.append("search", search);
+    if (resources_used) queryParams.append("resources_used", resources_used);
     return await fetcherBackEnd<ApiResponse<PaginatedResponse<GoogleAccount>>>(`/api/google/acc?${queryParams.toString()}`, {
         method: "GET",
     })
