@@ -3,12 +3,9 @@ import { GoogleAccountResourcesUsedOptions, GoogleAccountStatusOptions } from "@
 import { Button, Checkbox, Divider, Input, Popover, Select, Tooltip } from "antd";
 import { MailPlusIcon, PlusCircle, SettingsIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import type { ColumnVisibilityOption } from "../table/column-options";
 
-export type ColumnVisibilityOption = {
-    label: string;
-    value: string;
-    disabled?: boolean;
-};
+export type { ColumnVisibilityOption };
 
 interface GoogleAccountFilterProps {
     value?: string;
@@ -107,7 +104,7 @@ export default function GoogleAccountFilter({
             <Select placeholder="Lọc theo tài nguyên sử dụng"
                 className="full-option flex-1 md:flex-none min-w-40"
                 allowClear
-                value={resources_used}
+                value={resources_used || undefined}
                 onChange={setResourcesUsed}
                 size="small">
                 {GoogleAccountResourcesUsedOptions.map((option) => (
@@ -117,10 +114,9 @@ export default function GoogleAccountFilter({
             <Select placeholder="Lọc theo trạng thái"
                 className="full-option flex-1 md:flex-none min-w-40"
                 allowClear
-                value={status}
+                value={status || undefined}
                 onChange={setStatus}
                 size="small">
-                <Select.Option value="">Tất cả</Select.Option>
                 {GoogleAccountStatusOptions.map((option) => (
                     <Select.Option key={option.value} value={option.value}>{option.label}</Select.Option>
                 ))}

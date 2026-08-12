@@ -2,14 +2,15 @@
 
 import { Table, Avatar, Button, Select, Tooltip } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { Copy, Download, History, QrCode, Upload } from "lucide-react";
+import { Check, Copy, Download, History, QrCode, Upload } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useCommon } from "@/libs/hooks/useCommon";
 import { useDynamicAntdTableScrollHeight } from "@/libs/hooks/useDynamicAntdTableScrollHeight";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
-import { GoogleAccount, GoogleAccountResourcesUsedOptions, GoogleAccountStatusOptions } from "@/libs/interfaces/googleData";
+import { GoogleAccount, GoogleAccountResourcesUsedOptions, GoogleAccountStatusOptions, OAuth2Tokens } from "@/libs/interfaces/googleData";
 import DebouncedInputCell from "@/components/common/AntCustom/DebouncedInputCell";
 import DebouncedInputTextAreaCell from "@/components/common/AntCustom/DebounceInputTextAreaCel";
+import { COLUMN_LABEL_BY_KEY } from "./column-options";
 
 interface GoogleAccountTableProps {
     dataSource: GoogleAccount[];
@@ -42,7 +43,7 @@ export default function GoogleAccountTable({
     onUpdate2FA,
     onShowEmailHistory,
 }: GoogleAccountTableProps) {
-    const { copiedToClipboard, formatNumber } = useCommon();
+    const { copiedToClipboard, formatNumber, checkNullOrEmptyObject } = useCommon();
     const { modal } = useAntdApp();
     const tableScrollY = useDynamicAntdTableScrollHeight();
 
@@ -66,14 +67,14 @@ export default function GoogleAccountTable({
 
     const columns: ColumnsType<GoogleAccount> = [
         {
-            title: "STT",
+            title: COLUMN_LABEL_BY_KEY.index,
             dataIndex: "index",
             key: "index",
             width: 60,
             render: (_: unknown, __: unknown, index: number) => (page - 1) * pageSize + index + 1,
         },
         {
-            title: "AVATAR",
+            title: COLUMN_LABEL_BY_KEY.avatar,
             dataIndex: "avatar",
             key: "avatar",
             width: 100,
@@ -82,7 +83,7 @@ export default function GoogleAccountTable({
             ),
         },
         {
-            title: "Họ và tên",
+            title: COLUMN_LABEL_BY_KEY.fullName,
             dataIndex: "fullName",
             key: "fullName",
             width: 200,
@@ -96,14 +97,14 @@ export default function GoogleAccountTable({
             ),
         },
         {
-            title: "Email",
+            title: COLUMN_LABEL_BY_KEY.email,
             dataIndex: "email",
             key: "email",
             width: 200,
             render: (email: string) => <span className="text-sm">{email}</span>,
         },
         {
-            title: "Số điện thoại",
+            title: COLUMN_LABEL_BY_KEY.phoneNumber,
             dataIndex: "phoneNumber",
             key: "phoneNumber",
             width: 180,
@@ -117,7 +118,7 @@ export default function GoogleAccountTable({
             ),
         },
         {
-            title: "Mật khẩu",
+            title: COLUMN_LABEL_BY_KEY.currentPassword,
             dataIndex: "currentPassword",
             key: "currentPassword",
             width: 220,
@@ -125,7 +126,7 @@ export default function GoogleAccountTable({
                 renderPasswordCell(currentPassword, record, "currentPassword"),
         },
         {
-            title: "App Password",
+            title: COLUMN_LABEL_BY_KEY.appPassword,
             dataIndex: "appPassword",
             key: "appPassword",
             width: 220,
@@ -133,7 +134,18 @@ export default function GoogleAccountTable({
                 renderPasswordCell(appPassword, record, "appPassword"),
         },
         {
-            title: "Email khôi phục",
+            title: COLUMN_LABEL_BY_KEY.oauthTwoTokens,
+            dataIndex: "oauthTwoTokens",
+            key: "oauthTwoTokens",
+            width: 80,
+            align: "center",
+            render: (oauthTwoTokens: OAuth2Tokens) => {
+                if (checkNullOrEmptyObject(oauthTwoTokens)) return "N/A";
+                return <Check size={16} color="green" />;
+            },
+        },
+        {
+            title: COLUMN_LABEL_BY_KEY.recoveryEmail,
             dataIndex: "recoveryEmail",
             key: "recoveryEmail",
             width: 250,
@@ -147,7 +159,7 @@ export default function GoogleAccountTable({
             ),
         },
         {
-            title: "Recovery Phone",
+            title: COLUMN_LABEL_BY_KEY.recoveryPhoneNumber,
             dataIndex: "recoveryPhoneNumber",
             key: "recoveryPhoneNumber",
             width: 180,
@@ -161,14 +173,14 @@ export default function GoogleAccountTable({
             ),
         },
         {
-            title: "F2A",
+            title: COLUMN_LABEL_BY_KEY.f2a,
             dataIndex: "f2a",
             key: "f2a",
             width: 220,
             render: (f2a: string, record: GoogleAccount) => renderPasswordCell(f2a, record, "f2a"),
         },
         {
-            title: "Mã bí mật",
+            title: COLUMN_LABEL_BY_KEY.privateCode,
             dataIndex: "privateCode",
             key: "privateCode",
             width: 300,
@@ -182,35 +194,44 @@ export default function GoogleAccountTable({
             ),
         },
         {
-            title: "Tài nguyên sử dụng",
+            title: COLUMN_LABEL_BY_KEY.resources_used,
             dataIndex: "resources_used",
             key: "resources_used",
             width: 180,
-            render:(_, item: GoogleAccount) => <Select
-                size="small"
-                mode="multiple"
-                defaultValue={item.resources_used}
-                style={{ width: "100%" }}
-                onChange={(value) => onUpdate(item._id, "resources_used", value)}
-                options={GoogleAccountResourcesUsedOptions}
-            />,
+            render: (_: unknown, item: GoogleAccount) => (
+                <Select
+                    size="small"
+                    mode="multiple"
+                    defaultValue={item.resources_used}
+                    style={{ width: "100%" }}
+                    className="min-w-fit"
+                    onChange={(value) => onUpdate(item._id, "resources_used", value)}
+                    options={GoogleAccountResourcesUsedOptions}
+                />
+            ),
         },
         {
-            title: "Email hôm nay",
+            title: COLUMN_LABEL_BY_KEY.totalSendMailToday,
             dataIndex: "totalSendMailToday",
             key: "totalSendMailToday",
             width: 180,
-            render: (totalSendMailToday: string) => <span className="text-xs">{formatNumber(totalSendMailToday)}</span>,
+            align: "center",
+            render: (totalSendMailToday: string) => (
+                <span className="text-xs">{formatNumber(totalSendMailToday)}</span>
+            ),
         },
         {
-            title: "Driver Strong Use",
+            title: COLUMN_LABEL_BY_KEY.totalDriverStrongUse,
             dataIndex: "totalDriverStrongUse",
             key: "totalDriverStrongUse",
             width: 180,
-            render: (totalDriverStrongUse: string) => <span className="text-xs">{formatNumber(totalDriverStrongUse)}</span>,
+            align: "center",
+            render: (totalDriverStrongUse: string) => (
+                <span className="text-xs">{formatNumber(totalDriverStrongUse)}</span>
+            ),
         },
         {
-            title: "Trạng thái",
+            title: COLUMN_LABEL_BY_KEY.status,
             dataIndex: "status",
             key: "status",
             width: 180,
@@ -225,7 +246,7 @@ export default function GoogleAccountTable({
             ),
         },
         {
-            title: "Ghi chú",
+            title: COLUMN_LABEL_BY_KEY.note,
             dataIndex: "note",
             key: "note",
             width: 150,
@@ -239,7 +260,7 @@ export default function GoogleAccountTable({
             ),
         },
         {
-            title: "Ngày tạo",
+            title: COLUMN_LABEL_BY_KEY.createdAt,
             dataIndex: "createdAt",
             key: "createdAt",
             width: 180,
@@ -248,7 +269,7 @@ export default function GoogleAccountTable({
             ),
         },
         {
-            title: "Hành động",
+            title: COLUMN_LABEL_BY_KEY.actions,
             key: "actions",
             width: 120,
             render: (_: unknown, record: GoogleAccount) => (

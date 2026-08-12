@@ -1,3 +1,11 @@
+export interface OAuth2Tokens {
+
+    access_token: string;
+    refresh_token: string;
+    scope: string;
+    token_type: string;
+    expires_in: number;
+}
 
 export interface GoogleAccount {
     _id: string;
@@ -14,6 +22,9 @@ export interface GoogleAccount {
     status: string;
     note: string;
     resources_used: string[];
+    totalSendMailToday: string;
+    totalDriverStrongUse: string;
+    oauthTwoTokens: OAuth2Tokens;
     createdAt: Date;
     updatedAt: Date;
 }

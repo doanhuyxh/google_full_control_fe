@@ -6,38 +6,18 @@ import { useGoogleAccount } from "@/libs/hooks/users/googleAccountHook";
 import { useAntdApp } from "@/libs/hooks/useAntdApp";
 import useLocalStorage from "@/libs/hooks/useLocalStorage";
 import { GoogleAccount } from "@/libs/interfaces/googleData";
-import GoogleAccountFilter, { type ColumnVisibilityOption } from "./filter";
+import GoogleAccountFilter from "./filter";
 import GoogleAccountTable from "./table";
 import GoogleFormModal from "./form";
 import GoogleFormSendEmail from "./form-send-email";
 import ViewHistoryEmailSent from "./view-history-email-sent";
 import Update2FAModal from "./update-2fa-modal";
 import ModalImportCookieStringForm from "./form-import-cookie-string";
-
-const FIXED_COLUMN_KEYS = ["index", "actions"] as const;
-
-const COLUMN_OPTIONS: ColumnVisibilityOption[] = [
-    { label: "STT", value: "index", disabled: true },
-    { label: "AVATAR", value: "avatar" },
-    { label: "Họ và tên", value: "fullName" },
-    { label: "Email", value: "email" },
-    { label: "Số điện thoại", value: "phoneNumber" },
-    { label: "Mật khẩu", value: "currentPassword" },
-    { label: "App Password", value: "appPassword" },
-    { label: "Email khôi phục", value: "recoveryEmail" },
-    { label: "Recovery Phone", value: "recoveryPhoneNumber" },
-    { label: "F2A", value: "f2a" },
-    { label: "Mã bí mật", value: "privateCode" },
-    { label: "Tài nguyên sử dụng", value: "resources_used" },
-    { label: "Tổng lượt gửi email hôm nay", value: "totalSendMailToday" },
-    { label: "Tổng dung lượng driver sử dụng", value: "totalDriverStrongUse" },
-    { label: "Trạng thái", value: "status" },
-    { label: "Ghi chú", value: "note" },
-    { label: "Ngày tạo", value: "createdAt" },
-    { label: "Hành động", value: "actions", disabled: true },
-];
-
-const DEFAULT_VISIBLE_COLUMNS = COLUMN_OPTIONS.map((option) => option.value);
+import {
+    COLUMN_OPTIONS,
+    DEFAULT_VISIBLE_COLUMNS,
+    FIXED_COLUMN_KEYS,
+} from "./table/column-options";
 
 export default function GoogleAccountComponent() {
     const {

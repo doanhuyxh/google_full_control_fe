@@ -33,5 +33,11 @@ export function useCommon() {
         return Number(number).toLocaleString("vi-VN");
     };
 
-    return { sleep, copiedToClipboard, formatNumber };
+    const checkNullOrEmptyObject = (object: any) => {
+        if (!object) return true;
+        if (Object.keys(object).length === 0) return true;
+        return false;
+    }
+
+    return { sleep, copiedToClipboard, formatNumber, checkNullOrEmptyObject };
 }
