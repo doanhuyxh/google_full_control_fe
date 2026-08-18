@@ -33,9 +33,6 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# generated from .env for Firebase service worker
-/public/firebase-config.js
-
 # vercel
 .vercel
 
