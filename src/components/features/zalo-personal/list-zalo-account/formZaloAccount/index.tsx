@@ -18,11 +18,13 @@ export default function FormZaloAccount({ isShowModal, onCloseModal, dataForm }:
             const values = await formData.validateFields();
             if (dataForm) {
                 const updatedAccount: ZaloPersonalDataUpdateData = {
-                    ...dataForm,
-                    ...values,
+                    display_name: values.display_name,
+                    phoneNumber: values.phoneNumber,
+                    password: values.password,
+                    imei: values.imei,
+                    secret_key: values.secret_key,
+                    cookie: values.cookie,
                 };
-                const fieldsToRemove = ['_id', 'avatar', 'isLogin', 'createdAt', 'updatedAt', '__v'];
-                fieldsToRemove.forEach(field => delete (updatedAccount as Record<string, unknown>)[field]);
                 const response = await updateZaloPersonalAccount({ id: dataForm._id, payload: updatedAccount });
                 if (!response.status) return;
             } else {

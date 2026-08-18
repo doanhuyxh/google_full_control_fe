@@ -45,8 +45,8 @@ export default function ListBotModal({ isShowModal, onClose, telegramId }: ListB
         const updatedRecord = { ...currentBot, [key]: value };
         debouncedApiUpdate(botId, {
             botToken: updatedRecord.botToken,
-            botUsername: updatedRecord.botUsername,
-            note: updatedRecord.note,
+            botUsername: updatedRecord.botUsername ?? "",
+            note: updatedRecord.note ?? "",
         });
     };
 

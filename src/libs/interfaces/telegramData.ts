@@ -15,7 +15,7 @@ export interface BotTelegramAccountData {
     telegramAccId: string;
     botToken: string;
     botUsername?: string;
-    notes?: string;
+    note?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
